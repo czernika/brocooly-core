@@ -40,5 +40,13 @@
 		"friendsoftwig/twigcs": "^5.0",
         "brain/monkey": "2.*",
         "phpunit/phpunit": "^9.5"
+	},
+	"autoload": {
+		"psr-4": {
+			"Brocooly\\": "core"
+		},
+		"files": [
+			"core/helpers.php"
+		]
 	}
 }
