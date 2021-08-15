@@ -39,9 +39,16 @@ class App implements ContainerInterface
 	/**
 	 * DI Container
 	 *
-	 * @var instanceof DI\Container
+	 * @var instanceof \DI\Container
 	 */
 	private Container $container;
+
+	/**
+	 * Router
+	 *
+	 * @var instanceof \Brocooly\Router\Router
+	 */
+	private $router;
 
 	/**
 	 * Check if is app was already booted
@@ -76,16 +83,7 @@ class App implements ContainerInterface
 	public function __construct( Container $container ) {
 		$this->container = $container;
 		$this->timber    = $this->container->get( 'timber' );
-	}
-
-	/**
-	 * Get Router
-	 *
-	 * @since 0.10.0
-	 * @return object
-	 */
-	public function router() {
-		return $this->get( 'routing' );
+		$this->router    = $this->container->get( 'routing' );
 	}
 
 	/**
@@ -108,7 +106,7 @@ class App implements ContainerInterface
 			/**
 			 * Resolve routes
 			 */
-			$this->router()->resolve();
+			$this->router->resolve();
 		}
 	}
 
