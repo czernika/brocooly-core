@@ -1,0 +1,44 @@
+{
+    "name": "czernika/brocooly-core",
+    "description": "Core engine for Brocooly Framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ihar Aliakseyenka",
+            "email": "aliha.devs@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+	"prefer-stable": true,
+	"require": {
+		"php": ">=7.4",
+		"composer/installers": "^1.10",
+		"vlucas/phpdotenv": "^5.3",
+		"oscarotero/env": "^2.1",
+		"htmlburger/carbon-fields": "^3.2",
+  		"timber/timber": "^1.18",
+        "hellonico/twig-dump-extension": "^1.1",
+        "php-di/php-di": "^6.3",
+        "illuminate/collections": "^8.45",
+        "illuminate/support": "^8.49",
+        "webmozart/assert": "^1.10",
+        "filp/whoops": "^2.13",
+        "symfony/console": "^5.3",
+        "nesbot/carbon": "^2.50",
+        "djboris88/timber-commented-include": "^1.1",
+        "illuminate/validation": "^8.53",
+        "illuminate/filesystem": "^8.53",
+        "illuminate/translation": "^8.53",
+        "elegantweb/sanitizer": "^1.1",
+        "spatie/once": "^2.2"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.5.8",
+		"roave/security-advisories": "dev-master",
+		"wp-coding-standards/wpcs": "^2.3.0",
+		"friendsoftwig/twigcs": "^5.0",
+        "brain/monkey": "2.*",
+        "phpunit/phpunit": "^9.5"
+	}
+}
