@@ -2,16 +2,13 @@
 /**
  * Set taxonomy query
  *
- * @package Brocooly
- * @since 0.10.2
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);
 
 namespace Brocooly\Support\Builders;
-
-use Timber\Term;
-use Timber\Timber;
 
 class TaxonomyQueryBuilder extends QueryBuilder
 {

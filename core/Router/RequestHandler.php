@@ -1,4 +1,10 @@
 <?php
+/**
+ * Handle requests.
+ *
+ * @package Brocooly-core
+ * @since 1.0.0
+ */
 
 declare(strict_types=1);
 

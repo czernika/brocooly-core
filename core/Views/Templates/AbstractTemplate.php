@@ -6,8 +6,8 @@
  * Template file should be listed in templates/template.YOUR_SLUG.twig file.
  * YOUR_SLUG must be the same as slug in array of arguments.
  *
- * @package Brocooly
- * @since 0.6.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

@@ -2,8 +2,8 @@
 /**
  * Resolve custom post type
  *
- * @package Brocooly
- * @since 0.10.2
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

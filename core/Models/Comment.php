@@ -2,8 +2,8 @@
 /**
  * Abstract comment model
  *
- * @package Brocooly
- * @since 0.5.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

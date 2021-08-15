@@ -2,8 +2,8 @@
 /**
  * Init custom theme hooks
  *
- * @package Brocooly
- * @since 0.3.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 namespace Brocooly\Loaders;

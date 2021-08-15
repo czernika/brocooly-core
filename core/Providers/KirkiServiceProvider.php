@@ -3,8 +3,8 @@
  * Register theme customizer options
  * We're using Kirki Framework plugin under MIT license
  *
- * @package Brocooly
- * @since 0.3.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

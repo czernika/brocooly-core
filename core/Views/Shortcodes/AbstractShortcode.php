@@ -7,8 +7,8 @@
  * For example, the [gallery] shortcode can be used to add a photo gallery of images to any page or post.
  *
  * @see https://developer.wordpress.org/reference/functions/add_shortcode/
- * @package Brocooly
- * @since 0.4.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

@@ -2,8 +2,8 @@
 /**
  * Register custom Gutenberg blocks
  *
- * @package Brocooly
- * @since 0.6.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

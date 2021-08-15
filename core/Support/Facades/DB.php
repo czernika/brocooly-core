@@ -3,8 +3,8 @@
  * Database query facade.
  * Allows you to cooperate with WordPress database via wpdb class
  *
- * @package Brocooly
- * @since 0.11.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

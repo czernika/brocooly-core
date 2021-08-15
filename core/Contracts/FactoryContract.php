@@ -3,8 +3,8 @@
  * Factory interface
  * Each factory MUST have static create method
  *
- * @package Brocooly
- * @since 0.10.2
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

@@ -3,7 +3,7 @@
  * Main application instance class
  * All theme logic starts here
  *
- * @package Brocooly
+ * @package Brocooly-core
  * @since 0.1.0
  */
 

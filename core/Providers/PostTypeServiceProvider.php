@@ -3,8 +3,8 @@
  * Register custom post types and taxonomies
  * Register nav menus and add them into global context
  *
- * @package Brocooly
- * @since 0.1.2
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

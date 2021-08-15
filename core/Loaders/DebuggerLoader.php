@@ -2,8 +2,8 @@
 /**
  * Set Debuggers for Application
  *
- * @package Brocooly
- * @since 0.1.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

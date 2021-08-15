@@ -1,4 +1,11 @@
 <?php
+/**
+ * Doing AJAX middleware
+ * Check if current request is AJAX
+ *
+ * @package Brocooly-core
+ * @since 1.0.0
+ */
 
 declare(strict_types=1);
 

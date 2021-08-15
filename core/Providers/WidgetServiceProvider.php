@@ -2,8 +2,8 @@
 /**
  * Widget Service Provider
  *
- * @package Brocooly
- * @since 0.4.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

@@ -6,8 +6,8 @@
  * The menu location determines where on your site your menu appears
  *
  * @see https://developer.wordpress.org/reference/functions/register_nav_menu/
- * @package Brocooly
- * @since 0.4.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

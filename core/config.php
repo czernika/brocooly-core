@@ -4,8 +4,8 @@
  *
  * @link https://php-di.org/doc/php-definitions.html
  *
- * @package Brocooly
- * @since 0.1.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 use Brocooly\App;

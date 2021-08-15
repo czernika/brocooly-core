@@ -2,8 +2,8 @@
 /**
  * Helper functions
  *
- * @package Brocooly
- * @since 0.1.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 use Brocooly\App;
@@ -16,6 +16,20 @@ use Brocooly\Http\Request\Request;
 
 use function Env\env;
 
+/**
+ * --------------------------------------------------------------------------
+ * Define core root path
+ * --------------------------------------------------------------------------
+ */
+defined( 'CORE_PATH' ) || define( 'CORE_PATH', __DIR__ );
+
+/**
+ * --------------------------------------------------------------------------
+ * Helper functions
+ * --------------------------------------------------------------------------
+ * NOTE: we do NOT prefix them
+ * One day we will as it is not independent Framework after all
+ */
 if ( ! function_exists( 'isTimberNext' ) ) {
 
 	/**

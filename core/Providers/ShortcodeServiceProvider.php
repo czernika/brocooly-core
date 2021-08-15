@@ -3,8 +3,8 @@
  * Adds new shortcodes.
  *
  * @see https://developer.wordpress.org/reference/functions/add_shortcode/
- * @package Brocooly
- * @since 0.4.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

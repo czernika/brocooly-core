@@ -2,8 +2,8 @@
 /**
  * Resolve database query with wpdb class
  *
- * @package Brocooly
- * @since 0.11.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

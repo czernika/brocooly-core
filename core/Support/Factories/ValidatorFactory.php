@@ -2,8 +2,8 @@
 /**
  * Request validation based on Laravel Validation
  *
- * @package Brocooly
- * @since 0.9.1
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 namespace Brocooly\Support\Factories;

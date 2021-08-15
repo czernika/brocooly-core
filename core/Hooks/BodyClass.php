@@ -4,8 +4,8 @@
  * Filters the list of CSS body class names for the current post or page.
  *
  * @link https://developer.wordpress.org/reference/hooks/body_class/
- * @package Brocooly
- * @since 0.3.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 namespace Brocooly\Hooks;

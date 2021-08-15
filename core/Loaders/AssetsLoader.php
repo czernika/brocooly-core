@@ -2,8 +2,8 @@
 /**
  * Handle assets enqueuing
  *
- * @package Brocooly
- * @since 0.1.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 namespace Brocooly\Loaders;

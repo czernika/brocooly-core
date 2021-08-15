@@ -7,8 +7,8 @@
  * @see https://github.com/PHP-DI/PHP-DI/blob/master/LICENSE
  *
  * @link https://php-di.org/
- * @package Brocooly
- * @since 0.1.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 use Theme\Http\Brocooly;

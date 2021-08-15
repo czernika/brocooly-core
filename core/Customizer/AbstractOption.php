@@ -4,8 +4,8 @@
  * Same parameters as for any Kirki control option
  *
  * @link https://kirki.org/docs/controls/
- * @package Brocooly
- * @since 0.3.0
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);

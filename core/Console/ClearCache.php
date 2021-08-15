@@ -2,8 +2,8 @@
 /**
  * Clear folder with all cached view files
  *
- * @package Brocooly
- * @since 0.10.1
+ * @package Brocooly-core
+ * @since 1.0.0
  */
 
 declare(strict_types=1);
