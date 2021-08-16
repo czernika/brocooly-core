@@ -80,8 +80,8 @@ class App implements ContainerInterface
 	 */
 	private bool $webRoutesWasLoaded = false;
 
-	public function __construct( Container $container ) {
-		$this->container = $container;
+	public function __construct() {
+		$this->container = container();
 		$this->timber    = $this->container->get( 'timber' );
 		$this->router    = $this->container->get( 'routing' );
 	}
