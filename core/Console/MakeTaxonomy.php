@@ -80,6 +80,7 @@ class MakeTaxonomy extends CreateFileConsoleCommand
 	protected function searchAndReplace( string $value ) {
 		return [
 			'{{ TAX }}'       => Str::ucfirst( $value ),
+			'{{ TAXES }}'     => Str::plural( $value ),
 			'{{ SNAKE_TAX }}' => Str::snake( $value ),
 		];
 	}

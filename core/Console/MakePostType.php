@@ -80,6 +80,7 @@ class MakePostType extends CreateFileConsoleCommand
 	protected function searchAndReplace( string $value ) {
 		return [
 			'{{ MODEL }}'       => Str::ucfirst( $value ),
+			'{{ MODELS }}'      => Str::plural( $value ),
 			'{{ SNAKE_MODEL }}' => Str::snake( $value ),
 		];
 	}

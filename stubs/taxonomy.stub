@@ -1,6 +1,7 @@
 <?php
 /**
  * {{ TAX }} model
+ * A taxonomy within WordPress is a way of grouping posts together based on a select number of relationships.
  *
  * @package Brocooly
  * @since 0.2.1
@@ -17,7 +18,7 @@ class {{ TAX }} extends Taxonomy
 {
 	
 	/**
-	 * Register taxonomy or not
+	 * Register {{ TAX }} or not
 	 * Sometimes you don't want to register taxonomy as it is already may be registered
 	 * but you want to add extra metaboxes or queries
 	 *
@@ -28,7 +29,7 @@ class {{ TAX }} extends Taxonomy
 	public bool $doNotRegister = false;
 
     /**
-	 * Taxonomy slug
+	 * {{ TAX }} slug
 	 * Must be unique
 	 *
 	 * @var string
@@ -36,7 +37,7 @@ class {{ TAX }} extends Taxonomy
 	const TAXONOMY = '{{ SNAKE_TAX }}';
 
     /**
-	 * Post type related to taxonomy
+	 * Post type related to {{ TAX }}
 	 * Same as for `register_taxonomy`
 	 *
 	 * @var array|string
@@ -44,11 +45,31 @@ class {{ TAX }} extends Taxonomy
 	protected static $postTypes = 'post';
 
     /**
-	 * Taxonomy options
+	 * {{ TAX }} metaboxes
+	 *
+	 * @return void
+	 */
+	protected function fields() {
+        // $this->createFields( ... );
+    }
+
+	/**
+	 * {{ TAX }} options
 	 *
 	 * @return void
 	 */
 	protected function options() {
-        // $this->createFields( ... );
+        return [
+			'labels'              => [
+				'name'          => esc_html__( '{{ TAXES }}', 'brocooly' ),
+				'singular_name' => esc_html__( '{{ TAX }}', 'brocooly' ),
+				'menu_name'     => esc_html__( '{{ TAXES }}', 'brocooly' ),
+ 			],
+			'public'              => true,
+			'hierarchical'        => true,
+			'show_in_rest'        => true,
+			'show_admin_column'   => true,
+			// 'default_term'     => 'default_tax',
+		];
     }
 }

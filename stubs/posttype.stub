@@ -1,6 +1,7 @@
 <?php
 /**
  * {{ MODEL }} model
+ * WordPress houses lots of different types of content and they are divided into something called Post Types
  *
  * @package Brocooly
  * @since 0.2.0
@@ -17,7 +18,7 @@ class {{ MODEL }} extends PostType
 {
 
 	/**
-	 * Register post type or not
+	 * Register {{ MODEL }} or not
 	 * Sometimes you don't want to register post type as it is already may be registered
 	 * but you want to add extra metaboxes or queries
 	 *
@@ -28,14 +29,14 @@ class {{ MODEL }} extends PostType
 	public bool $doNotRegister = false;
 
     /**
-	 * Post type slug
+	 * {{ MODEL }} slug
 	 *
 	 * @var string
 	 */
 	const POST_TYPE = '{{ SNAKE_MODEL }}';
 
     /**
-	 * Post type metaboxes
+	 * {{ MODEL }} metaboxes
 	 *
 	 * @return void
 	 */
@@ -44,11 +45,23 @@ class {{ MODEL }} extends PostType
     }
 
 	/**
-	 * Post type options
+	 * {{ MODEL }} options
 	 *
 	 * @return void
 	 */
 	protected function options() {
-        // return [];
+        return [
+			'labels'              => [
+				'name'          => esc_html__( '{{ MODELS }}', 'brocooly' ),
+				'singular_name' => esc_html__( '{{ MODEL }}', 'brocooly' ),
+				'menu_name'     => esc_html__( '{{ MODELS }}', 'brocooly' ),
+ 			],
+			'public'              => true,
+			'exclude_from_search' => false,
+			'show_in_rest'        => true,
+			'menu_icon'           => null,
+			'menu_position'       => null,
+			'supports'            => [], // 'title', 'editor', 'author', 'thumbnail', 'excerpt','trackbacks', 'custom-fields', 'comments', 'revisions', 'page-attributes', 'post-formats'.
+		];
     }
 }
