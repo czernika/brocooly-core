@@ -128,9 +128,11 @@ abstract class Taxonomy extends Term
 	 * @param array  $arguments | method options.
 	 * @return void
 	 */
-	public static function __callStatic( string $method, array $arguments ) {
-		array_unshift( $arguments, static::TAXONOMY );
-		return TaxonomyQueryBuilder::$method( ...$arguments );
+	public static function __callStatic( string $name, array $arguments ) {
+		return app()->make(
+			TaxonomyQueryBuilder::class,
+			[ 'postType' => static::$postTypes, 'taxonomy' => static::TAXONOMY ],
+		)->$name( ...$arguments );
 	}
 
 	/**

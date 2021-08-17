@@ -22,11 +22,29 @@ class QueryBuilder
 	 *
 	 * @var array
 	 */
-	protected static array $queryParams = [
-		'merge_default'  => false,
+	protected array $queryParams = [
+		'merge_default'  => true,
 		'posts_per_page' => 500, // TODO: refactor to have a choice.
 		'no_found_rows'  => true,
 	];
+
+	/**
+	 * Get posts with pagination
+	 *
+	 * @param int|null $postsPerPage | post type name.
+	 *
+	 * @return array|null
+	 */
+	public function paginate( $postsPerPage = null ) {
+		$postQuery           = [
+			'posts_per_page' => $postsPerPage ?? (int) get_option( 'posts_per_page' ),
+			'paged'          => max( 1, get_query_var( 'paged' ) ),
+			'no_found_rows'  => false,
+		];
+		$this->queryParams = array_merge( $this->queryParams, $postQuery );
+
+		return $this;
+	}
 
 	/**
 	 * Set query parameter
@@ -35,17 +53,16 @@ class QueryBuilder
 	 * @param mixed  $value | query key value.
 	 * @return self
 	 */
-	public static function where( string $key, $value ) {
-		$query               = [ $key => $value ];
-		static::$queryParams = array_merge( $query, static::$queryParams );
+	public function where( string $key, $value ) {
+		$postQuery         = [ $key => $value ];
+		$this->queryParams = array_merge( $this->queryParams, $postQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
 	 * Meta query builder
 	 *
-	 * @param string $name | post type name.
 	 * @param string $key | meta key.
 	 * @param mixed  $value | meta value.
 	 * @param string $compare_key | compare key.
@@ -53,7 +70,7 @@ class QueryBuilder
 	 * @param string $type | meta type.
 	 * @return self
 	 */
-	public static function whereMeta( string $name, string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
+	public function whereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
 
 		if ( is_array( $value ) ) {
 			$compare = 'IN';
@@ -70,9 +87,9 @@ class QueryBuilder
 			],
 		];
 
-		static::$queryParams = array_merge( $metaQuery, static::$queryParams );
+		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -85,7 +102,7 @@ class QueryBuilder
 	 * @param string $type | meta type.
 	 * @return self
 	 */
-	public static function orWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
+	public function orWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
 
 		if ( is_array( $value ) ) {
 			$compare = 'IN';
@@ -104,9 +121,9 @@ class QueryBuilder
 			],
 		];
 
-		static::$queryParams = array_merge_recursive( $metaQuery, static::$queryParams );
+		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -119,13 +136,13 @@ class QueryBuilder
 	 * @param string $type | meta type.
 	 * @return self
 	 */
-	public static function andWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
+	public function andWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
 
 		if ( is_array( $value ) ) {
 			$compare = 'IN';
 		}
 
-		$metaQuery        = [
+		$metaQuery = [
 			'meta_query' => [
 				'relation' => 'AND',
 				[
@@ -138,9 +155,9 @@ class QueryBuilder
 			],
 		];
 
-		static::$queryParams = array_merge_recursive( $metaQuery, static::$queryParams );
+		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -149,7 +166,7 @@ class QueryBuilder
 	 * @param integer|string|array $authorId | array of authors id.
 	 * @return self
 	 */
-	public static function whereAuthor( $authorId ) {
+	public function whereAuthor( $authorId ) {
 		if ( is_array( $authorId ) ) {
 			$authorQuery = [ 'author__in' => $authorId ];
 		} elseif ( is_string( $authorId ) ) {
@@ -157,9 +174,10 @@ class QueryBuilder
 		} else {
 			$authorQuery = [ 'author' => $authorId ];
 		}
-		static::$queryParams = array_merge( $authorQuery, static::$queryParams );
 
-		return new static();
+		$this->queryParams = array_merge( $this->queryParams, $authorQuery );
+
+		return $this;
 	}
 
 	/**
@@ -168,11 +186,11 @@ class QueryBuilder
 	 * @param string|array $status | post status.
 	 * @return self
 	 */
-	public static function whereStatus( $status ) {
+	public function whereStatus( $status ) {
 		$sortQuery           = [ 'post_status' => $status ];
-		static::$queryParams = array_merge( $sortQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -183,37 +201,39 @@ class QueryBuilder
 	 * @return self
 	 */
 	public function sort( string $order, string $orderby ) {
-		$sortQuery           = [
+		$sortQuery         = [
 			'order'   => $order,
 			'orderby' => $orderby,
 		];
-		static::$queryParams = array_merge( $sortQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
 	 * Sort posts by ASC
 	 *
+	 * @param string $orderby | orderby key.
 	 * @return self
 	 */
-	public function sortASC() {
-		$sortQuery           = [ 'order' => 'ASC' ];
-		static::$queryParams = array_merge( $sortQuery, static::$queryParams );
+	public function sortByAsc( string $orderby = 'ID' ) {
+		$sortQuery         = [ 'order' => 'ASC', 'orderby' => $orderby ];
+		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
 	 * Sort posts by DESC
 	 *
+	 * @param string $orderby | orderby key.
 	 * @return self
 	 */
-	public function sortDESC() {
-		$sortQuery           = [ 'order' => 'DESC' ];
-		static::$queryParams = array_merge( $sortQuery, static::$queryParams );
+	public function sortByDesc( string $orderby = 'ID' ) {
+		$sortQuery         = [ 'order' => 'ASC', 'orderby' => $orderby ];
+		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -224,9 +244,9 @@ class QueryBuilder
 	 */
 	public function offset( int $offset ) {
 		$offsetQuery         = [ 'offset' => $offset ];
-		static::$queryParams = array_merge( $offsetQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $offsetQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -236,9 +256,9 @@ class QueryBuilder
 	 */
 	public function noSticky() {
 		$noStickyQuery       = [ 'ignore_sticky_posts' => true ];
-		static::$queryParams = array_merge( $noStickyQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $noStickyQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -248,9 +268,9 @@ class QueryBuilder
 	 */
 	public function suppress() {
 		$suppressQuery       = [ 'suppress_filters' => true ];
-		static::$queryParams = array_merge( $suppressQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $suppressQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -265,9 +285,9 @@ class QueryBuilder
 				'after' => $date,
 			],
 		];
-		static::$queryParams = array_merge( $dateQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -282,9 +302,9 @@ class QueryBuilder
 				'before' => $date,
 			],
 		];
-		static::$queryParams = array_merge( $dateQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -294,7 +314,7 @@ class QueryBuilder
 	 * @param string $after | date after.
 	 * @return self
 	 */
-	public function between( $before, $after ) {
+	public function between( string $before, string $after ) {
 		$dateQuery           = [
 			'date_query' => [
 				[
@@ -305,9 +325,9 @@ class QueryBuilder
 				],
 			],
 		];
-		static::$queryParams = array_merge( $dateQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -318,15 +338,15 @@ class QueryBuilder
 	 * @param boolean $sentence | consider full key phrase or not.
 	 * @return void
 	 */
-	public static function findByPhrase( string $key, bool $exact = false, bool $sentence = false ) {
+	public function findByPhrase( string $key, bool $exact = false, bool $sentence = false ) {
 		$searchQuery        = [
 			's'        => $key,
 			'exact'    => $exact,
 			'sentence' => $sentence,
 		];
-		static::$queryParams = array_merge( $searchQuery, static::$queryParams );
+		$this->queryParams = array_merge( $this->queryParams, $searchQuery );
 
-		return new static();
+		return $this;
 	}
 
 	/**
@@ -336,13 +356,9 @@ class QueryBuilder
 	 * @param array  $query | query array.
 	 * @return array|null
 	 */
-	public static function query( string $name, array $query ) {
-		$postQuery = [
-			'post_type'     => $name,
-			'no_found_rows' => true,
-		];
-		$query     = array_merge( $query, $postQuery, static::$queryParams );
-		$posts     = static::getQuery( $query );
+	public function query( array $query ) {
+		$postQuery = array_merge( $this->queryParams, $query );
+		$posts     = $this->getQuery( $postQuery );
 
 		return $posts;
 	}
@@ -353,7 +369,7 @@ class QueryBuilder
 	 * @param array $query | query.
 	 * @return array|null
 	 */
-	protected static function getQuery( array $query ) {
+	protected function getQuery( array $query ) {
 		if ( isTimberNext() ) {
 			return Timber::get_posts( $query );
 		}
@@ -366,13 +382,12 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function get() {
+	public function get() {
 		if ( isTimberNext() ) {
-			$posts = Timber::get_posts( static::$queryParams );
-		} else {
-			$posts = new PostQuery( static::$queryParams );
+			return Timber::get_posts( $this->queryParams );
 		}
-		return $posts;
+
+		return new PostQuery( $this->queryParams );
 	}
 
 	/**
@@ -380,8 +395,8 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function collect() {
-		return collect( static::get() );
+	public function collect() {
+		return collect( $this->get() );
 	}
 
 	/**
@@ -389,8 +404,8 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function first() {
-		$post = static::collect()->first();
+	public function first() {
+		$post = $this->collect()->first();
 		return $post;
 	}
 
@@ -399,8 +414,8 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function last() {
-		$post = static::collect()->last();
+	public function last() {
+		$post = $this->collect()->last();
 		return $post;
 	}
 
@@ -409,8 +424,8 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function shuffle() {
-		$post = static::collect()->shuffle();
+	public function shuffle() {
+		$post = $this->collect()->shuffle();
 		return $post;
 	}
 
@@ -419,8 +434,8 @@ class QueryBuilder
 	 *
 	 * @return object
 	 */
-	public static function random() {
-		$post = static::collect()->random();
+	public function random() {
+		$post = $this->collect()->random();
 		return $post;
 	}
 }

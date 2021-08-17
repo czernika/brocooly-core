@@ -12,21 +12,32 @@ namespace Brocooly\Support\Builders;
 
 class TaxonomyQueryBuilder extends QueryBuilder
 {
+
 	/**
-	 * Default query parameters
+	 * Post type slug
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected static array $queryParams = [
-		'merge_default' => true,
-	];
+	protected string $postType;
 
 	/**
 	 * Taxonomy slug
 	 *
 	 * @var string
 	 */
-	private static string $taxonomy;
+	private string $taxonomy;
+
+	/**
+	 * Set taxonomy query
+	 *
+	 * @param string $postType
+	 * @param string $taxonomy
+	 */
+	public function __construct( string $postType, string $taxonomy ) {
+		$this->postType = $postType;
+		$this->taxonomy = $taxonomy;
+		$this->queryParams['post_type'] = $this->postType;
+	}
 
 	/**
 	 * Get all posts of current taxonomy
@@ -35,8 +46,8 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param array  $args | additional arguments.
 	 * @return object
 	 */
-	public static function all( string $name, array $args = [] ) {
-		$terms = get_terms( $name, $args );
+	public function all( array $args = [] ) {
+		$terms = get_terms( $this->taxonomy, $args );
 		return $terms;
 	}
 
@@ -48,14 +59,14 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param integer $postsPerPage | posts per page.
 	 * @return self
 	 */
-	public static function paginate( int $postsPerPage = 10 ) {
+	public function paginateArchive( int $postsPerPage = 10 ) {
 		$taxQuery            = [
 			'posts_per_archive_page' => $postsPerPage,
 			'paged'                  => max( 1, get_query_var( 'paged' ) ),
 			'no_found_rows'          => false,
 		];
-		static::$queryParams = array_merge( static::$queryParams, $taxQuery );
-		return new static();
+		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		return $this;
 	}
 
 	/**
@@ -66,28 +77,25 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param string|array $postTypes | post types.
 	 * @return self
 	 */
-	public static function wherePostType( $postTypes = 'post' ) {
+	public function wherePostType( $postTypes = 'post' ) {
 		$taxQuery            = [ 'post_type' => $postTypes ];
-		static::$queryParams = array_merge( static::$queryParams, $taxQuery );
-		return new static();
+		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		return $this;
 	}
 
 	/**
 	 * Set taxonomy query params
 	 *
-	 * @param string $name | taxonomy name. No need to pass it.
 	 * @param string $key | field.
 	 * @param mixed  $value | field value.
 	 * @param string $operator | field operator.
 	 * @return self
 	 */
-	public static function whereTerm( string $name, string $key, $value, $operator = 'IN' ) {
-		static::$taxonomy = $name;
-
+	public function whereTerm( string $key, $value, $operator = 'IN' ) {
 		$taxQuery = [
 			'tax_query' => [
 				[
-					'taxonomy' => static::$taxonomy,
+					'taxonomy' => $this->taxonomy,
 					'field'    => $key,
 					'terms'    => $value,
 					'operator' => $operator,
@@ -95,8 +103,8 @@ class TaxonomyQueryBuilder extends QueryBuilder
 			],
 		];
 
-		static::$queryParams = array_merge_recursive( static::$queryParams, $taxQuery );
-		return new static();
+		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		return $this;
 	}
 
 	/**
@@ -107,10 +115,10 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param string $operator | field operator.
 	 * @return self
 	 */
-	public static function andWhereTerm( string $key, $value, string $operator = 'IN' ) {
-		$taxQuery            = static::setQuery( 'AND', $key, $value, $operator );
-		static::$queryParams = array_merge_recursive( static::$queryParams, $taxQuery );
-		return new static();
+	public function andWhereTerm( string $key, $value, string $operator = 'IN' ) {
+		$taxQuery          = $this->setQuery( 'AND', $key, $value, $operator );
+		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		return $this;
 	}
 
 	/**
@@ -121,10 +129,10 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param string $operator | field operator.
 	 * @return self
 	 */
-	public static function orWhereTerm( string $key, $value, string $operator = 'IN' ) {
-		$taxQuery            = static::setQuery( 'OR', $key, $value, $operator );
-		static::$queryParams = array_merge_recursive( static::$queryParams, $taxQuery );
-		return new static();
+	public function orWhereTerm( string $key, $value, string $operator = 'IN' ) {
+		$taxQuery          = $this->setQuery( 'OR', $key, $value, $operator );
+		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		return $this;
 	}
 
 	/**
@@ -136,12 +144,12 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param string $operator | field operator.
 	 * @return array
 	 */
-	private static function setQuery( string $relation, string $key, $value, string $operator ) {
+	private function setQuery( string $relation, string $key, $value, string $operator ) {
 		$query = [
 			'tax_query' => [
 				'relation' => $relation,
 				[
-					'taxonomy' => static::$taxonomy,
+					'taxonomy' => $this->taxonomy,
 					'field'    => $key,
 					'terms'    => $value,
 					'operator' => $operator,
