@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Theme\Templates;
 
-use Brocooly\Views\Templates\AbstractTemplate;
+use Brocooly\UI\Templates\AbstractTemplate;
 
 class {{ TEMPLATE }}Template extends AbstractTemplate
 {

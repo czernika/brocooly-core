@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Brocooly\Views\Widgets;
+namespace Brocooly\UI\Widgets;
 
 use Carbon_Fields\Widget;
 use Webmozart\Assert\Assert;

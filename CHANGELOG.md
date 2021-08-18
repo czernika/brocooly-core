@@ -7,6 +7,7 @@
 * **[Refactor]**: refactored app() function
 * **[Refactor]**: refactored QueryBuilders and related models
 * **[Refactor]**: refactored console command root folder as protected parent property
+* **[Refactor]**: Views folder renamed into UI
 * **[Fix]**: improved model stub for Post Type and Taxonomy
 * **[Fix]**: removed Product post type from protected - let user handle which to register
 
