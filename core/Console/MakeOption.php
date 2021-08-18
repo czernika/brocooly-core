@@ -73,18 +73,18 @@ class MakeOption extends CreateFileConsoleCommand
 	 */
 	protected function preexecute( InputInterface $input, OutputInterface $output ) {
 		$this->option = $input->getArgument( 'customizer' );
-		$outputFolder = '/inc/Customizer/Sections/';
+		$outputFolder = 'Customizer/Sections/';
 		$postfix      = 'Section.php';
 
 		if ( $input->getOption( 'panel' ) ) {
 			$this->stubModelName = 'panel.stub';
-			$outputFolder        = '/inc/Customizer/Panels/';
+			$outputFolder        = 'Customizer/Panels/';
 			$postfix             = 'Panel.php';
 		}
 
 		if ( $input->getOption( 'option' ) ) {
 			$this->stubModelName = 'option.stub';
-			$outputFolder        = '/inc/Customizer/';
+			$outputFolder        = 'Customizer/';
 			$postfix             = 'Option.php';
 		}
 

@@ -47,7 +47,7 @@ class {{ MODEL }} extends PostType
 	/**
 	 * {{ MODEL }} options
 	 *
-	 * @return void
+	 * @return array
 	 */
 	protected function options() {
         return [

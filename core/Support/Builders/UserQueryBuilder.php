@@ -18,7 +18,7 @@ class UserQueryBuilder
 	 *
 	 * @return array
 	 */
-	public static function all() {
+	public function all() {
 		return get_users();
 	}
 
@@ -28,7 +28,7 @@ class UserQueryBuilder
 	 * @param array $args | arguments for users to find.
 	 * @return array
 	 */
-	public static function getBy( array $args ) {
+	public function getBy( array $args ) {
 		return get_users( $args );
 	}
 
@@ -37,7 +37,7 @@ class UserQueryBuilder
 	 *
 	 * @return \WP_User
 	 */
-	public static function current() {
+	public function current() {
 		return wp_get_current_user();
 	}
 
@@ -48,7 +48,7 @@ class UserQueryBuilder
 	 * @param mixed  $value | value to get by.
 	 * @return \WP_User
 	 */
-	public static function where( string $key, $value ) {
+	public function where( string $key, $value ) {
 		return get_user_by( $key, $value );
 	}
 
@@ -58,7 +58,7 @@ class UserQueryBuilder
 	 * @param integer $id | user id.
 	 * @return \WP_User|false
 	 */
-	public static function find( int $id ) {
+	public function find( int $id ) {
 		return get_userdata( $id );
 	}
 
@@ -67,9 +67,9 @@ class UserQueryBuilder
 	 *
 	 * @return \WP_User|false
 	 */
-	public static function auth() {
+	public function auth() {
 		if ( is_user_logged_in() ) {
-			return static::current();
+			return $this->current();
 		}
 
 		return false;

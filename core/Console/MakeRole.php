@@ -65,7 +65,7 @@ class MakeRole extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->role,
-			'/inc/Models/Users/',
+			'Models/Users/',
 			'Role.php',
 		);
 

@@ -65,7 +65,7 @@ class MakeTaxonomy extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->taxonomy,
-			'/inc/Models/',
+			'Models/',
 		);
 
 		return $this->success( $output, 'Taxonomy was successfully created' );

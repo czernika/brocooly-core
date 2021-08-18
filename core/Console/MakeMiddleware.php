@@ -65,7 +65,7 @@ class MakeMiddleware extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->middleware,
-			'/inc/Http/Middleware/',
+			'Http/Middleware/',
 		);
 
 		return $this->success( $output, 'Middleware was successfully created' );

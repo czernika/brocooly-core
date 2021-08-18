@@ -18,6 +18,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class CreateFileConsoleCommand extends Command
 {
 
+	protected string $rootFolder = '/inc/';
+
 	/**
 	 * Stub file model
 	 *
@@ -90,7 +92,7 @@ abstract class CreateFileConsoleCommand extends Command
 		if ( $kebab ) {
 			$name = Str::kebab( $name );
 		}
-		$ModelFile = $this->setFileModelName( $folder, $name, $extension );
+		$ModelFile = $this->setFileModelName( $this->rootFolder . $folder, $name, $extension );
 
 		$stub = $this->getStubByType( $type );
 

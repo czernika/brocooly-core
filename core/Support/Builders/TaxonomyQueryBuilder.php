@@ -34,9 +34,10 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 * @param string $taxonomy
 	 */
 	public function __construct( string $postType, string $taxonomy ) {
-		$this->postType = $postType;
-		$this->taxonomy = $taxonomy;
-		$this->queryParams['post_type'] = $this->postType;
+		$this->postType                      = $postType;
+		$this->taxonomy                      = $taxonomy;
+		$this->queryParams['post_type']      = $this->postType;
+		$this->queryParams['posts_per_page'] = config( 'views.limit' );
 	}
 
 	/**

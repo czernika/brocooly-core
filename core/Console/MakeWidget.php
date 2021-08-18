@@ -78,7 +78,7 @@ class MakeWidget extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->widget,
-			'/inc/Views/Widgets/',
+			'Views/Widgets/',
 			'Widget.php',
 		);
 

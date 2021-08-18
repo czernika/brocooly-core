@@ -65,7 +65,7 @@ class MakePostType extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->model,
-			'/inc/Models/',
+			'Models/',
 		);
 
 		return $this->success( $output, 'Model was successfully created' );

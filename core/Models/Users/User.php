@@ -49,7 +49,7 @@ abstract class User extends TimberUser
 	 * @return void
 	 */
 	public static function __callStatic( string $name, array $arguments ) {
-		return UserQueryBuilder::$name( ...$arguments );
+		return app( UserQueryBuilder::class )->$name( ...$arguments );
 	}
 
 	/**

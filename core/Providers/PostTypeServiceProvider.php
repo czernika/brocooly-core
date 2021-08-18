@@ -27,7 +27,6 @@ class PostTypeServiceProvider extends AbstractService
 	private array $protectedPostTypes = [
 		'post',
 		'page',
-		'product',
 		'revision',
 		'attachment',
 		'nav_menu_item',

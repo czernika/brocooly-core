@@ -24,7 +24,6 @@ class QueryBuilder
 	 */
 	protected array $queryParams = [
 		'merge_default'  => true,
-		'posts_per_page' => 500, // TODO: refactor to have a choice.
 		'no_found_rows'  => true,
 	];
 
@@ -71,25 +70,7 @@ class QueryBuilder
 	 * @return self
 	 */
 	public function whereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
-
-		if ( is_array( $value ) ) {
-			$compare = 'IN';
-		}
-		$metaQuery        = [
-			'meta_query' => [
-				[
-					'key'         => $key,
-					'value'       => $value,
-					'compare_key' => $compare_key,
-					'compare'     => $compare,
-					'type'        => $type,
-				],
-			],
-		];
-
-		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
-
-		return $this;
+		return $this->metaBuilder( $key, $value, $compare_key, $compare, $type );
 	}
 
 	/**
@@ -103,27 +84,7 @@ class QueryBuilder
 	 * @return self
 	 */
 	public function orWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
-
-		if ( is_array( $value ) ) {
-			$compare = 'IN';
-		}
-
-		$metaQuery = [
-			'meta_query' => [
-				'relation' => 'OR',
-				[
-					'key'         => $key,
-					'value'       => $value,
-					'compare_key' => $compare_key,
-					'compare'     => $compare,
-					'type'        => $type,
-				],
-			],
-		];
-
-		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
-
-		return $this;
+		return $this->metaBuilder( $key, $value, $compare_key, $compare, $type, 'OR' );
 	}
 
 	/**
@@ -137,7 +98,10 @@ class QueryBuilder
 	 * @return self
 	 */
 	public function andWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' ) {
+		return $this->metaBuilder( $key, $value, $compare_key, $compare, $type, 'AND' );
+	}
 
+	private function metaBuilder( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR', $relation = null ) {
 		if ( is_array( $value ) ) {
 			$compare = 'IN';
 		}
@@ -154,6 +118,10 @@ class QueryBuilder
 				],
 			],
 		];
+
+		if ( $relation ) {
+			$metaQuery['meta_query']['relation'] = $relation;
+		}
 
 		$this->queryParams = array_merge_recursive( $this->queryParams, $metaQuery );
 
@@ -400,7 +368,7 @@ class QueryBuilder
 	}
 
 	/**
-	 * Get first post of a query
+	 * Get first post of a collection
 	 *
 	 * @return object
 	 */
@@ -410,7 +378,7 @@ class QueryBuilder
 	}
 
 	/**
-	 * Get first post of a query
+	 * Get last post of a collection
 	 *
 	 * @return object
 	 */
@@ -420,17 +388,17 @@ class QueryBuilder
 	}
 
 	/**
-	 * Get first post of a query
+	 * Shuffle collection
 	 *
 	 * @return object
 	 */
 	public function shuffle() {
-		$post = $this->collect()->shuffle();
-		return $post;
+		$posts = $this->collect()->shuffle();
+		return $posts;
 	}
 
 	/**
-	 * Get first post of a query
+	 * Get random post of a collection
 	 *
 	 * @return object
 	 */

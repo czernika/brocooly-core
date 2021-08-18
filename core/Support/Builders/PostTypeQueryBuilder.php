@@ -29,8 +29,9 @@ class PostTypeQueryBuilder extends QueryBuilder
 	 * @param string $postType
 	 */
 	public function __construct( string $postType ) {
-		$this->postType = $postType;
-		$this->queryParams['post_type'] = $this->postType;
+		$this->postType                      = $postType;
+		$this->queryParams['post_type']      = $this->postType;
+		$this->queryParams['posts_per_page'] = config( 'views.limit' );
 	}
 
 	/**

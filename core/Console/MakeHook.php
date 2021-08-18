@@ -87,7 +87,7 @@ class MakeHook extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->hook,
-			'/inc/Hooks/',
+			'Hooks/',
 		);
 
 		return $this->success( $output, 'Hook was successfully created' );

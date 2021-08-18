@@ -56,7 +56,7 @@ class {{ TAX }} extends Taxonomy
 	/**
 	 * {{ TAX }} options
 	 *
-	 * @return void
+	 * @return array
 	 */
 	protected function options() {
         return [
