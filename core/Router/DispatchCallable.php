@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Router;
 
+use Illuminate\Support\Str;
 use Brocooly\Http\Controllers\BaseController;
 
 class DispatchCallable
@@ -24,6 +25,14 @@ class DispatchCallable
 			// Call invokable class.
 			$class = static::callController( $callable );
 			return call_user_func_array( $class, func_get_args() );
+		}
+
+		/**
+		 * @since Brocooly 0.13.1
+		 */
+		if ( Str::contains( $callable, '@' ) ) {
+			$callable = explode( '@', $callable );
+			return static::dispatchControllerMethod( $callable );
 		}
 
 		return call_user_func_array( $callable, func_get_args() );
