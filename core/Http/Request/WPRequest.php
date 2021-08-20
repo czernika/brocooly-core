@@ -40,9 +40,20 @@ class WPRequest
 	/**
 	 * Get search query string
 	 *
+	 * @deprecated since Brocooly 0.13.0
 	 * @return string
 	 */
 	public static function searchQuery() {
+		return get_search_query();
+	}
+
+	/**
+	 * Get search query string
+	 *
+	 * @since Brocooly 0.13.0
+	 * @return string
+	 */
+	public static function getSearchQuery() {
 		return get_search_query();
 	}
 }

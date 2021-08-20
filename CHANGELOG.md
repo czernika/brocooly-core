@@ -10,6 +10,7 @@
 * **[Refactor]**: refactored console command root folder as protected parent property
 * **[Refactor]**: Views folder renamed into UI
 * **[Refactor]**: Removed ModelBuilder class. Intead use PostTypeFactory
+* **[Refactor]**: WPRequest method searchQuery renamed to getSearchQuery
 * **[Fix]**: improved model stub for Post Type and Taxonomy
 * **[Fix]**: removed Product post type from protected - let user handle which to register
 
