@@ -227,3 +227,16 @@ if ( ! function_exists( 'action' ) ) {
 		Router::action( $name );
 	}
 }
+
+if ( ! function_exists( 'task' ) ) {
+
+	/**
+	 * Call task
+	 *
+	 * @param string $task | task class.
+	 * @return void
+	 */
+	function task( $task ) {
+		return app()->call( [ $task, 'run' ] );
+	}
+}

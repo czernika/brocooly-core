@@ -13,11 +13,11 @@ use Timber\Timber;
 use Brocooly\Router\Router;
 use Brocooly\Contracts\ModelContract;
 use Brocooly\Http\Middleware\DoingAjax;
-use Brocooly\Support\Builders\ModelBuilder;
 use Brocooly\Support\Factories\MetaFactory;
 use Brocooly\Support\Factories\FacadeFactory;
 use Brocooly\Support\Factories\ValidatorFactory;
 use Brocooly\Support\Factories\CustomizerFactory;
+use Brocooly\Support\Factories\PostTypeFactory;
 
 use function DI\get;
 use function DI\create;
@@ -59,7 +59,7 @@ $appDefintions = [
 	 * Factories
 	 * --------------------------------------------------------------------------
 	 */
-	ModelContract::class => factory( [ ModelBuilder::class, 'resolve' ] ),
+	ModelContract::class => factory( [ PostTypeFactory::class, 'model' ] ),
 
 ];
 

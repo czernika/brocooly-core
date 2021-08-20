@@ -3,15 +3,17 @@
 ## Release 1.1.0
 
 * **[Feat]**: added support to disable Gutenberg Editor
+* **[Feat]**: added task() function to run simple Tasks
 * **[Refactor]**: removed public router() method from App class
 * **[Refactor]**: refactored app() function
 * **[Refactor]**: refactored QueryBuilders and related models
 * **[Refactor]**: refactored console command root folder as protected parent property
 * **[Refactor]**: Views folder renamed into UI
+* **[Refactor]**: Removed ModelBuilder class. Intead use PostTypeFactory
 * **[Fix]**: improved model stub for Post Type and Taxonomy
 * **[Fix]**: removed Product post type from protected - let user handle which to register
 
-Release Date: August 18, 2021
+Release Date: August 21, 2021
 
 ## Core Release
 
