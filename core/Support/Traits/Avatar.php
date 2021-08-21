@@ -8,7 +8,7 @@ use Brocooly\Support\Facades\Meta;
 
 trait Avatar
 {
-    public function avatar() {
+    public function userAvatar() {
 		$this->createFields(
 			'avatar',
 			esc_html__( 'User avatar', 'brocooly' ),

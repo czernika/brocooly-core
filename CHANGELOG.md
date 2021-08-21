@@ -5,6 +5,7 @@
 * **[Feat]**: added support to disable Gutenberg Editor
 * **[Feat]**: added task() function to run simple Tasks
 * **[Feat]**: added support for stringified controller@method name 
+* **[Feat]**: added user Avatar trait
 * **[Refactor]**: removed public router() method from App class
 * **[Refactor]**: refactored app() function
 * **[Refactor]**: refactored QueryBuilders and related models
