@@ -21,7 +21,7 @@ class ShortcodeServiceProvider extends AbstractService
 	 * Register shortcodes
 	 */
 	public function register() {
-		$this->app->set( 'shortcodes', config( 'app.shortcodes' ) );
+		$this->app->set( 'shortcodes', config( 'views.shortcodes' ) );
 	}
 
 	/**
@@ -39,7 +39,7 @@ class ShortcodeServiceProvider extends AbstractService
 			$shortcodes,
 			/* translators: 1: type of variable */
 			sprintf(
-				'`app.shortcodes` key must be an array, %s given',
+				'`views.shortcodes` key must be an array, %s given',
 				gettype( $shortcodes )
 			)
 		);

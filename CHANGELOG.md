@@ -7,6 +7,7 @@
 * **[Feat]**: added support for stringified controller@method name 
 * **[Feat]**: added user Avatar trait
 * **[Refactor]**: removed public router() method from App class
+* **[Refactor]**: relocated shortocdes from app to views
 * **[Refactor]**: refactored app() function
 * **[Refactor]**: refactored QueryBuilders and related models
 * **[Refactor]**: refactored console command root folder as protected parent property
