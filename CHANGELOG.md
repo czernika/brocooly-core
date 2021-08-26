@@ -6,6 +6,7 @@
 * **[Feat]**: added task() function to run simple Tasks
 * **[Feat]**: added support for stringified controller@method name 
 * **[Feat]**: added user Avatar trait
+* **[Refactor]**: home redirect now may be defined by user
 * **[Refactor]**: removed public router() method from App class
 * **[Refactor]**: relocated shortocdes from app to views
 * **[Refactor]**: refactored app() function

@@ -30,7 +30,8 @@ class Redirect
 	 * @return void
 	 */
 	public function home() {
-		wp_safe_redirect( esc_url( home_url( '/' ) ) );
+		$homeUrl = config( 'auth.home' ) ?? esc_url( home_url( '/' ) );
+		wp_safe_redirect( $homeUrl );
 		exit;
 	}
 
