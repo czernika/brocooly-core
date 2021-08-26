@@ -91,7 +91,7 @@ if ( ! function_exists( 'app' ) ) {
 	 * @param string|null $key | key to get.
 	 */
 	function app( $key = null ) {
-		$app = new App();
+		$app = App::instance();
 		if ( isset( $key ) ) {
 			return $app->get( $key );
 		}

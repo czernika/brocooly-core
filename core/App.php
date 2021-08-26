@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main application instance class
  * All theme logic starts here
@@ -57,6 +58,8 @@ class App implements ContainerInterface
 	 */
 	private bool $booted = false;
 
+	private static $app;
+
 	/**
 	 * Array of Application loaders
 	 * ! Order matter - consider to load in a first place important loaders
@@ -80,10 +83,17 @@ class App implements ContainerInterface
 	 */
 	private bool $webRoutesWasLoaded = false;
 
-	public function __construct() {
-		$this->container = container();
-		$this->timber    = $this->container->get( 'timber' );
-		$this->router    = $this->container->get( 'routing' );
+	public function __construct(Container $c)
+	{
+		$this->container = $c;
+		static::$app     = $this;
+		$this->timber    = $this->container->get('timber');
+		$this->router    = $this->container->get('routing');
+	}
+
+	public static function instance()
+	{
+		return static::$app;
 	}
 
 	/**
@@ -93,15 +103,16 @@ class App implements ContainerInterface
 	 * @since 0.10.0
 	 * @return void
 	 */
-	public function web() {
-		if ( ! $this->webRoutesWasLoaded ) {
+	public function web()
+	{
+		if (!$this->webRoutesWasLoaded) {
 			$this->webRoutesWasLoaded = true;
 
 			/**
 			 * Include routes files
 			 */
-			File::requireOnce( BROCOOLY_THEME_PATH . '/routes/web.php' );
-			File::requireOnce( BROCOOLY_THEME_PATH . '/routes/ajax.php' );
+			File::requireOnce(BROCOOLY_THEME_PATH . '/routes/web.php');
+			File::requireOnce(BROCOOLY_THEME_PATH . '/routes/ajax.php');
 
 			/**
 			 * Resolve routes
@@ -116,28 +127,30 @@ class App implements ContainerInterface
 	 *
 	 * @param array $loaders | array of app loaders.
 	 */
-	public function run() {
-		if ( ! $this->booted ) {
-			foreach ( $this->loaders as $loader ) {
-				if ( method_exists( $loader, 'call' ) ) {
-					$this->call( [ $loader, 'call' ] );
+	public function run()
+	{
+		if (!$this->booted) {
+			foreach ($this->loaders as $loader) {
+				if (method_exists($loader, 'call')) {
+					$this->call([$loader, 'call']);
 				}
 			}
 			$this->booted = true;
 		}
 	}
 
-	/** 
+	/**
 	 * Bind Interface with it's class object
 	 *
 	 * @inheritdoc
 	 */
-	public function bind( string $key, string $value ) {
+	public function bind(string $key, string $value)
+	{
 		$this->container->set(
 			$key,
 			factory(
-				function ( ContainerInterface $container ) use ( $value ) {
-					return $container->get( $value );
+				function (ContainerInterface $container) use ($value) {
+					return $container->get($value);
 				}
 			)
 		);
@@ -148,8 +161,9 @@ class App implements ContainerInterface
 	 *
 	 * @inheritdoc
 	 */
-	public function wire( string $key, string $value ) {
-		$this->container->set( $key, autowire( $value ) );
+	public function wire(string $key, string $value)
+	{
+		$this->container->set($key, autowire($value));
 	}
 
 	/**
@@ -158,8 +172,9 @@ class App implements ContainerInterface
 	 * @param string $key | key to get.
 	 * @return mixed
 	 */
-	public function get( string $key ) {
-		return $this->container->get( $key );
+	public function get(string $key)
+	{
+		return $this->container->get($key);
 	}
 
 	/**
@@ -168,8 +183,9 @@ class App implements ContainerInterface
 	 * @param string $key | key name.
 	 * @param mixed  $value | key value.
 	 */
-	public function set( string $key, $value ) {
-		$this->container->set( $key, $value );
+	public function set(string $key, $value)
+	{
+		$this->container->set($key, $value);
 	}
 
 	/**
@@ -178,8 +194,9 @@ class App implements ContainerInterface
 	 * @param string $key | key to check.
 	 * @return boolean
 	 */
-	public function has( string $key ) {
-		return $this->container->has( $key );
+	public function has(string $key)
+	{
+		return $this->container->has($key);
 	}
 
 	/**
@@ -187,8 +204,9 @@ class App implements ContainerInterface
 	 *
 	 * @param $object | instance of class to inject on.
 	 */
-	public function injectOn( $object ) {
-		return $this->container->injectOn( $object );
+	public function injectOn($object)
+	{
+		return $this->container->injectOn($object);
 	}
 
 	/**
@@ -198,15 +216,16 @@ class App implements ContainerInterface
 	 * @param array  $parameters | additional data to pass.
 	 * @return object
 	 */
-	public function make( string $name, array $parameters = [] ) {
-		return $this->container->make( $name, $parameters );
+	public function make(string $name, array $parameters = [])
+	{
+		return $this->container->make($name, $parameters);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function call( $callable, array $parameters = [] ) {
-		return $this->container->call( $callable, $parameters );
+	public function call($callable, array $parameters = [])
+	{
+		return $this->container->call($callable, $parameters);
 	}
-
 }
