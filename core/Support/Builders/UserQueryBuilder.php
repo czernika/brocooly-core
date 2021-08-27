@@ -13,13 +13,37 @@ namespace Brocooly\Support\Builders;
 class UserQueryBuilder
 {
 
+	private string $role;
+
+	private array $usersQuery = [];
+
+	public function __construct( string $role ) {
+		$this->role = $role;
+
+		if ( 'role' !== $this->role ) {
+			$this->usersQuery['role'] = $this->role;
+		}
+	}
+
 	/**
 	 * Get all users
 	 *
 	 * @return array
 	 */
 	public function all() {
-		return get_users();
+		return get_users( $this->usersQuery );
+	}
+
+	/**
+	 * Get user with specific parameters.
+	 *
+	 * @param array $args | arguments for users to find.
+	 * @return array
+	 * @since 1.1.0
+	 */
+	public function with( array $args ) {
+		$queryArgs = array_merge( $this->usersQuery, $args );
+		return get_users( $args );
 	}
 
 	/**

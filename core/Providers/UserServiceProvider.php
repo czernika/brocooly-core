@@ -11,12 +11,11 @@ declare(strict_types=1);
 namespace Brocooly\Providers;
 
 use Theme\Models\Users\User;
-use Webmozart\Assert\Assert;
 
 class UserServiceProvider extends AbstractService
 {
 	public function register() {
-		$this->app->set( 'custom_roles', config( 'users.roles' ) );
+		$this->app->set( 'roles', config( 'users.roles' ) );
 	}
 
 	public function boot() {
@@ -52,7 +51,7 @@ class UserServiceProvider extends AbstractService
 	 * @return void
 	 */
 	private function registerRoles() {
-		$roles = $this->app->get( 'custom_roles' );
+		$roles = $this->app->get( 'roles' );
 
 		if ( ! empty( $roles ) ) {
 			foreach ( $roles as $roleClass ) {
@@ -61,14 +60,9 @@ class UserServiceProvider extends AbstractService
 					'after_switch_theme',
 					function() use ( $role ) {
 
-						Assert::null(
-							get_role( $role::ROLE ),
-							/* translators: 1: role slug. */
-							sprintf(
-								'Role %s already exists',
-								$role::ROLE,
-							),
-						);
+						if ( get_role( $role::ROLE ) ) {
+							return;
+						}
 
 						add_role(
 							$role::ROLE,
