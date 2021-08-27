@@ -109,7 +109,7 @@ if ( ! function_exists( 'config' ) ) {
 	 * @return mixed
 	 */
 	function config( string $key = null, $default = null ) {
-		if ( Config::get( $key ) || null === $default ) {
+		if ( Config::get( $key ) ) {
 			return Config::get( $key );
 		}
 
