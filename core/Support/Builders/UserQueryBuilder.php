@@ -10,15 +10,20 @@ declare(strict_types=1);
 
 namespace Brocooly\Support\Builders;
 
+use Brocooly\Models\Users\User;
+
 class UserQueryBuilder
 {
 
 	private string $role;
 
+	private User $user;
+
 	private array $usersQuery = [];
 
-	public function __construct( string $role ) {
+	public function __construct( string $role, User $user ) {
 		$this->role = $role;
+		$this->user = $user;
 
 		if ( 'role' !== $this->role ) {
 			$this->usersQuery['role'] = $this->role;
@@ -43,7 +48,7 @@ class UserQueryBuilder
 	 */
 	public function with( array $args ) {
 		$queryArgs = array_merge( $this->usersQuery, $args );
-		return get_users( $args );
+		return get_users( $queryArgs );
 	}
 
 	/**
@@ -59,10 +64,10 @@ class UserQueryBuilder
 	/**
 	 * Get current user object
 	 *
-	 * @return \WP_User
+	 * @return User
 	 */
 	public function current() {
-		return wp_get_current_user();
+		return $this->user;
 	}
 
 	/**

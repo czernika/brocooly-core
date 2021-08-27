@@ -117,7 +117,7 @@ abstract class User extends TimberUser
 	public static function __callStatic( string $name, array $arguments ) {
 		return app()->make(
 			UserQueryBuilder::class,
-			[ 'role' => static::ROLE ],
+			[ 'role' => static::ROLE, 'user' => new static() ],
 		)->$name( ...$arguments );
 	}
 
