@@ -14,10 +14,11 @@ use Brocooly\Router\Router;
 use Brocooly\Contracts\ModelContract;
 use Brocooly\Http\Middleware\DoingAjax;
 use Brocooly\Support\Factories\MetaFactory;
+use Brocooly\Contracts\AppContainerInterface;
 use Brocooly\Support\Factories\FacadeFactory;
+use Brocooly\Support\Factories\PostTypeFactory;
 use Brocooly\Support\Factories\ValidatorFactory;
 use Brocooly\Support\Factories\CustomizerFactory;
-use Brocooly\Support\Factories\PostTypeFactory;
 
 use function DI\get;
 use function DI\create;
@@ -33,7 +34,6 @@ $appDefintions = [
 	 * Application itself and Timber class. As Brocooly depends on Timber
 	 * this is a core of application.
 	 */
-	'app'                => get( App::class ),
 	'timber'             => get( Timber::class ),
 	'routing'            => get( Router::class ),
 
@@ -59,7 +59,8 @@ $appDefintions = [
 	 * Factories
 	 * --------------------------------------------------------------------------
 	 */
-	ModelContract::class => factory( [ PostTypeFactory::class, 'model' ] ),
+	AppContainerInterface::class => get( App::class ),
+	ModelContract::class         => factory( [ PostTypeFactory::class, 'model' ] ),
 
 ];
 

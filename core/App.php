@@ -15,7 +15,6 @@ namespace Brocooly;
 use DI\Container;
 use Timber\Timber;
 use Brocooly\Support\Facades\File;
-use Psr\Container\ContainerInterface;
 use Brocooly\Loaders\HookLoader;
 use Brocooly\Loaders\AssetsLoader;
 use Brocooly\Loaders\BootProvider;
@@ -23,11 +22,13 @@ use Brocooly\Loaders\ConfigLoader;
 use Brocooly\Loaders\DebuggerLoader;
 use Brocooly\Loaders\DefinitionLoader;
 use Brocooly\Loaders\RegisterProvider;
+use Psr\Container\ContainerInterface;
+use Brocooly\Contracts\AppContainerInterface;
 
 use function DI\factory;
 use function DI\autowire;
 
-class App implements ContainerInterface
+class App implements AppContainerInterface
 {
 
 	/**
