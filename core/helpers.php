@@ -236,7 +236,7 @@ if ( ! function_exists( 'task' ) ) {
 	 * @param string $task | task class.
 	 * @return void
 	 */
-	function task( $task ) {
-		return app()->call( [ $task, 'run' ] );
+	function task( string $task, array $args = [] ) {
+		return app( $task )->run( ...$args );
 	}
 }
