@@ -19,8 +19,8 @@ class WidgetServiceProvider extends AbstractService
 	 * Register sidebars and widgets
 	 */
 	public function register() {
-		$this->app->set( 'sidebars', config( 'widgets.sidebars' ) );
-		$this->app->set( 'widgets', config( 'widgets.widgets' ) );
+		$this->app->set( 'sidebars', config( 'widgets.sidebars', [] ) );
+		$this->app->set( 'widgets', config( 'widgets.widgets', [] ) );
 	}
 
 	/**

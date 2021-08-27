@@ -22,11 +22,11 @@ class TimberServiceProvider extends AbstractService
 	 */
 	public function register() {
 		$keys = [
-			'views'            => config( 'views.views', 'resources/views' ),
-			'cache_path'       => config( 'views.cache' ) ? wp_normalize_path( config( 'views.cache' ) ) : false,
-			'views_namespaces' => config( 'views.namespaces' ) ?? [],
-			'timber_filters'   => config( 'timber.filters' ) ?? [],
-			'timber_functions' => config( 'timber.functions' ) ?? [],
+			'views.dir'            => config( 'views.views', 'resources/views' ),
+			'cache.path'       => config( 'views.cache' ) ? wp_normalize_path( config( 'views.cache' ) ) : false,
+			'views.namespaces' => config( 'views.namespaces', [] ),
+			'timber.filters'   => config( 'timber.filters', [] ),
+			'timber.functions' => config( 'timber.functions', [] ),
 		];
 		foreach ( $keys as $key => $value ) {
 			$this->app->set( $key, $value );
@@ -37,7 +37,7 @@ class TimberServiceProvider extends AbstractService
 	 * Boot Timber options
 	 */
 	public function boot() {
-		$this->app->timber::$dirname = $this->app->get( 'views' );
+		$this->app->timber::$dirname = $this->app->get( 'views.dir' );
 
 		$this->addToTwig();
 		$this->setLoader();
@@ -48,8 +48,8 @@ class TimberServiceProvider extends AbstractService
 	 * Add custom filters and function to Twig
 	 */
 	private function addToTwig() {
-		$functions = $this->app->get( 'timber_functions' );
-		$filters   = $this->app->get( 'timber_filters' );
+		$functions = $this->app->get( 'timber.functions' );
+		$filters   = $this->app->get( 'timber.filters' );
 
 		add_filter(
 			'timber/twig',
@@ -75,7 +75,7 @@ class TimberServiceProvider extends AbstractService
 	 * Set custom Twig namespaces
 	 */
 	private function setLoader() {
-		$namespaces = $this->app->get( 'views_namespaces' );
+		$namespaces = $this->app->get( 'views.namespaces' );
 		add_filter(
 			'timber/loader/loader',
 			function( $loader ) use ( $namespaces ) {
@@ -96,7 +96,7 @@ class TimberServiceProvider extends AbstractService
 	 * Set cache path
 	 */
 	private function setCachePath() {
-		$cache = $this->app->get( 'cache_path' );
+		$cache = $this->app->get( 'cache.path' );
 
 		if ( (bool) $cache && isProduction() ) {
 			if ( isTimberNext() ) {

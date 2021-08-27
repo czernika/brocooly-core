@@ -24,8 +24,8 @@ class MenuServiceProvider extends AbstractService
 	 * Register menus
 	 */
 	public function register() {
-		$this->app->set( 'menus', config( 'menus.menus' ) );
-		$this->app->set( 'menus_postfix', config( 'menus.postfix' ) );
+		$this->app->set( 'menus', config( 'menus.menus', [] ) );
+		$this->app->set( 'menus_postfix', config( 'menus.postfix', '_menu' ) );
 	}
 
 	/**

@@ -15,7 +15,7 @@ use Theme\Models\Users\User;
 class UserServiceProvider extends AbstractService
 {
 	public function register() {
-		$this->app->set( 'roles', config( 'users.roles' ) );
+		$this->app->set( 'roles', config( 'users.roles', [] ) );
 	}
 
 	public function boot() {

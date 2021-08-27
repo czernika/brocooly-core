@@ -21,7 +21,7 @@ class ShortcodeServiceProvider extends AbstractService
 	 * Register shortcodes
 	 */
 	public function register() {
-		$this->app->set( 'shortcodes', config( 'views.shortcodes' ) );
+		$this->app->set( 'shortcodes', config( 'views.shortcodes', [] ) );
 	}
 
 	/**

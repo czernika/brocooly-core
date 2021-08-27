@@ -153,8 +153,8 @@ class AssetsLoader
 	 */
 	private function getExcludedAssets() {
 		$excluded = array_merge(
-			config( 'assets.excludeScripts' ),
-			config( 'assets.excludeStyles' ),
+			config( 'assets.excludedScripts', [] ),
+			config( 'assets.excludedStyles', [] ),
 		);
 
 		return $excluded;

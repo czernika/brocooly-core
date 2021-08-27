@@ -109,7 +109,7 @@ if ( ! function_exists( 'config' ) ) {
 	 * @return mixed
 	 */
 	function config( string $key = null, $default = null ) {
-		if ( Config::get( $key ) ) {
+		if ( Config::get( $key ) || null === $key ) {
 			return Config::get( $key );
 		}
 
@@ -191,7 +191,7 @@ if ( ! function_exists( 'mod' ) ) {
 	 * @return mixed
 	 */
 	function mod( string $key, $default = null ) {
-		$prefix   = app( 'customizer_prefix' );
+		$prefix   = app( 'customizer.prefix' );
 		$themeMod = $prefix . $key;
 		return get_theme_mod( $themeMod, $default );
 	}

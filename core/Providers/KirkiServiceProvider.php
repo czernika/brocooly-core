@@ -23,7 +23,7 @@ class KirkiServiceProvider extends AbstractService
 	public function register() {
 		$customizerSettings = [ 'config', 'prefix', 'panels', 'sections', 'options' ];
 		foreach ( $customizerSettings as $setting ) {
-			$this->app->set( 'customizer_' . $setting, config( 'customizer.' . $setting ) );
+			$this->app->set( 'customizer.' . $setting, config( 'customizer.' . $setting ) );
 		}
 	}
 
@@ -45,7 +45,7 @@ class KirkiServiceProvider extends AbstractService
 	 * NOTE: currently there is only one config supported
 	 */
 	private function initConfig() {
-		$configs = $this->app->get( 'customizer_config' );
+		$configs = $this->app->get( 'customizer.config' );
 
 		if ( ! empty( $configs ) ) {
 			foreach ( $configs as $id => $options ) {
@@ -58,7 +58,7 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer panel
 	 */
 	private function initPanels() {
-		$panels = $this->app->get( 'customizer_panels' );
+		$panels = $this->app->get( 'customizer.panels' );
 
 		if ( ! empty( $panels ) ) {
 			foreach ( $panels as $panelClass ) {
@@ -80,8 +80,8 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer sections
 	 */
 	private function initSections() {
-		$sections = $this->app->get( 'customizer_sections' );
-		$prefix   = $this->app->get( 'customizer_prefix' );
+		$sections = $this->app->get( 'customizer.sections' );
+		$prefix   = $this->app->get( 'customizer.prefix' );
 		$config   = $this->getConfig();
 
 		if ( ! empty( $sections ) ) {
@@ -110,8 +110,8 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer controls
 	 */
 	private function initOptions() {
-		$options = $this->app->get( 'customizer_options' );
-		$prefix  = $this->app->get( 'customizer_prefix' );
+		$options = $this->app->get( 'customizer.options' );
+		$prefix  = $this->app->get( 'customizer.prefix' );
 		$config  = $this->getConfig();
 
 		if ( ! empty( $options ) ) {
@@ -209,7 +209,7 @@ class KirkiServiceProvider extends AbstractService
 	 * @return string
 	 */
 	private function getConfig() {
-		$config = array_keys( $this->app->get( 'customizer_config' ) )[0];
+		$config = array_keys( $this->app->get( 'customizer.config' ) )[0];
 		return $config;
 	}
 }

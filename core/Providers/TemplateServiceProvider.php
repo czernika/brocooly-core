@@ -14,7 +14,7 @@ class TemplateServiceProvider extends AbstractService
 {
 
 	public function register() {
-		$this->app->set( 'templates', config( 'views.templates' ) );
+		$this->app->set( 'templates', config( 'views.templates', [] ) );
 	}
 
 	public function boot() {

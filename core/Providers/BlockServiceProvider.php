@@ -16,8 +16,8 @@ class BlockServiceProvider extends AbstractService
 {
 
 	public function register() {
-		$this->app->set( 'custom_blocks', config( 'blocks.blocks' ) );
-		$this->app->set( 'use_gutenberg', (bool) config( 'blocks.use_editor' ) );
+		$this->app->set( 'custom_blocks', config( 'blocks.blocks', [] ) );
+		$this->app->set( 'use_gutenberg', (bool) config( 'blocks.use_editor', true ) );
 	}
 
 	public function boot() {
@@ -62,7 +62,7 @@ class BlockServiceProvider extends AbstractService
 
 		add_filter( 'use_block_editor_for_post_type', '__return_false', 100 );
 
-		if ( (bool) config( 'blocks.deregister_block_styles' ) ) {
+		if ( (bool) config( 'blocks.deregister_block_styles', false ) ) {
 			remove_action( 'wp_enqueue_scripts', 'wp_common_block_scripts_and_styles' );
 		}
 

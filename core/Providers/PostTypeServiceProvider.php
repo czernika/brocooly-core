@@ -40,14 +40,14 @@ class PostTypeServiceProvider extends AbstractService
 	private array $protectedTaxonomies = [ 'category', 'post_tag' ];
 
 	public function register() {
-		foreach ( config( 'app.post_types' ) as $postTypeClass ) {
+		foreach ( config( 'app.post_types', [] ) as $postTypeClass ) {
 			$postType = $this->app->get( $postTypeClass );
 			if ( ! $this->app->has( $postType->getName() ) ) {
 				$this->app->set( $postType->getName(), create( $postTypeClass ) );
 			}
 		}
 
-		foreach ( config( 'app.taxonomies' ) as $taxonomyClass ) {
+		foreach ( config( 'app.taxonomies', [] ) as $taxonomyClass ) {
 			$taxonomy = $this->app->get( $taxonomyClass );
 			if ( ! $this->app->has( $taxonomy->getName() ) ) {
 				$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
@@ -65,7 +65,7 @@ class PostTypeServiceProvider extends AbstractService
 	 * Register post types
 	 */
 	private function registerPostTypes() {
-		$postTypes = config( 'app.post_types' );
+		$postTypes = config( 'app.post_types', [] );
 
 		if ( ! empty( $postTypes ) ) {
 			foreach ( $postTypes as $postTypeClass ) {
