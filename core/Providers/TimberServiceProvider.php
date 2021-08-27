@@ -22,7 +22,7 @@ class TimberServiceProvider extends AbstractService
 	 */
 	public function register() {
 		$keys = [
-			'views.dir'            => config( 'views.views', 'resources/views' ),
+			'views.dir'        => config( 'views.views', 'resources/views' ),
 			'cache.path'       => config( 'views.cache' ) ? wp_normalize_path( config( 'views.cache' ) ) : false,
 			'views.namespaces' => config( 'views.namespaces', [] ),
 			'timber.filters'   => config( 'timber.filters', [] ),
@@ -82,7 +82,7 @@ class TimberServiceProvider extends AbstractService
 				if ( ! empty( $namespaces ) ) {
 					foreach ( $namespaces as $namespace => $path ) {
 						$loader->addPath(
-							trailingslashit( get_theme_file_path( $this->app->get( 'views' ) ) ) . $path,
+							trailingslashit( get_theme_file_path( $this->app->get( 'views.dir' ) ) ) . $path,
 							$namespace
 						);
 					}
