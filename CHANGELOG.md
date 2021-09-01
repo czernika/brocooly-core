@@ -17,6 +17,7 @@
 * **[Refactor]**: WPRequest method searchQuery renamed to getSearchQuery
 * **[Fix]**: improved model stub for Post Type and Taxonomy
 * **[Fix]**: removed Product post type from protected - let user handle which to register
+* **[Fix]**: closures as a second parameter causes fatal error.
 
 Release Date: August 21, 2021
 

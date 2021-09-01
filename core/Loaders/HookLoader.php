@@ -10,6 +10,8 @@ namespace Brocooly\Loaders;
 
 use Brocooly\App;
 use Brocooly\Hooks\BodyClass;
+use Brocooly\Hooks\DisableEmoji;
+use Brocooly\Hooks\RemoveMetaGenerator;
 use Webmozart\Assert\Assert;
 
 class HookLoader
@@ -29,6 +31,8 @@ class HookLoader
 	 */
 	private array $hooks = [
 		BodyClass::class,
+		DisableEmoji::class,
+		RemoveMetaGenerator::class,
 	];
 
 	public function __construct( App $app ) {

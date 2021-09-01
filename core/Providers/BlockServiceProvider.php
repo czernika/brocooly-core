@@ -17,7 +17,7 @@ class BlockServiceProvider extends AbstractService
 
 	public function register() {
 		$this->app->set( 'custom_blocks', config( 'blocks.blocks', [] ) );
-		$this->app->set( 'use_gutenberg', (bool) config( 'blocks.use_editor', true ) );
+		$this->app->set( 'use_gutenberg', (bool) config( 'blocks.use_editor' ) );
 	}
 
 	public function boot() {

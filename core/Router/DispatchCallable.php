@@ -30,7 +30,7 @@ class DispatchCallable
 		/**
 		 * @since Brocooly 0.13.1
 		 */
-		if ( Str::contains( $callable, '@' ) ) {
+		if ( is_string( $callable ) && Str::contains( $callable, '@' ) ) {
 			$callable = explode( '@', $callable );
 			return static::dispatchControllerMethod( $callable );
 		}
