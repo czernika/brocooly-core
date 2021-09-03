@@ -100,6 +100,7 @@ class AssetsLoader
 		add_action(
 			'wp_enqueue_scripts',
 			function() use ( $scripts ) {
+
 				foreach ( $scripts as $name => $script ) {
 					if ( file_exists( $this->getFilePath( $script ) ) ) {
 						wp_enqueue_script(
@@ -109,6 +110,20 @@ class AssetsLoader
 							$this->getFileVersion( $script ),
 							true,
 						);
+					}
+				}
+				
+				/**
+				 * Localize script
+				 *
+				 * @since Brocooly 0.14.2
+				 */
+				$localization = config( 'assets.localize', [] );
+				if ( ! empty( $localization) ) {
+					foreach ( $localization as $handler => $objects ) {
+						foreach ( $objects as $objectName => $i18n ) {
+							wp_localize_script( $handler, $objectName, $i18n );
+						}
 					}
 				}
 			}
