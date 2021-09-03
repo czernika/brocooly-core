@@ -16,7 +16,7 @@ class DisableEmoji
 		add_action( 'init', [ $this, 'disableEmoji' ] );
 	}
 
-	private function disableEmoji() {
+	public function disableEmoji() {
 		remove_action( 'admin_print_styles', 'print_emoji_styles' );
 		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
@@ -30,7 +30,7 @@ class DisableEmoji
 		add_filter( 'emoji_svg_url', '__return_false' );
 	}
 
-	private function disableEmojiFromTinyMCE( $plugins ) {
+	public function disableEmojiFromTinyMCE( $plugins ) {
 		if ( is_array( $plugins ) ) {
 			return array_diff( $plugins, [ 'wpemoji' ] );
 		}
