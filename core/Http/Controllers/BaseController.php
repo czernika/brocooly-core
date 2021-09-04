@@ -46,8 +46,7 @@ abstract class BaseController
 
 	private function loadMiddleware() {
 		foreach ( $this->middleware as $middleware ) {
-			$middle = app()->make( $middleware );
-			$middle->handle();
+			app()->call( [ $middleware, 'handle' ] );
 		}
 	}
 
