@@ -222,9 +222,9 @@ class App implements AppContainerInterface
 	 * @param string $key | key to get.
 	 * @return mixed
 	 */
-	public function get(string $key)
+	public function get($id)
 	{
-		return $this->container->get($key);
+		return $this->container->get($id);
 	}
 
 	/**
@@ -233,7 +233,7 @@ class App implements AppContainerInterface
 	 * @param string $key | key name.
 	 * @param mixed  $value | key value.
 	 */
-	public function set(string $key, $value)
+	public function set($key, $value)
 	{
 		$this->container->set($key, $value);
 	}
@@ -244,7 +244,7 @@ class App implements AppContainerInterface
 	 * @param string $key | key to check.
 	 * @return boolean
 	 */
-	public function has(string $key)
+	public function has($key)
 	{
 		return $this->container->has($key);
 	}
@@ -266,7 +266,7 @@ class App implements AppContainerInterface
 	 * @param array  $parameters | additional data to pass.
 	 * @return object
 	 */
-	public function make(string $name, array $parameters = [])
+	public function make($name, $parameters = [])
 	{
 		return $this->container->make($name, $parameters);
 	}
@@ -274,7 +274,7 @@ class App implements AppContainerInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function call($callable, array $parameters = [])
+	public function call($callable, $parameters = [])
 	{
 		return $this->container->call($callable, $parameters);
 	}
