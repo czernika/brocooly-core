@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Brocooly;
 
-use DI\Container;
 use Timber\Timber;
 use Brocooly\Support\Facades\File;
 use Brocooly\Loaders\HookLoader;
@@ -22,14 +21,15 @@ use Brocooly\Loaders\ConfigLoader;
 use Brocooly\Loaders\DebuggerLoader;
 use Brocooly\Loaders\DefinitionLoader;
 use Brocooly\Loaders\RegisterProvider;
-use Psr\Container\ContainerInterface;
 use Brocooly\Contracts\AppContainerInterface;
-
-use function DI\factory;
-use function DI\autowire;
+use Brocooly\Support\Traits\AppContainer;
+use Brocooly\Support\Traits\HasContainer;
+use Psr\Container\ContainerInterface;
 
 class App implements AppContainerInterface
 {
+
+	use HasContainer, AppContainer;
 
 	/**
 	 * Timber instance
@@ -41,9 +41,9 @@ class App implements AppContainerInterface
 	/**
 	 * DI Container
 	 *
-	 * @var instanceof \DI\Container
+	 * @var object
 	 */
-	private Container $container;
+	private $container;
 
 	/**
 	 * Router
@@ -84,13 +84,15 @@ class App implements AppContainerInterface
 	 */
 	private bool $webRoutesWasLoaded = false;
 
-	public function __construct(Container $c)
+	public function __construct( ContainerInterface $container )
 	{
 
 		$this->checkMinRequirements();
 
-		$this->container = $c;
-		static::$app     = $this;
+		$this->setContainer( $container );
+
+		$this->container = $this->container();
+		self::$app       = $this;
 		$this->timber    = $this->container->get('timber');
 		$this->router    = $this->container->get('routing');
 	}
@@ -187,95 +189,5 @@ class App implements AppContainerInterface
 			}
 			$this->booted = true;
 		}
-	}
-
-	/**
-	 * Bind Interface with it's class object
-	 *
-	 * @inheritdoc
-	 */
-	public function bind(string $key, string $value)
-	{
-		$this->container->set(
-			$key,
-			factory(
-				function (ContainerInterface $container) use ($value) {
-					return $container->get($value);
-				}
-			)
-		);
-	}
-
-	/**
-	 * Wire key with it's value using DI\Container
-	 *
-	 * @inheritdoc
-	 */
-	public function wire(string $key, string $value)
-	{
-		$this->container->set($key, autowire($value));
-	}
-
-	/**
-	 * Get key from App Container
-	 *
-	 * @param string $key | key to get.
-	 * @return mixed
-	 */
-	public function get($id)
-	{
-		return $this->container->get($id);
-	}
-
-	/**
-	 * Set value into App Container
-	 *
-	 * @param string $key | key name.
-	 * @param mixed  $value | key value.
-	 */
-	public function set($key, $value)
-	{
-		$this->container->set($key, $value);
-	}
-
-	/**
-	 * Check if is value exists in App Container
-	 *
-	 * @param string $key | key to check.
-	 * @return boolean
-	 */
-	public function has($key)
-	{
-		return $this->container->has($key);
-	}
-
-	/**
-	 * Inject dependencies into object
-	 *
-	 * @param $object | instance of class to inject on.
-	 */
-	public function injectOn($object)
-	{
-		return $this->container->injectOn($object);
-	}
-
-	/**
-	 * Create instance of object
-	 *
-	 * @param string $name | object name.
-	 * @param array  $parameters | additional data to pass.
-	 * @return object
-	 */
-	public function make($name, $parameters = [])
-	{
-		return $this->container->make($name, $parameters);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function call($callable, $parameters = [])
-	{
-		return $this->container->call($callable, $parameters);
 	}
 }
