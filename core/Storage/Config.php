@@ -52,12 +52,14 @@ class Config
 		 */
 		[ $file, $data ] = explode( '.', $key );
 
+		$filePath = BROCOOLY_THEME_PATH . 'config/' . $file . '.php';
+
 		Assert::fileExists(
-			BROCOOLY_THEME_PATH . 'config/' . $file . '.php',
+			$filePath,
 			/* translators: 1: file name. */
 			sprintf(
 				'File %s not exists',
-				esc_html( wp_normalize_path( BROCOOLY_THEME_PATH . 'config/' . $file . '.php' ) )
+				esc_html( wp_normalize_path( $filePath ) )
 			),
 		);
 

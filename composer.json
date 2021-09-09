@@ -31,7 +31,8 @@
         "illuminate/filesystem": "^8.53",
         "illuminate/translation": "^8.53",
         "elegantweb/sanitizer": "^1.1",
-        "spatie/once": "^2.2"
+        "spatie/once": "^2.2",
+        "nochso/html-compress-twig": "^2.0"
 	},
 	"autoload": {
 		"psr-4": {

@@ -31,6 +31,18 @@ class DebuggerLoader
 	 * Register Debuggers for both views and backend
 	 */
 	public function call() {
+
+		/**
+		 * Twig minimizer
+		 */
+		add_filter(
+			'timber/loader/twig',
+			function( $twig ) {
+				$twig->addExtension( new \nochso\HtmlCompressTwig\Extension( isProduction() ) );
+				return $twig;
+			}
+		);
+
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
 			/**

@@ -14,31 +14,17 @@ class DefinitionLoader
 {
 
 	/**
-	 * Definitions array
-	 *
-	 * @var array
-	 */
-	private array $definitions;
-
-	public function __construct() {
-		$this->definitions = [
-
-			/**
-			 * Theme constants
-			 */
-			'BROCOOLY_THEME_PATH' => trailingslashit( get_template_directory() ),
-			'BROCOOLY_THEME_URI'  => trailingslashit( get_template_directory_uri() ),
-		];
-	}
-
-	/**
 	 * Register theme definitions and constants
 	 *
 	 * @return void
 	 */
 	public function call() {
-		foreach ( $this->definitions as $key => $value ) {
-			defined( $key ) || define( $key, $value );
+		if ( ! defined( 'BROCOOLY_THEME_PATH' ) ) {
+			define( 'BROCOOLY_THEME_PATH', trailingslashit( get_template_directory() ) );
+		}
+
+		if ( ! defined( 'BROCOOLY_THEME_URI' ) ) {
+			define( 'BROCOOLY_THEME_URI', trailingslashit( get_template_directory_uri() ) );
 		}
 	}
 }

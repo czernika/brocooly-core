@@ -15,6 +15,11 @@ namespace Brocooly\Customizer;
 abstract class AbstractOption
 {
 
+	public function __toString()
+	{
+		return static::class;
+	}
+
 	/**
 	 * Option settings
 	 *
@@ -25,7 +30,7 @@ abstract class AbstractOption
 			/* translators: 1 - class name. */
 			sprintf(
 				'No settings were specified for "%s" class',
-				get_class( $this ),
+				$this,
 			)
 		);
 	}
