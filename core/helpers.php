@@ -240,3 +240,18 @@ if ( ! function_exists( 'task' ) ) {
 		return app( $task )->run( ...$args );
 	}
 }
+
+if ( ! function_exists( 'sprite' ) ) {
+
+	/**
+	 * Return SVG sprite path
+	 *
+	 * @param string $svgId | SVG icon ID attribute
+	 * @return string
+	 */
+	function sprite( string $svgId ) {
+		$spriteFileName = 'spritemap.svg';
+		$spriteFileUri  = BROCOOLY_THEME_URI . 'public/' . $spriteFileName;
+		return $spriteFileUri . '#' . $svgId;
+	}
+}
