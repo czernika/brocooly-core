@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class CreateFileConsoleCommand extends Command
 {
 
-	protected string $rootFolder = '/inc/';
+	protected string $rootFolder = '/src/';
 
 	/**
 	 * Stub file model
