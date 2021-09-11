@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
-use Timber\Timber;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
@@ -56,12 +55,22 @@ class TimberServiceProvider extends AbstractService
 			function( $twig ) use ( $functions, $filters ) {
 				if ( ! empty( $functions ) ) {
 					foreach ( $functions as $name => $callback ) {
+
+						if ( is_numeric( $name ) ) {
+							$name = $callback;
+						}
+
 						$twig->addFunction( new TwigFunction( $name, $callback ) );
 					}
 				}
 
 				if ( ! empty( $filters ) ) {
 					foreach ( $filters as $name => $callback ) {
+
+						if ( is_numeric( $name ) ) {
+							$name = $callback;
+						}
+
 						$twig->addFilter( new TwigFilter( $name, $callback ) );
 					}
 				}
