@@ -17,6 +17,17 @@ use Webmozart\Assert\Assert;
 class KirkiServiceProvider extends AbstractService
 {
 
+	private array $wpSections = [
+		'title_tagline',
+		'colors',
+		'header_image',
+		'background_image',
+		'nav_menus',
+		'widgets',
+		'static_front_page',
+		'custom_css',
+	];
+
 	/**
 	 * Register customizer configuration
 	 */
@@ -71,7 +82,9 @@ class KirkiServiceProvider extends AbstractService
 					$options = [ 'title' => $options ];
 				}
 
-				Kirki::add_panel( esc_html( $panel::PANEL_ID ), $options );
+				if ( ! in_array( $panel::PANEL_ID, $this->wpSections, true ) ) {
+					Kirki::add_panel( esc_html( $panel::PANEL_ID ), $options );
+				}
 			}
 		}
 	}
@@ -95,7 +108,9 @@ class KirkiServiceProvider extends AbstractService
 					$options = [ 'title' => $options ];
 				}
 
-				Kirki::add_section( esc_html( $section::SECTION_ID ), $options );
+				if ( ! in_array( $section::SECTION_ID, $this->wpSections, true ) ) {
+					Kirki::add_section( esc_html( $section::SECTION_ID ), $options );
+				}
 
 				foreach ( $section->controls() as $controls ) {
 					$controls['section']  = esc_html( $section::SECTION_ID );
