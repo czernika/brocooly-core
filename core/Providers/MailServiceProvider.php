@@ -24,11 +24,19 @@ class MailServiceProvider extends AbstractService
 		if ( 'smtp' === $mailer ) {
 			$this->setSMTP( $mail );
 		}
+
+		if ( 'mailhog' === $mailer ) {
+			$this->setMailHog( $mail );
+		}
 	}
 
 	public function boot() {
 		if ( 'smtp' === $this->app->get( 'mail.mailer' ) ) {
-			add_action( 'phpmailer_init', [ $this, 'setCredentials' ] );
+			add_action( 'phpmailer_init', [ $this, 'setSMTPCredentials' ] );
+		}
+
+		if ( 'mailhog' === $this->app->get( 'mail.mailer' ) ) {
+			add_action( 'phpmailer_init', [ $this, 'setMailHogCredentials' ] );
 		}
 
 		add_action( 'wp_mail_content_type', [ $this, 'setContentType' ] );
@@ -44,7 +52,12 @@ class MailServiceProvider extends AbstractService
 		$this->app->set( 'mail.password', $mail['password'] );
 	}
 
-	public function setCredentials( PHPMailer $mailer ) {
+	private function setMailHog( array $mail ) {
+		$this->app->set( 'mail.host', $mail['host'] );
+		$this->app->set( 'mail.port', $mail['port'] );
+	}
+
+	public function setSMTPCredentials( PHPMailer $mailer ) {
 		$mailer->IsSMTP();
 		$mailer->SMTPAutoTLS = false;
 
@@ -55,6 +68,16 @@ class MailServiceProvider extends AbstractService
 		$mailer->Port     = $this->app->get( 'mail.port' );
 		$mailer->Username = $this->app->get( 'mail.username' );
 		$mailer->Password = $this->app->get( 'mail.password' );
+
+		return $mailer;
+	}
+
+	public function setMailHogCredentials( PHPMailer $mailer ) {
+		$mailer->IsSMTP();
+		$mailer->SMTPAuth = false;
+
+		$mailer->Host     = $this->app->get( 'mail.host' );
+		$mailer->Port     = $this->app->get( 'mail.port' );
 
 		return $mailer;
 	}
