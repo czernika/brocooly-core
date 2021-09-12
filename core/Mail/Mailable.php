@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Brocooly\Mail;
 
 use Brocooly\Router\View;
+use Timber\Timber;
 
 abstract class Mailable
 {
@@ -33,8 +34,9 @@ abstract class Mailable
 		return $this->attachments;
 	}
 
-	public function template( string $template, array $ctx ) {
-		return View::compile( $template, $ctx );
+	public function template( string $template, array $ctx = [] ) {
+		$context = array_merge( $ctx, Timber::context() );
+		return View::compile( $template, $context );
 	}
 
 	abstract public function build();

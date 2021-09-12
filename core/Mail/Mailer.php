@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Mail;
 
+use Timber\Timber;
 use Brocooly\Router\View;
 use Webmozart\Assert\Assert;
 
@@ -43,8 +44,9 @@ class Mailer
 	}
 
 
-	public function template( string $template, array $ctx ) {
-		$message       = View::compile( $template, $ctx );
+	public function template( string $template, array $ctx = [] ) {
+		$context       = array_merge( $ctx, Timber::context() );
+		$message       = View::compile( $template, $context );
 		$this->message = $message;
 		return $this;
 	}
