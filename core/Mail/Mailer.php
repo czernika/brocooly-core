@@ -62,19 +62,23 @@ class Mailer
 	}
 
 
-	public function send( $mailTo = null, $subject = null, $message = null ) {
+	public function mailable( $mailer ) {
 
-		if ( $mailTo ) {
-			$this->mailTo = $mailTo;
-		}
+		$mailable = app( $mailer );
+		$mailable->build();
 
-		if ( $subject ) {
-			$this->subject = $subject;
-		}
+		$this->subject     = $mailable->getSubject();
+		$this->message     = $mailable->getMessage();
+		$this->headers     = $mailable->getHeaders();
+		$this->attachments = $mailable->getAttachments();
 
-		if ( $message ) {
-			$this->message = $message;
-		}
+		Assert::notNull( $this->mailTo, 'Mail recipient is not specified' );
+
+		$this->send();
+	}
+
+
+	public function send() {
 
 		Assert::notNull( $this->mailTo, 'Mail recipient is not specified' );
 		Assert::notNull( $this->subject, 'Mail subject is not specified' );
