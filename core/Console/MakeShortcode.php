@@ -78,7 +78,7 @@ class MakeShortcode extends CreateFileConsoleCommand
 		$this->createFile(
 			$output,
 			$this->shortcode,
-			'Views/Shortcodes/',
+			'UI/Shortcodes/',
 			'Shortcode.php',
 		);
 

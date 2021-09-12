@@ -61,7 +61,7 @@ class MakeSidebar extends CreateFileConsoleCommand
 	 */
 	protected function preexecute( InputInterface $input, OutputInterface $output ) {
 		$this->sidebar = $input->getArgument( 'sidebar' );
-		$outputFolder = 'Views/Widgets/';
+		$outputFolder = 'UI/Widgets/';
 		$postfix      = 'Sidebar.php';
 
 		$this->createFile(
