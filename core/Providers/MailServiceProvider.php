@@ -16,26 +16,27 @@ class MailServiceProvider extends AbstractService
 		$this->app->set( 'mail.from_name', $mailFrom['name'] );
 		$this->app->set( 'mail.from_address', $mailFrom['address'] );
 
-		$mailer = config( 'mail.default' );
-		$mail   = config( 'mail.mailers' )[ $mailer ];
+		$mailer    = config( 'mail.default' );
+		$mail      = config( 'mail.mailers' )[ $mailer ];
+		$transport = $mail['transport'];
 
-		$this->app->set( 'mail.mailer', $mail['transport'] );
+		$this->app->set( 'mail.transport', $transport );
 
-		if ( 'smtp' === $mailer ) {
+		if ( 'smtp' === $transport ) {
 			$this->setSMTP( $mail );
 		}
 
-		if ( 'mailhog' === $mailer ) {
+		if ( 'mailhog' === $transport ) {
 			$this->setMailHog( $mail );
 		}
 	}
 
 	public function boot() {
-		if ( 'smtp' === $this->app->get( 'mail.mailer' ) ) {
+		if ( 'smtp' === $this->app->get( 'mail.transport' ) ) {
 			add_action( 'phpmailer_init', [ $this, 'setSMTPCredentials' ] );
 		}
 
-		if ( 'mailhog' === $this->app->get( 'mail.mailer' ) ) {
+		if ( 'mailhog' === $this->app->get( 'mail.transport' ) ) {
 			add_action( 'phpmailer_init', [ $this, 'setMailHogCredentials' ] );
 		}
 
@@ -83,7 +84,7 @@ class MailServiceProvider extends AbstractService
 	}
 
 	public function setContentType( string $contentType ) {
-		return "text/html";
+		return config( 'mail.type' ) ?? "text/html";
 	}
 
 	public function setMailFromAddress( string $from ) {
