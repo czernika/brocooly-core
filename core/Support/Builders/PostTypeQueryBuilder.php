@@ -61,7 +61,7 @@ class PostTypeQueryBuilder extends QueryBuilder
 			return Timber::get_post( $id );
 		}
 
-		return new Post( $id );
+		return app()->make( $this->postType, compact( 'id' ) );
 	}
 
 	/**
@@ -74,6 +74,6 @@ class PostTypeQueryBuilder extends QueryBuilder
 			return Timber::get_post();
 		}
 
-		return new Post();
+		return app( $this->postType );
 	}
 }
