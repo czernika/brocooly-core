@@ -44,6 +44,28 @@ abstract class Taxonomy extends Term
 	protected static $postTypes = 'post';
 
 	/**
+	 * Get array of protected meta calling as methods
+	 *
+	 * @var array
+	 */
+	protected array $allowedMeta = [];
+
+	/**
+	 * Get carbon meta or parent function
+	 *
+	 * @param string $field | method name.
+	 * @param array $args | function arguments.
+	 * @return mixed
+	 */
+	public function __call( $field, $args ) {
+		if ( in_array( $field, $this->allowedMeta, true ) ) {
+			return carbon_get_term_meta( $this->id, $field );
+		}
+
+		return parent::__call( $field, $args );
+	}
+
+	/**
 	 * Get post type name
 	 *
 	 * @return string

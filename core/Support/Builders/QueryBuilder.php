@@ -342,7 +342,7 @@ class QueryBuilder
 			return Timber::get_posts( $query );
 		}
 
-		return new PostQuery( $query );
+		return new PostQuery( $query, get_class( app( $this->postType ) ) );
 	}
 
 	/**
@@ -355,7 +355,7 @@ class QueryBuilder
 			return Timber::get_posts( $this->queryParams );
 		}
 
-		return new PostQuery( $this->queryParams );
+		return new PostQuery( $this->queryParams, get_class( app( $this->postType ) ) );
 	}
 
 	/**

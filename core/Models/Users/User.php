@@ -25,6 +25,28 @@ abstract class User extends TimberUser
 	const ROLE = 'user';
 
 	/**
+	 * Get array of protected meta calling as methods
+	 *
+	 * @var array
+	 */
+	protected array $allowedMeta = [];
+
+	/**
+	 * Get carbon meta or parent function
+	 *
+	 * @param string $field | method name.
+	 * @param array $args | function arguments.
+	 * @return mixed
+	 */
+	public function __call( $field, $args ) {
+		if ( in_array( $field, $this->allowedMeta, true ) ) {
+			return carbon_get_user_meta( $this->id, $field );
+		}
+
+		return parent::__call( $field, $args );
+	}
+
+	/**
 	 * Return role name in human readable format
 	 *
 	 * @return string

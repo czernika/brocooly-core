@@ -16,6 +16,26 @@ class Comment
 {
 
 	/**
+	 * Get array of protected meta calling as methods
+	 *
+	 * @var array
+	 */
+	protected array $allowedMeta = [];
+
+	/**
+	 * Get carbon meta or parent function
+	 *
+	 * @param string $field | method name.
+	 * @param array $args | function arguments.
+	 * @return mixed
+	 */
+	public function __call( $field, $args ) {
+		if ( in_array( $field, $this->allowedMeta, true ) ) {
+			return carbon_get_comment_meta( $this->id, $field );
+		}
+	}
+
+	/**
 	 * Create metabox container for post types
 	 *
 	 * @param string $id | container id.
