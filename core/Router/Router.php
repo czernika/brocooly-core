@@ -63,7 +63,7 @@ class Router
 	}
 
 	public function __call( $condition, $args ) {
-		if ( ! in_array( $condition, $this->allowedConditionals, true ) ) {
+		if ( ! in_array( Str::snake( $condition ), $this->allowedConditionals, true ) ) {
 			return;
 		}
 
