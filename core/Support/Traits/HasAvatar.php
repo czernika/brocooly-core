@@ -6,7 +6,7 @@ namespace Brocooly\Support\Traits;
 
 use Brocooly\Support\Facades\Meta;
 
-trait Avatar
+trait HasAvatar
 {
     public function userAvatar() {
 		$this->createFields(

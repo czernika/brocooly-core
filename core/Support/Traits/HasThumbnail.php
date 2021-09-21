@@ -12,7 +12,7 @@ namespace Brocooly\Support\Traits;
 
 use Brocooly\Support\Facades\Meta;
 
-trait Thumbnail
+trait HasThumbnail
 {
 	public function thumbnail() {
 		$this->createFields(
