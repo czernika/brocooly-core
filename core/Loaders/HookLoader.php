@@ -49,7 +49,7 @@ class HookLoader
 	 * @return void
 	 */
 	private function setHooks() {
-		$themeHooks = config( 'app.hooks' );
+		$themeHooks = config( 'app.hooks', [] );
 
 		$hooks = array_merge( $this->hooks, $themeHooks );
 

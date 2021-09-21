@@ -24,10 +24,12 @@ class UserServiceProvider extends AbstractService
 	}
 
 	private function registerUser() {
-		$user = $this->app->get( User::class );
+		if ( class_exists( User::class ) ) {
+			$user = $this->app->get( User::class );
 
-		$this->callMetaFields( $user, 'fields' );
-		$this->callMetaFields( $user, 'userAvatar' ); // avatar trait.
+			$this->callMetaFields( $user, 'fields' );
+			$this->callMetaFields( $user, 'userAvatar' ); // avatar trait.
+		}
 	}
 
 	private function callMetaFields( object $user, string $method ) {
