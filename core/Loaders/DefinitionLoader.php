@@ -26,5 +26,13 @@ class DefinitionLoader
 		if ( ! defined( 'BROCOOLY_THEME_URI' ) ) {
 			define( 'BROCOOLY_THEME_URI', trailingslashit( get_template_directory_uri() ) );
 		}
+
+		if ( ! defined( 'BROCOOLY_THEME_BOOT_PATH' ) ) {
+			define( 'BROCOOLY_THEME_BOOT_PATH', BROCOOLY_THEME_PATH . 'bootstrap' );
+		}
+
+		if ( ! defined( 'BROCOOLY_THEME_CONFIG_PATH' ) ) {
+			define( 'BROCOOLY_THEME_CONFIG_PATH', BROCOOLY_THEME_PATH . 'config' );
+		}
 	}
 }

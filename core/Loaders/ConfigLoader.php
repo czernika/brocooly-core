@@ -31,7 +31,7 @@ class ConfigLoader
 	 * Get all configuration data from `config` folder
 	 */
 	public function call() {
-		$configFiles = glob( wp_normalize_path( get_template_directory() . '/config' ) . '/*.php' );
+		$configFiles = glob( wp_normalize_path( BROCOOLY_THEME_CONFIG_PATH . '/*.php' ) );
 
 		$data = [];
 		foreach ( $configFiles as $file ) {
