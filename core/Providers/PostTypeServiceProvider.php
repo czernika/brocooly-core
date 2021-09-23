@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
-use Theme\Models\WP\Comment;
 use Webmozart\Assert\Assert;
 
 use function DI\create;
@@ -53,6 +52,8 @@ class PostTypeServiceProvider extends AbstractService
 				$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
 			}
 		}
+
+		$this->app->set( 'comments.parent', config( 'comments.parent', null ) );
 	}
 
 	public function boot() {
@@ -167,9 +168,9 @@ class PostTypeServiceProvider extends AbstractService
 	 * Register comment container
 	 */
 	private function registerComments() {
-		$commentClass = Comment::class;
+		$commentClass = $this->app->get( 'comments.parent' );
 
-		if ( class_exists( $commentClass ) ) {
+		if ( $commentClass && class_exists( $commentClass ) ) {
 			$comment = $this->app->get( $commentClass );
 			if ( method_exists( $comment, 'fields' ) ) {
 				add_action(
