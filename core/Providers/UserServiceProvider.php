@@ -10,12 +10,11 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
-use Theme\Models\Users\User;
-
 class UserServiceProvider extends AbstractService
 {
 	public function register() {
-		$this->app->set( 'roles', config( 'users.roles', [] ) );
+		$this->app->set( 'users.roles', config( 'users.roles', [] ) );
+		$this->app->set( 'users.parent', config( 'users.parent', null ) );
 	}
 
 	public function boot() {
@@ -24,8 +23,10 @@ class UserServiceProvider extends AbstractService
 	}
 
 	private function registerUser() {
-		if ( class_exists( User::class ) ) {
-			$user = $this->app->get( User::class );
+		$parent = $this->app->get( 'users.parent' );
+
+		if ( $parent && class_exists( $parent ) ) {
+			$user = $this->app->get( $parent );
 
 			$this->callMetaFields( $user, 'fields' );
 			$this->callMetaFields( $user, 'userAvatar' ); // avatar trait.
@@ -53,7 +54,7 @@ class UserServiceProvider extends AbstractService
 	 * @return void
 	 */
 	private function registerRoles() {
-		$roles = $this->app->get( 'roles' );
+		$roles = $this->app->get( 'users.roles' );
 
 		if ( ! empty( $roles ) ) {
 			foreach ( $roles as $roleClass ) {
