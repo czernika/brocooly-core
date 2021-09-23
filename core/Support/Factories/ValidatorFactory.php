@@ -37,7 +37,7 @@ class ValidatorFactory extends AbstractFactory
 	private string $langDir;
 
 	public function __construct() {
-		$this->langDir     = BROCOOLY_LANG_DIR . '/validation';
+		$this->langDir     = BROCOOLY_THEME_LANG_PATH . '/validation';
 		$this->currentLang = get_locale();
 		static::$factory   = new Validation\Factory( $this->loadTranslator() );
 	}

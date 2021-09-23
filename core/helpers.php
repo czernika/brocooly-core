@@ -29,7 +29,7 @@ if ( ! defined( 'BROCOOLY_CORE_PATH' ) ) {
  * @deprecated 0.16.1 Same as `BROCOOLY_CORE_PATH`
  */
 if ( ! defined( 'CORE_PATH' ) ) {
-	define( 'CORE_PATH', BROCOOLY_CORE_PATH );
+	define( 'CORE_PATH', __DIR__ );
 }
 
 /**
