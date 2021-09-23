@@ -21,7 +21,16 @@ use function Env\env;
  * Define core root path
  * --------------------------------------------------------------------------
  */
-defined( 'CORE_PATH' ) || define( 'CORE_PATH', __DIR__ );
+if ( ! defined( 'BROCOOLY_CORE_PATH' ) ) {
+	define( 'BROCOOLY_CORE_PATH', __DIR__ );
+}
+
+/**
+ * @deprecated 0.16.1 Same as `BROCOOLY_CORE_PATH`
+ */
+if ( ! defined( 'CORE_PATH' ) ) {
+	define( 'CORE_PATH', BROCOOLY_CORE_PATH );
+}
 
 /**
  * --------------------------------------------------------------------------

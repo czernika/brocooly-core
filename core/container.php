@@ -35,7 +35,7 @@ $containerBuilder = new ContainerBuilder();
  * ! First one is VERY important - it is application definitions which includes main app instances.
  * Second one is your custom theme definitions.
  */
-$appDefinitions = require_once CORE_PATH . '/config.php';
+$appDefinitions = require_once BROCOOLY_CORE_PATH . '/config.php';
 
 $brocooly         = new Brocooly();
 $themeDefinitions = $brocooly->definitions();
