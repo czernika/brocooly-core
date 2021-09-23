@@ -90,6 +90,11 @@ class TimberServiceProvider extends AbstractService
 			function( $loader ) use ( $namespaces ) {
 				if ( ! empty( $namespaces ) ) {
 					foreach ( $namespaces as $namespace => $path ) {
+
+						if ( is_numeric( $namespace ) ) {
+							$namespace = $path;
+						}
+
 						$loader->addPath(
 							trailingslashit( get_theme_file_path( $this->app->get( 'views.dir' ) ) ) . $path,
 							$namespace
