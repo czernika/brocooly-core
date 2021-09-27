@@ -13,6 +13,7 @@ use Brocooly\Router\Router;
 use Brocooly\Storage\Config;
 use Brocooly\Loaders\AssetsLoader;
 use Brocooly\Http\Request\Request;
+use Webmozart\Assert\Assert;
 
 use function Env\env;
 
@@ -246,7 +247,11 @@ if ( ! function_exists( 'task' ) ) {
 	 * @return void
 	 */
 	function task( string $task, array $args = [] ) {
-		return app( $task )->run( ...$args );
+		$taskObject = app( $task );
+
+		Assert::methodExists( $taskObject, 'run', 'You should have `run()` method inside your task' );
+
+		return $taskObject->run( ...$args );
 	}
 }
 

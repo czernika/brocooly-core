@@ -52,8 +52,6 @@ class PostTypeServiceProvider extends AbstractService
 				$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
 			}
 		}
-
-		$this->app->set( 'comments.parent', config( 'comments.parent', null ) );
 	}
 
 	public function boot() {
