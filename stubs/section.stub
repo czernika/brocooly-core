@@ -37,7 +37,7 @@ class {{ OPTION }}Section extends AbstractSection
 	public function options() {
 		return [
 			'title' => esc_html__( '{{ OPTION }}', 'brocooly' ),
-			// 'panel' => Panel::$id,
+			// 'panel' => Panel::PANEL_ID,
 		];
 	}
 
@@ -49,7 +49,7 @@ class {{ OPTION }}Section extends AbstractSection
 	 */
 	public function controls() {
 		return [
-			// Mod::text([ 'settings' => 'example_setting', 'label' => esc_html__( 'Example setting', 'brocooly'  ) ]),
+			// Mod::text( 'example_setting', ['label' => esc_html__( 'Example setting', 'brocooly' ) ]),
 		];
 	}
 

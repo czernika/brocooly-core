@@ -71,9 +71,6 @@ class PostTypeServiceProvider extends AbstractService
 
 				$cpt = $this->app->get( $postTypeClass );
 
-				$this->callMetaFields( $cpt, 'fields' );
-				$this->callMetaFields( $cpt, 'thumbnail' ); // thumbnail trait.
-
 				if ( in_array( $cpt->getName(), $this->protectedPostTypes, true ) || $cpt->doNotRegister ) {
 
 					/**
@@ -82,6 +79,9 @@ class PostTypeServiceProvider extends AbstractService
 					 */
 					continue;
 				}
+
+				$this->callMetaFields( $cpt, 'fields' );
+				$this->callMetaFields( $cpt, 'thumbnail' ); // thumbnail trait.
 
 				Assert::methodExists(
 					$cpt,
@@ -128,15 +128,10 @@ class PostTypeServiceProvider extends AbstractService
 
 				if ( in_array( $tax->getName(), $this->protectedTaxonomies, true ) || $tax->doNotRegister ) {
 
-					if ( method_exists( $tax, 'fields' ) ) {
-						add_action(
-							'carbon_fields_register_fields',
-							[ $tax, 'fields' ],
-						);
-					}
-
 					continue;
 				}
+
+				$this->callMetaFields( $tax, 'fields' );
 
 				Assert::methodExists(
 					$tax,
@@ -179,3 +174,4 @@ class PostTypeServiceProvider extends AbstractService
 		}
 	}
 }
+
