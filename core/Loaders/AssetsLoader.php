@@ -61,7 +61,7 @@ class AssetsLoader
 	 * @return void
 	 */
 	public function call() {
-		if ( config( 'assets.autoload', true ) ) {
+		if ( config( 'assets.autoload' ) ) {
 			$this->registerStyles();
 			$this->registerScripts();
 		}
