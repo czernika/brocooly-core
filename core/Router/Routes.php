@@ -21,7 +21,7 @@ class Routes
 	public static function addRoute( $method, $name, $callback ) {
 		$routeId = wp_unique_id();
 
-		static::$routes[ $method ][ $routeId ]['name']     = $name;
+		static::$routes[ $method ][ $routeId ]['name']     = (array) $name;
 		static::$routes[ $method ][ $routeId ]['callback'] = $callback;
 	}
 }
