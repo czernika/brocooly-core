@@ -30,7 +30,7 @@ class RequestHandler
 					->all();
 
 		foreach ( $routes['get'] as $route ) {
-			if ( call_user_func( $route['name'] ) ) {
+			if ( call_user_func( ...$route['name'] ) ) {
 				DispatchCallable::dispatch( $route['callback'] );
 				return true;
 			}
