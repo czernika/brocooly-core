@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Hooks;
 
-class AddIESMimeType
+class AddMimeTypes
 {
 
 	public function filter() {
