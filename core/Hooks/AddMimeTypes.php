@@ -18,12 +18,19 @@ class AddMimeTypes
 	}
 
 	public function hook( $mime_types ) {
-		foreach ( config( 'uploads.allowed' ) as $ext => $mime ) {
-			$mime_types[ $ext ] = $mime;
+		$allowed    = config( 'uploads.allowed' );
+		$disallowed = config( 'uploads.disallowed' );
+
+		if ( ! empty( $allowed ) ) {
+			foreach ( $allowed as $ext => $mime ) {
+				$mime_types[ $ext ] = $mime;
+			}
 		}
 		
-		foreach ( config( 'uploads.disallowed' ) as $ext => $mime ) {
-			unset( $mime_types[ $ext ] );
+		if ( ! empty( $disallowed ) ) {
+			foreach ( $disallowed as $ext) {
+				unset( $mime_types[ $ext ] );
+			}
 		}
 		
 		return $mime_types;
