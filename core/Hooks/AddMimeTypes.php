@@ -22,7 +22,7 @@ class AddMimeTypes
 			$mime_types[ $ext ] = $mime;
 		}
 		
-		foreach ( config( 'uploads.allowed' ) as $ext => $mime ) {
+		foreach ( config( 'uploads.disallowed' ) as $ext => $mime ) {
 			unset( $mime_types[ $ext ] );
 		}
 		
