@@ -14,6 +14,15 @@ use Carbon_Fields\Container;
 use Timber\User as TimberUser;
 use Brocooly\Support\Builders\UserQueryBuilder;
 
+/**
+ * @method static array all()
+ * @method static array with( array $args )
+ * @method static array getBy( array $args )
+ * @method static User current()
+ * @method static WP_User where( string $key, $value )
+ * @method static WP_User find( int $id )
+ * @method static WP_User|false auth()
+ */
 abstract class User extends TimberUser
 {
 

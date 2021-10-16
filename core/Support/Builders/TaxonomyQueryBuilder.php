@@ -45,7 +45,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 *
 	 * @param string $name | post type name.
 	 * @param array  $args | additional arguments.
-	 * @return object
+	 * @return array
 	 */
 	public function all( array $args = [] ) {
 		$terms = get_terms( $this->taxonomy, $args );

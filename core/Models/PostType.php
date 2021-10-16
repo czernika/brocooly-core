@@ -15,6 +15,35 @@ use Carbon_Fields\Container;
 use Brocooly\Contracts\ModelContract;
 use Brocooly\Support\Builders\PostTypeQueryBuilder;
 
+/**
+ * @method static PostQuery all()
+ * @method static Post find( int $id )
+ * @method static Post current()
+ * @method static QueryBuilder paginate( $postsPerPage = null )
+ * @method static QueryBuilder where( string $key, $value )
+ * @method static QueryBuilder whereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' )
+ * @method static QueryBuilder orWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' )
+ * @method static QueryBuilder andWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' )
+ * @method static QueryBuilder whereAuthor( $authorId )
+ * @method static QueryBuilder whereStatus( $status )
+ * @method static QueryBuilder sort( string $order, string $orderby )
+ * @method static QueryBuilder sortByAsc( string $orderby = 'ID' )
+ * @method static QueryBuilder sortByDesc( string $orderby = 'ID' )
+ * @method static QueryBuilder offset( int $offset )
+ * @method static QueryBuilder noSticky()
+ * @method static QueryBuilder suppress()
+ * @method static QueryBuilder after( string $date )
+ * @method static QueryBuilder before( string $date )
+ * @method static QueryBuilder between( string $before, string $after )
+ * @method static QueryBuilder findByPhrase( string $key, bool $exact = false, bool $sentence = false )
+ * @method static PostQuery query( array $query )
+ * @method static PostQuery get()
+ * @method static Collection collect()
+ * @method static Collection shuffle()
+ * @method static Post first()
+ * @method static Post last()
+ * @method static Post random()
+ */
 abstract class PostType extends Post implements ModelContract
 {
 

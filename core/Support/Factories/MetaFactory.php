@@ -20,7 +20,7 @@ class MetaFactory extends AbstractFactory
 	 *
 	 * @param string $name | metabox name.
 	 * @param array  $arguments | metabox parameters.
-	 * @return object
+	 * @return void
 	 */
 	public static function create( string $name, array $arguments, $factory = null ) {
 		return Field::make( $name, ...$arguments );
