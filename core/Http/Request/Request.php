@@ -16,6 +16,13 @@ class Request
 {
 
 	/**
+	 * First error to show
+	 *
+	 * @var string
+	 */
+	protected string $firstError;
+
+	/**
 	 * Return validation rules array
 	 *
 	 * @return array
@@ -37,5 +44,14 @@ class Request
 			$rules = $this->rules();
 		}
 		return Validator::make( $data, $rules );
+	}
+
+	/**
+	 * Return first error message
+	 *
+	 * @return string
+	 */
+	public function getFirstErrorMessage() {
+		return $this->firstError;
 	}
 }
