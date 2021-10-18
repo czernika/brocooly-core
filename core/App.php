@@ -164,7 +164,6 @@ class App implements AppContainerInterface
 			 * Include routes files
 			 */
 			File::requireOnce(BROCOOLY_THEME_PATH . '/routes/web.php');
-			File::requireOnce(BROCOOLY_THEME_PATH . '/routes/ajax.php');
 
 			/**
 			 * Resolve routes
