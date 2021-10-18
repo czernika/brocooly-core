@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Brocooly\Router;
 
 use Illuminate\Support\Str;
+use Theme\Containers\Products\Web\Controllers\AjaxSearchController;
 
 class Router
 {
@@ -106,11 +107,5 @@ class Router
 		if ( ! $this->route_was_hit ) {
 			View::throw404();
 		}
-
-		$this->resolveAjax();
-	}
-
-	private function resolveAjax() {
-		RequestHandler::handleAjaxRequest();
 	}
 }

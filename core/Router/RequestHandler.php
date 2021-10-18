@@ -18,14 +18,14 @@ class RequestHandler
 	private static $routes = [];
 
 	public static function defineRoute( $routes ) {
-		static::$routes = $routes;
+		self::$routes = $routes;
 
-		$routeWasDefined = static::handleGetRequest();
+		$routeWasDefined = self::handleGetRequest();
 		return $routeWasDefined;
 	}
 
 	private static function handleGetRequest() {
-		$routes = collect( static::$routes )
+		$routes = collect( self::$routes )
 					->except( [ 'post', 'ajax' ] )
 					->all();
 
@@ -39,19 +39,19 @@ class RequestHandler
 	}
 
 	public static function handleAjaxRequest() {
-		$allRoutes = static::$routes;
-		if ( key_exists( 'ajax', $allRoutes ) ) {
-			$routes = static::$routes['ajax'];
-			foreach ( $routes as $route ) {
-				$action = $route['name'][0];
-				add_action( "wp_ajax_$action", $route['callback'] );
-				add_action( "wp_ajax_nopriv_$action", $route['callback'] );
-			}
+		$routes = Routes::getRoutes()['ajax'];
+		foreach ( $routes as $route ) {
+			$action                   = $route['name'][0];
+			[ $callerClass, $method ] = $route['callback'];
+			$classObject = app( $callerClass );
+
+			add_action( "wp_ajax_$action", [ $classObject, $method ] );
+			add_action( "wp_ajax_nopriv_$action", [ $classObject, $method ] );
 		}
 	}
 
 	public static function handlePostRequest( $key ) {
-		$routes = collect( static::$routes['post'] );
+		$routes = collect( self::$routes['post'] );
 
 		$routesCollection = $routes->filter(
 			function( $r ) use ( $key ) {
