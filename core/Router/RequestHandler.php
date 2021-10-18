@@ -43,7 +43,7 @@ class RequestHandler
 		if ( key_exists( 'ajax', $allRoutes ) ) {
 			$routes = static::$routes['ajax'];
 			foreach ( $routes as $route ) {
-				$action = $route['name'];
+				$action = $route['name'][0];
 				add_action( "wp_ajax_$action", $route['callback'] );
 				add_action( "wp_ajax_nopriv_$action", $route['callback'] );
 			}
