@@ -304,9 +304,30 @@ class QueryBuilder
 	 * @param string  $key | search phrase.
 	 * @param boolean $exact | exact or not.
 	 * @param boolean $sentence | consider full key phrase or not.
+	 * @deprecated since Brocooly 0.16.4
 	 * @return void
 	 */
 	public function findByPhrase( string $key, bool $exact = false, bool $sentence = false ) {
+		$searchQuery        = [
+			's'        => $key,
+			'exact'    => $exact,
+			'sentence' => $sentence,
+		];
+		$this->queryParams = array_merge( $this->queryParams, $searchQuery );
+
+		return $this;
+	}
+
+	/**
+	 * Find posts by search phrase.
+	 * Same as findByPhrase()
+	 *
+	 * @param string  $key | search phrase.
+	 * @param boolean $exact | exact or not.
+	 * @param boolean $sentence | consider full key phrase or not.
+	 * @return void
+	 */
+	public function search( string $key, bool $exact = false, bool $sentence = false ) {
 		$searchQuery        = [
 			's'        => $key,
 			'exact'    => $exact,
