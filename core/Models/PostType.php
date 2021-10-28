@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Brocooly\Models;
 
 use Timber\Post;
+use Timber\PostQuery;
 use Carbon_Fields\Container;
 use Brocooly\Contracts\ModelContract;
 use Brocooly\Support\Builders\PostTypeQueryBuilder;

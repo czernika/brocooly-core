@@ -45,8 +45,15 @@ class DispatchCallable
 	 * @return void
 	 */
 	private static function dispatchControllerMethod( array $callback ) {
-		[ $object, $method ] = $callback;
-		$class               = static::callController( $object );
+
+		if ( count( $callback ) > 2 ) {
+			[ $object, $method, $params ] = $callback;
+		} else {
+			$params = [];
+			[ $object, $method ] = $callback;
+		}
+
+		$class = static::callController( $object );
 
 		$onlyMethods = $class->getOnlyMethods();
 		if ( method_exists( $class, 'middlewareOnly' ) && ! empty( $onlyMethods ) ) {
@@ -59,7 +66,7 @@ class DispatchCallable
 			$class->loadMiddleware();
 		}
 
-		return call_user_func_array( [ $class, $method ], func_get_args() );
+		return call_user_func_array( [ $class, $method ], $params );
 	}
 
 	/**

@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Brocooly\Models;
 
 use Timber\Term;
+use Timber\PostQuery;
 use Carbon_Fields\Container;
 use Brocooly\Support\Builders\TaxonomyQueryBuilder;
 
