@@ -37,6 +37,7 @@ use Brocooly\Support\Builders\PostTypeQueryBuilder;
  * @method static $this before( string $date )
  * @method static $this between( string $before, string $after )
  * @method static $this findByPhrase( string $key, bool $exact = false, bool $sentence = false )
+ * @method static $this search( string $key, bool $exact = false, bool $sentence = false )
  * @method static PostQuery query( array $query )
  * @method static PostQuery get()
  * @method static Collection collect()

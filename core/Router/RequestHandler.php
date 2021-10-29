@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Router;
 
+use Illuminate\Support\Arr;
 use Webmozart\Assert\Assert;
 
 class RequestHandler
@@ -39,14 +40,17 @@ class RequestHandler
 	}
 
 	public static function handleAjaxRequest() {
-		$routes = Routes::getRoutes()['ajax'];
-		foreach ( $routes as $route ) {
-			$action                   = $route['name'][0];
-			[ $callerClass, $method ] = $route['callback'];
-			$classObject = app( $callerClass );
+		$routes = Routes::getRoutes();
+		if ( Arr::exists( $routes, 'ajax' ) ) {
+			$ajaxRoutes = $routes['ajax'];
+			foreach ( $ajaxRoutes as $route ) {
+				$action                   = $route['name'][0];
+				[ $callerClass, $method ] = $route['callback'];
+				$classObject = app( $callerClass );
 
-			add_action( "wp_ajax_$action", [ $classObject, $method ] );
-			add_action( "wp_ajax_nopriv_$action", [ $classObject, $method ] );
+				add_action( "wp_ajax_$action", [ $classObject, $method ] );
+				add_action( "wp_ajax_nopriv_$action", [ $classObject, $method ] );
+			}
 		}
 	}
 
