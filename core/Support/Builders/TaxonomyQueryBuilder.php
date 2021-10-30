@@ -137,6 +137,44 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	}
 
 	/**
+	 * Shortcut for whereTerm method
+	 *
+	 * @param integer $id | term id
+	 * @return void
+	 */
+	public function whereTermId( int $id ) {
+		return $this->whereTerm( 'id', $id );
+	}
+
+	/**
+	 * Shortcut for whereTerm method
+	 *
+	 * @param integer $name | term name
+	 * @return void
+	 */
+	public function whereTermName( string $name ) {
+		return $this->whereTerm( 'name', $name );
+	}
+
+	/**
+	 * Shortcut for whereTerm method
+	 *
+	 * @param integer $slug | term slug
+	 * @return void
+	 */
+	public function whereTermSlug( string $slug ) {
+		return $this->whereTerm( 'slug', $slug );
+	}
+
+	/**
+	 * Shortcut for whereTerm method
+	 * @return void
+	 */
+	public function currentTerm() {
+		return $this->whereTerm( 'id', get_queried_object_id() );
+	}
+
+	/**
 	 * Set query relation
 	 *
 	 * @param string $relation | taxonomy relation - OR or AND.
