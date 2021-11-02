@@ -118,7 +118,7 @@ class Mailer
 
 		Assert::notNull( $this->mailTo, 'Mail recipient is not specified' );
 
-		$this->send();
+		return $this->send();
 	}
 
 	/**
