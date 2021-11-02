@@ -1,4 +1,10 @@
 <?php
+/**
+ * Mailer
+ *
+ * @package Brocooly-core
+ * @since Brocooly 0.16.3 
+ */
 
 declare(strict_types=1);
 
@@ -25,25 +31,46 @@ class Mailer
 
 	private $attachments = [];
 
-
+	/**
+	 * Send email to resipeint
+	 *
+	 * @param string|array $mailTo | email (or array of emails) to send to
+	 * @return $this
+	 */
 	public function to( $mailTo ) {
 		$this->mailTo = $mailTo;
 		return $this;
 	}
 
-
+	/**
+	 * Set email subject
+	 *
+	 * @param string $subject | email subject.
+	 * @return 4this
+	 */
 	public function subject( string $subject ) {
 		$this->subject = $subject;
 		return $this;
 	}
 
-
+	/**
+	 * Set plain text message
+	 *
+	 * @param string $message | message to send
+	 * @return $this
+	 */
 	public function message( string $message ) {
 		$this->message = $message;
 		return $this;
 	}
 
-
+	/**
+	 * Set email template
+	 *
+	 * @param string $template | template name
+	 * @param array $ctx | template context
+	 * @return $this
+	 */
 	public function template( string $template, array $ctx = [] ) {
 		$context       = array_merge( $ctx, Timber::context() );
 		$message       = View::compile( $template, $context );
@@ -51,19 +78,34 @@ class Mailer
 		return $this;
 	}
 
-
+	/**
+	 * Set email header
+	 *
+	 * @param string|array $headers
+	 * @return $this
+	 */
 	public function headers( $headers = '' ) {
 		$this->headers = $headers;
 		return $this;
 	}
 
-
+	/**
+	 * Set email attachments
+	 *
+	 * @param array $attachments | array of attachments
+	 * @return $this
+	 */
 	public function attachments( $attachments = [] ) {
 		$this->attachments = $attachments;
 		return $this;
 	}
 
-
+	/**
+	 * Set mailable object
+	 *
+	 * @param string $mailer | mailer class
+	 * @return void
+	 */
 	public function mailable( $mailer ) {
 
 		$mailable = app( $mailer );
@@ -79,7 +121,11 @@ class Mailer
 		$this->send();
 	}
 
-
+	/**
+	 * Send email
+	 *
+	 * @return void
+	 */
 	public function send() {
 
 		Assert::notNull( $this->mailTo, 'Mail recipient is not specified' );
