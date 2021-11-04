@@ -3,14 +3,13 @@
  * Mailer
  *
  * @package Brocooly-core
- * @since Brocooly 0.16.3
+ * @since Brocooly 0.16.3 
  */
 
 declare(strict_types=1);
 
 namespace Brocooly\Mail;
 
-use Brocooly\Contracts\MailableContract;
 use Timber\Timber;
 use Brocooly\Router\View;
 use Webmozart\Assert\Assert;
@@ -104,17 +103,18 @@ class Mailer
 	/**
 	 * Set mailable object
 	 *
-	 * @param object $mailer | mailer class
+	 * @param string $mailer | mailer class
 	 * @return void
 	 */
-	public function mailable( MailableContract $mailer ) {
+	public function mailable( $mailer ) {
 
-		$mailer->build();
+		$mailable = app( $mailer );
+		$mailable->build();
 
-		$this->subject     = $mailer->getSubject();
-		$this->message     = $mailer->getMessage();
-		$this->headers     = $mailer->getHeaders();
-		$this->attachments = $mailer->getAttachments();
+		$this->subject     = $mailable->getSubject();
+		$this->message     = $mailable->getMessage();
+		$this->headers     = $mailable->getHeaders();
+		$this->attachments = $mailable->getAttachments();
 
 		Assert::notNull( $this->mailTo, 'Mail recipient is not specified' );
 
