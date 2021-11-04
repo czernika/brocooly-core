@@ -83,7 +83,7 @@ class KirkiServiceProvider extends AbstractService
 				}
 
 				if ( ! in_array( $panel::PANEL_ID, $this->wpSections, true ) ) {
-					new \Kirki\Panel( esc_html( $panel::PANEL_ID ), $options );
+					Kirki::add_panel( esc_html( $panel::PANEL_ID ), $options );
 				}
 			}
 		}
@@ -95,6 +95,7 @@ class KirkiServiceProvider extends AbstractService
 	private function initSections() {
 		$sections = $this->app->get( 'customizer.sections' );
 		$prefix   = $this->app->get( 'customizer.prefix' );
+		$config   = $this->getConfig();
 
 		if ( ! empty( $sections ) ) {
 			foreach ( $sections as $sectionClass ) {
@@ -108,14 +109,13 @@ class KirkiServiceProvider extends AbstractService
 				}
 
 				if ( ! in_array( $section::SECTION_ID, $this->wpSections, true ) ) {
-					new \Kirki\Section( esc_html( $section::SECTION_ID ), $options );
+					Kirki::add_section( esc_html( $section::SECTION_ID ), $options );
 				}
 
 				foreach ( $section->controls() as $controls ) {
-					$controls['args']['section']  = esc_html( $section::SECTION_ID );
-					$controls['args']['settings'] = $prefix . $controls['args']['settings'];
-					$type = '\\Kirki\\Field\\' . ucfirst( $controls['type'] );
-					new $type( $controls['args'] );
+					$controls['section']  = esc_html( $section::SECTION_ID );
+					$controls['settings'] = $prefix . $controls['settings'];
+					Kirki::add_field( $config, $controls );
 				}
 			}
 		}
@@ -127,6 +127,7 @@ class KirkiServiceProvider extends AbstractService
 	private function initOptions() {
 		$options = $this->app->get( 'customizer.options' );
 		$prefix  = $this->app->get( 'customizer.prefix' );
+		$config  = $this->getConfig();
 
 		if ( ! empty( $options ) ) {
 			foreach ( $options as $optionClass ) {
@@ -135,10 +136,8 @@ class KirkiServiceProvider extends AbstractService
 
 				$this->assertOption( $option, $optionClass );
 
-				$settings['args']['settings'] = $prefix . $settings['args']['settings'];
-
-				$type = '\\Kirki\\Field\\' . ucfirst( $settings['type'] );
-				new $type( $settings['args'] );
+				$settings['settings'] = $prefix . $settings['settings'];
+				Kirki::add_field( esc_html( $config ), $settings );
 			}
 		}
 	}
@@ -203,12 +202,12 @@ class KirkiServiceProvider extends AbstractService
 			sprintf(
 				'`settings()` method should return array for %1$s option, %2$s given',
 				$optionClass,
-				gettype( $option->settings()['args'] ),
+				gettype( $option->settings() ),
 			),
 		);
 
 		Assert::keyExists(
-			$option->settings()['args'],
+			$option->settings(),
 			'section',
 			/* translators: 1: customizer section class name. */
 			sprintf(
@@ -216,5 +215,16 @@ class KirkiServiceProvider extends AbstractService
 				$optionClass,
 			),
 		);
+	}
+
+	/**
+	 * Get customizer config
+	 * TODO: refactor
+	 *
+	 * @return string
+	 */
+	private function getConfig() {
+		$config = array_keys( $this->app->get( 'customizer.config' ) )[0];
+		return $config;
 	}
 }

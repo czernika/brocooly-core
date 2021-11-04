@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Brocooly\Mail;
 
-use Brocooly\Router\View;
 use Timber\Timber;
+use Brocooly\Router\View;
+use Brocooly\Contracts\MailableContract;
 
-abstract class Mailable
+abstract class Mailable implements MailableContract
 {
 
 	protected $subject;

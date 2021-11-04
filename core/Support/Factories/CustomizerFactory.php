@@ -28,16 +28,12 @@ class CustomizerFactory extends AbstractFactory
 			$opts          = (array) $options;
 			$opts['label'] = $options;
 		} else {
-			$opts = $options;
+			$opts = $options;	
 		}
 
 		$opts['settings'] = $setting;
+		$opts['type']     = Str::kebab( $type );
 
-		$settings = [
-			'args' => $opts,
-			'type' => Str::snake( $type ),
-		];
-
-		return $settings;
+		return $opts;
 	}
 }
