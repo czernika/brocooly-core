@@ -32,8 +32,12 @@ class CustomizerFactory extends AbstractFactory
 		}
 
 		$opts['settings'] = $setting;
-		$opts['type']     = Str::kebab( $type );
 
-		return $opts;
+		$settings = [
+			'args' => $opts,
+			'type' => Str::snake( $type ),
+		];
+
+		return $settings;
 	}
 }

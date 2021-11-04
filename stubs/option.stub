@@ -28,8 +28,8 @@ class {{ OPTION }}Option extends AbstractOption
 	 */
 	public function settings() {
 		return Mod::text(
+			'{{ SNAKE_OPTION }}',
 			[
-				'settings' => '{{ SNAKE_OPTION }}',
 				// 'section'  => 'title_tagline',
 				'label'    => esc_html__( '{{ OPTION }}', 'brocooly' ),
 			]
