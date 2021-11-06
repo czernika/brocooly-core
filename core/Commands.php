@@ -18,6 +18,7 @@ use Brocooly\Console\MakeHook;
 use Brocooly\Console\MakeMail;
 use Brocooly\Console\MakeMenu;
 use Brocooly\Console\MakeModelPostType;
+use Brocooly\Console\MakeModelTaxonomy;
 
 class Commands
 {
@@ -35,6 +36,7 @@ class Commands
 		MakeMenu::class,
 		MakeMail::class,
 		MakeModelPostType::class,
+		MakeModelTaxonomy::class,
 	];
 
 	/**

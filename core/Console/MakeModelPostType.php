@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Brocooly\Console;
 
 use Illuminate\Support\Str;
-use Brocooly\Customizer\AbstractSection;
 use Brocooly\Models\PostType;
 use Brocooly\Support\Facades\Meta;
-use Brocooly\Support\Facades\Mod;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
