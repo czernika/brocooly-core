@@ -83,7 +83,7 @@ class MakeCustomizerOption extends CreateClassCommand
 		$class->addExtend( AbstractOption::class );
 
 		$optionName  = Str::snake( $this->className );
-
+		$optionLabel = Str::headline( $this->className );
 		$method = $this->createMethod(
 			$class,
 			'settings',
@@ -91,7 +91,7 @@ class MakeCustomizerOption extends CreateClassCommand
 	'{$optionName}',
 	[
 		// 'section'  => WPSection::TITLE_TAGLINE,
-		'label'    => esc_html__( '{$this->className}', 'brocooly' ),
+		'label'    => esc_html__( '{$optionLabel}', 'brocooly' ),
 	],
 );"
 		);

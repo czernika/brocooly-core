@@ -15,6 +15,7 @@ use Brocooly\Console\MakeCustomizerOption;
 use Brocooly\Console\MakeCustomizerPanel;
 use Brocooly\Console\MakeCustomizerSection;
 use Brocooly\Console\MakeHook;
+use Brocooly\Console\MakeMenu;
 
 class Commands
 {
@@ -29,6 +30,7 @@ class Commands
 		MakeCustomizerPanel::class,
 		MakeCustomizerSection::class,
 		MakeHook::class,
+		MakeMenu::class,
 	];
 
 	/**

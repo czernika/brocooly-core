@@ -94,19 +94,20 @@ class MakeCustomizerSection extends CreateClassCommand
 						->addComment( "Same as `id` setting for `Kirki::add_section()\n" )
 						->addComment( "@var string" );
 
+		$sectionName = Str::headline( $this->className );
 		if ( $panel ) {
 			$panelNamespaces = explode( '/', $panel );
 			$panelClassName = end( $panelNamespaces );
 
 $optionsContent = "return [
-	'title' => esc_html__( '{$this->className}', 'brocooly' ),
+	'title' => esc_html__( '{$sectionName}', 'brocooly' ),
 	'panel' => {$panelClassName}::PANEL_ID,
 ];";
 
 			$namespace->addUse( 'Theme\Customizer\Panels\\' . Str::replace( '/', '\\', $panel ) );
 
 		} else {
-			$optionsContent = "return esc_html__( '{$this->className}', 'brocooly' );";
+			$optionsContent = "return esc_html__( '{$sectionName}', 'brocooly' );";
 		}
 
 		// Options()

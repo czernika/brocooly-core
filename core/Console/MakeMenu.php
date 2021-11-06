@@ -4,33 +4,35 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
+use Brocooly\UI\Menus\AbstractMenu;
 use Illuminate\Support\Str;
-use Brocooly\Customizer\AbstractPanel;
+
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class MakeCustomizerPanel extends CreateClassCommand
+class MakeMenu extends CreateClassCommand
 {
 	/**
 	 * The name of the command
 	 *
 	 * @var string
 	 */
-	protected static $defaultName = 'new:customizer:panel';
+	protected static $defaultName = 'new:menu';
 
-	protected $fileNamespace = 'Theme\Customizer\Panels';
+	protected $fileNamespace = 'Theme\UI\Menus';
 
-	protected $themeFileFolder = 'Customizer/Panels';
+	protected $themeFileFolder = 'UI/Menus';
 
 	protected function configure(): void
     {
         $this
 			->addArgument(
-				'panel',
+				'menu',
 				InputArgument::REQUIRED,
-				'Customizer panel name',
+				'Menu location name',
 			);
     }
 
@@ -45,7 +47,7 @@ class MakeCustomizerPanel extends CreateClassCommand
 		$io = new SymfonyStyle( $input, $output );
 
 		// Argument
-		$name = $input->getArgument( 'panel' );
+		$name = $input->getArgument( 'menu' );
 
 		$file = new \Nette\PhpGenerator\PhpFile();
 
@@ -67,42 +69,38 @@ class MakeCustomizerPanel extends CreateClassCommand
 			'';
 
 		// Create file content
-		$file->addComment( $this->className . ' - custom customizer panel' )
-			->addComment( "! Register this class inside `customizer.php` file\n" )
-			->addComment( '@see https://kirki.org/docs/setup/panels-sections/' )
+		$file->addComment( $this->className . " - custom theme menu\n" )
+			->addComment( "! Register this class inside `menus.php` file\n" )
 			->addComment( '@package Brocooly' )
 			->setStrictTypes();
 
 		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractPanel::class );
+		$namespace->addUse( AbstractMenu::class );
 
 		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractPanel::class );
+		$class->addExtend( AbstractMenu::class );
 
-		$panelConstant = $class->addConstant( 'PANEL_ID', Str::snake( $this->className ) );
-		$panelConstant->addComment( 'Panel id' )
-						->addComment( "Same as `id` setting for `Kirki::add_panel()\n" )
+		$panelConstant = $class->addConstant( 'LOCATION', Str::snake( $this->className ) );
+		$panelConstant->addComment( "Menu location\n" )
 						->addComment( "@var string" );
 
-		$panelName = Str::headline( $this->className );
+		$menuName = Str::headline( $this->className );
 		$method = $this->createMethod(
 			$class,
-			'options',
-"return esc_html__( '{$panelName}', 'brocooly' );"
+			'label',
+"return esc_html__( '{$menuName}', 'brocooly' );"
 		);
 
 		$method
-			->addComment( "Panel settings\n" )
-			->addComment( 'Create panel for customizer sections' )
-			->addComment( "Same array as arguments for `Kirki::add_panel()` or string if only title required\n" )
-			->addComment( '@return array|string' )
-			->setReturnType( 'array|string' );
+			->addComment( "Get menu label in admin area\n" )
+			->addComment( '@return string' )
+			->setReturnType( 'string' );
 
 		// Create file
 		$this->createFile( $file );
 
 		// Output
-		$io->success( 'Customizer panel ' . $name . ' was successfully created' );
+		$io->success( 'Menu ' . $name . ' was successfully created' );
 
 		return CreateClassCommand::SUCCESS;
 	}
