@@ -17,6 +17,7 @@ use Brocooly\Console\MakeCustomizerSection;
 use Brocooly\Console\MakeHook;
 use Brocooly\Console\MakeMail;
 use Brocooly\Console\MakeMenu;
+use Brocooly\Console\MakeModelPostType;
 
 class Commands
 {
@@ -33,6 +34,7 @@ class Commands
 		MakeHook::class,
 		MakeMenu::class,
 		MakeMail::class,
+		MakeModelPostType::class,
 	];
 
 	/**

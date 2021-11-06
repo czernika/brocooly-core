@@ -29,7 +29,8 @@ class MakeMail extends CreateClassCommand
 				'mail',
 				InputArgument::REQUIRED,
 				'Create new mailable class',
-			)->addOption(
+			)
+			->addOption(
 				'base',
 				'b',
 				InputOption::VALUE_NONE,
