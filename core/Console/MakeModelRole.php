@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Brocooly\Console;
 
 use Brocooly\Mail\Mailable;
+use Brocooly\Models\Users\User;
 use Illuminate\Support\Str;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,28 +14,32 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class MakeMail extends CreateClassCommand
+class MakeModelRole extends CreateClassCommand
 {
 	/**
 	 * The name of the command
 	 *
 	 * @var string
 	 */
-	protected static $defaultName = 'new:ui:mail';
+	protected static $defaultName = 'new:model:role';
+
+	protected $fileNamespace = 'Theme\Models\Users';
+
+	protected $themeFileFolder = 'Models/Users';
 
 	protected function configure(): void
     {
         $this
 			->addArgument(
-				'mail',
+				'role',
 				InputArgument::REQUIRED,
-				'Create new mailable class',
+				'Create new user role',
 			)
 			->addOption(
 				'base',
 				'b',
 				InputOption::VALUE_NONE,
-				'Create base mailable',
+				'Define this as a base WordPress role',
 			);
     }
 
@@ -49,7 +54,7 @@ class MakeMail extends CreateClassCommand
 		$io = new SymfonyStyle( $input, $output );
 
 		// Argument
-		$name = $input->getArgument( 'mail' );
+		$name = $input->getArgument( 'role' );
 
 		// Options
 		$base = $input->getOption( 'base' );
@@ -74,40 +79,51 @@ class MakeMail extends CreateClassCommand
 			'';
 
 		// Create file content
-		$file->addComment( $this->className . " - mailable class\n" )
-			->addComment( "Used to send emails\n" )
+		$file->addComment( $this->className . " - custom theme role\n" )
+			->addComment( "! Register this class inside `users.php` file\n" )
 			->addComment( '@package Brocooly' )
 			->setStrictTypes();
 
-		if ( $base ) {
-			$this->fileNamespace = 'Theme\UI\Mails';
-			$this->themeFileFolder = 'UI/Mails';
-		}
-
 		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Mailable::class );
+		$namespace->addUse( User::class );
 
 		$class = $namespace->addClass( $this->className );
-		$class->addExtend( Mailable::class );
+		$class->addExtend( User::class );
 
-		$this->createMethod( $class, '__construct' );
+		$roleConstant = $class->addConstant( 'ROLE', Str::snake( $this->className ) );
+		$roleConstant->addComment( "Role name\n" )
+						->addComment( '@var string' );
 
-		$buildMethod = $this->createMethod(
-			$class,
-			'build',
-'$this->subject = esc_html__( \'Email subject\', \'brocooly\' );
-$this->message = \'Message or template\';'
-		);
+		if ( ! $base ) {
+			$label = Str::headline( $this->className );
+			$labelMethod = $this->createMethod(
+				$class,
+				'label',
+"return esc_html__( '{$label}', 'brocooly' );"
+			);
 
-		$buildMethod
-			->addComment( "Define email constants\n" )
-			->addComment( 'You may set `$this->message` as simple string or template content with use of `$this->template()`' );
+			$labelMethod->addComment( "Return role name in human readable format\n" )
+							->addComment( '@return string' )
+							->setReturnType( 'string' );
+
+			$buildMethod = $this->createMethod(
+				$class,
+				'capabilities',
+'return $this->as( \'administrator\' );'
+			);
+
+			$buildMethod
+				->addComment( 'Get user capabilities' )
+				->addComment( "We will set same level of caps as admin has\n" )
+				->addComment( '@return array' )
+				->setReturnType( 'array' );
+		}
 
 		// Create file
 		$this->createFile( $file );
 
 		// Output
-		$io->success( 'Mailable ' . $name . ' was successfully created' );
+		$io->success( 'Custom role ' . $name . ' was successfully created' );
 
 		return CreateClassCommand::SUCCESS;
 	}

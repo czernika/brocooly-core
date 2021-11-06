@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Mail\Mailable;
+use Brocooly\UI\Menus\AbstractMenu;
 use Illuminate\Support\Str;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,28 +13,32 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class MakeMail extends CreateClassCommand
+class MakeTask extends CreateClassCommand
 {
 	/**
 	 * The name of the command
 	 *
 	 * @var string
 	 */
-	protected static $defaultName = 'new:ui:mail';
+	protected static $defaultName = 'new:task';
+
+	protected $fileNamespace = 'Theme\Tasks';
+
+	protected $themeFileFolder = 'Tasks';
 
 	protected function configure(): void
     {
         $this
 			->addArgument(
-				'mail',
+				'task',
 				InputArgument::REQUIRED,
-				'Create new mailable class',
+				'Task name',
 			)
 			->addOption(
-				'base',
-				'b',
+				'construct',
+				'c',
 				InputOption::VALUE_NONE,
-				'Create base mailable',
+				'Create construct method for task',
 			);
     }
 
@@ -49,10 +53,10 @@ class MakeMail extends CreateClassCommand
 		$io = new SymfonyStyle( $input, $output );
 
 		// Argument
-		$name = $input->getArgument( 'mail' );
+		$name = $input->getArgument( 'task' );
 
 		// Options
-		$base = $input->getOption( 'base' );
+		$isConstruct = $input->getOption( 'construct' );
 
 		$file = new \Nette\PhpGenerator\PhpFile();
 
@@ -74,40 +78,28 @@ class MakeMail extends CreateClassCommand
 			'';
 
 		// Create file content
-		$file->addComment( $this->className . " - mailable class\n" )
-			->addComment( "Used to send emails\n" )
+		$file->addComment( $this->className . " - task\n" )
 			->addComment( '@package Brocooly' )
 			->setStrictTypes();
 
-		if ( $base ) {
-			$this->fileNamespace = 'Theme\UI\Mails';
-			$this->themeFileFolder = 'UI/Mails';
+		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
+		$class = $namespace->addClass( $this->className );
+
+		if ( $isConstruct ) {
+			$this->createMethod( $class, '__construct' );
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Mailable::class );
+		$method = $this->createMethod( $class, 'run' );
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( Mailable::class );
-
-		$this->createMethod( $class, '__construct' );
-
-		$buildMethod = $this->createMethod(
-			$class,
-			'build',
-'$this->subject = esc_html__( \'Email subject\', \'brocooly\' );
-$this->message = \'Message or template\';'
-		);
-
-		$buildMethod
-			->addComment( "Define email constants\n" )
-			->addComment( 'You may set `$this->message` as simple string or template content with use of `$this->template()`' );
+		$method
+			->addComment( "The only task method\n" )
+			->addComment( 'Task HAS TO return something' );
 
 		// Create file
 		$this->createFile( $file );
 
 		// Output
-		$io->success( 'Mailable ' . $name . ' was successfully created' );
+		$io->success( 'Task ' . $name . ' was successfully created' );
 
 		return CreateClassCommand::SUCCESS;
 	}

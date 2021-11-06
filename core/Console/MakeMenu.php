@@ -20,7 +20,7 @@ class MakeMenu extends CreateClassCommand
 	 *
 	 * @var string
 	 */
-	protected static $defaultName = 'new:menu';
+	protected static $defaultName = 'new:ui:menu';
 
 	protected $fileNamespace = 'Theme\UI\Menus';
 

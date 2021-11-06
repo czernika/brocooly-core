@@ -77,7 +77,7 @@ abstract class User extends TimberUser
 	 * Return user's capabilities same as already registered role.
 	 *
 	 * @param string $role | role name.
-	 * @return \WP_Role|null
+	 * @return array|null
 	 */
 	protected function as( string $role ) {
 		$roleCaps = get_role( $role );
