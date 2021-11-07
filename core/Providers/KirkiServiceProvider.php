@@ -13,19 +13,20 @@ namespace Brocooly\Providers;
 
 use Kirki;
 use Webmozart\Assert\Assert;
+use Brocooly\Customizer\WPSection;
 
 class KirkiServiceProvider extends AbstractService
 {
 
 	private array $wpSections = [
-		'title_tagline',
-		'colors',
-		'header_image',
-		'background_image',
-		'nav_menus',
-		'widgets',
-		'static_front_page',
-		'custom_css',
+		WPSection::TITLE_TAGLINE,
+		WPSection::COLORS,
+		WPSection::HEADER_IMAGE,
+		WPSection::BACKGROUND_IMAGE,
+		WPSection::NAV_MENUS,
+		WPSection::WIDGETS,
+		WPSection::STATIC_FRONT_PAGE,
+		WPSection::CUSTOM_CSS,
 	];
 
 	/**
