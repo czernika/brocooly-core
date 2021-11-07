@@ -69,10 +69,11 @@ class DebuggerLoader
 			 * This line causing issue (problem out of the Brocooly theme)
 			 * TODO: provide an option to disable cool errors completely
 			 */
-
-			$whoops = $this->app->make( Run::class );
-			$whoops->pushHandler( $this->app->make( 'handler' ) );
-			$whoops->register();
+			if ( $this->app->get( 'handler' ) ) {
+				$whoops = $this->app->make( Run::class );
+				$whoops->pushHandler( $this->app->make( 'handler' ) );
+				$whoops->register();
+			}
 		}
 	}
 

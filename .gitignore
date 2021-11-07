@@ -5,6 +5,7 @@
 
 ### Node ###
 # Logs
+.dccache
 logs
 *.log
 npm-debug.log*
