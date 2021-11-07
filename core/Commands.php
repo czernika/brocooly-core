@@ -15,15 +15,23 @@ use Brocooly\Console\MakeController;
 use Brocooly\Console\MakeCustomizerOption;
 use Brocooly\Console\MakeCustomizerPanel;
 use Brocooly\Console\MakeCustomizerSection;
+use Brocooly\Console\MakeGutenberg;
 use Brocooly\Console\MakeHook;
 use Brocooly\Console\MakeMail;
 use Brocooly\Console\MakeMenu;
+use Brocooly\Console\MakeMiddleware;
 use Brocooly\Console\MakeModelComment;
 use Brocooly\Console\MakeModelPostType;
 use Brocooly\Console\MakeModelRole;
 use Brocooly\Console\MakeModelTaxonomy;
 use Brocooly\Console\MakeModelUser;
+use Brocooly\Console\MakeProvider;
+use Brocooly\Console\MakeRequest;
+use Brocooly\Console\MakeShortcode;
+use Brocooly\Console\MakeSidebar;
 use Brocooly\Console\MakeTask;
+use Brocooly\Console\MakeTemplate;
+use Brocooly\Console\MakeWidget;
 
 class Commands
 {
@@ -37,10 +45,18 @@ class Commands
 		MakeCustomizerSection::class,
 		MakeCustomizerPanel::class,
 		MakeController::class,
+		MakeMiddleware::class,
+		MakeRequest::class,
+		MakeProvider::class,
 		MakeHook::class,
+		MakeTask::class,
 		MakeMenu::class,
 		MakeMail::class,
-		MakeTask::class,
+		MakeTemplate::class,
+		MakeSidebar::class,
+		MakeWidget::class,
+		MakeShortcode::class,
+		MakeGutenberg::class,
 		MakeModelPostType::class,
 		MakeModelTaxonomy::class,
 		MakeModelUser::class,

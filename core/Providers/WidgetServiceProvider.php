@@ -81,7 +81,7 @@ class WidgetServiceProvider extends AbstractService
 					add_filter(
 						'timber/context',
 						function ( $context ) use ( $sidebar ) {
-							$sidebarCaller             = str_replace( '-', '_', $sidebar::SIDEBAR_ID ) . '_sidebar';
+							$sidebarCaller             = str_replace( '-', '_', $sidebar::SIDEBAR_ID );
 							$context[ $sidebarCaller ] = Timber::get_widgets( $sidebar::SIDEBAR_ID );
 							return $context;
 						}
