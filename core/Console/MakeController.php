@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Theme\Http\Controllers\AjaxController;
 
 class MakeController extends CreateClassCommand
 {
@@ -34,6 +35,12 @@ class MakeController extends CreateClassCommand
 				'b',
 				InputOption::VALUE_NONE,
 				'Create base controller',
+			)
+			->addOption(
+				'ajax',
+				'a',
+				InputOption::VALUE_NONE,
+				'Create ajax controller',
 			)
 			->addOption(
 				'invokable',
@@ -73,6 +80,7 @@ class MakeController extends CreateClassCommand
 		$resource  = $input->getOption( 'resource' );
 		$construct = $input->getOption( 'construct' );
 		$base      = $input->getOption( 'base' );
+		$ajax      = $input->getOption( 'ajax' );
 
 		$file = new \Nette\PhpGenerator\PhpFile();
 
@@ -104,10 +112,18 @@ class MakeController extends CreateClassCommand
 		}
 
 		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( BaseController::class );
-
 		$class = $namespace->addClass( $this->className );
-		$class->addExtend( BaseController::class );
+
+		if ( $ajax ) {
+			$this->createMethod( $class, 'handle' );
+
+			$namespace->addUse( AjaxController::class );
+			$class->addExtend( AjaxController::class );
+		} else {
+			$namespace->addUse( BaseController::class );
+			$class->addExtend( BaseController::class );
+		}
+
 
 		if ( $base ) {
 			$class->setAbstract();
