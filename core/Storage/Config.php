@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Storage;
 
-use Webmozart\Assert\Assert;
+use Illuminate\Support\Arr;
 
 class Config
 {
@@ -30,7 +30,7 @@ class Config
 	 * @return void
 	 */
 	public static function set( string $key, $value ) {
-		static::$data[ $key ] = $value;
+		Arr::set( static::$data, $key, $value );
 	}
 
 	/**
@@ -41,33 +41,11 @@ class Config
 	 * @return array|mixed
 	 */
 	public static function get( string $key = null ) {
-
 		if ( null === $key ) {
 			return static::$data;
 		}
 
-		/**
-		 * String $file - basename of file inside config directory
-		 * String $data - array key to get inside $file
-		 */
-		[ $file, $data ] = explode( '.', $key );
-
-		$filePath = BROCOOLY_THEME_PATH . 'config/' . $file . '.php';
-
-		Assert::fileExists(
-			$filePath,
-			/* translators: 1: file name. */
-			sprintf(
-				'File %s not exists',
-				esc_html( wp_normalize_path( $filePath ) )
-			),
-		);
-
-		if ( key_exists( $data, static::$data[ $file ] ) ) {
-			return static::$data[ $file ][ $data ];
-		}
-
-		return null;
+		return Arr::get( static::$data, $key );
 	}
 
 	/**
@@ -77,6 +55,6 @@ class Config
 	 * @return void
 	 */
 	public static function delete( string $key ) {
-		unset( static::$data[ $key ] );
+		Arr::pull( static::$data, $key );
 	}
 }
