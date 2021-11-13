@@ -96,7 +96,7 @@ class PostTypeServiceProvider extends AbstractService
 				add_action(
 					'init',
 					function() use ( $cpt ) {
-						register_post_type(
+						register_extended_post_type(
 							$cpt->getName(),
 							$cpt->getOptions(),
 						);
@@ -146,7 +146,7 @@ class PostTypeServiceProvider extends AbstractService
 				add_action(
 					'init',
 					function() use ( $tax ) {
-						register_taxonomy(
+						register_extended_taxonomy(
 							$tax->getName(),
 							$tax->getPostTypes(),
 							$tax->getOptions(),
