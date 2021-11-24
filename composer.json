@@ -1,7 +1,7 @@
 {
     "name": "czernika/brocooly-core",
-    "description": "Core engine for Brocooly Framework",
     "type": "library",
+    "description": "Core engine for Brocooly Framework",
     "license": "MIT",
     "authors": [
         {
@@ -9,39 +9,43 @@
             "email": "aliha.devs@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
-	"prefer-stable": true,
-	"require": {
-		"php": ">=7.4",
-		"composer/installers": "^1.10",
-		"vlucas/phpdotenv": "^5.3",
-		"oscarotero/env": "^2.1",
-		"htmlburger/carbon-fields": "^3.2",
-  		"timber/timber": "^1.18",
-        "hellonico/twig-dump-extension": "^1.1",
-        "php-di/php-di": "^6.3",
-        "illuminate/collections": "^8.45",
-        "illuminate/support": "^8.49",
-        "webmozart/assert": "^1.10",
-        "filp/whoops": "^2.13",
-        "symfony/console": "^5.3",
-        "nesbot/carbon": "^2.50",
+    "require": {
+        "php": ">=7.4",
+        "aristath/kirki": "v4.0-beta.3",
+        "composer/installers": "^1.10",
         "djboris88/timber-commented-include": "^1.1",
-        "illuminate/validation": "^8.53",
-        "illuminate/filesystem": "^8.53",
-        "illuminate/translation": "^8.53",
         "elegantweb/sanitizer": "^1.1",
-        "spatie/once": "^2.2",
-        "nochso/html-compress-twig": "^2.0",
+        "filp/whoops": "^2.13",
+        "hellonico/twig-dump-extension": "^1.1",
+        "htmlburger/carbon-fields": "^3.2",
+        "illuminate/collections": "^8.45",
+        "illuminate/filesystem": "^8.53",
+        "illuminate/support": "^8.49",
+        "illuminate/translation": "^8.53",
+        "illuminate/validation": "^8.53",
+        "johnbillion/extended-cpts": "^4.5",
+        "nesbot/carbon": "^2.50",
         "nette/php-generator": "^3.6",
-        "johnbillion/extended-cpts": "^4.5"
-	},
-	"autoload": {
-		"psr-4": {
-			"Brocooly\\": "core"
-		},
-		"files": [
-			"core/helpers.php"
-		]
-	}
+        "nochso/html-compress-twig": "^2.0",
+        "oscarotero/env": "^2.1",
+        "php-di/php-di": "^6.3",
+        "spatie/once": "^2.2",
+        "symfony/console": "^5.3",
+        "timber/timber": "^1.18",
+        "vlucas/phpdotenv": "^5.3",
+        "webmozart/assert": "^1.10"
+    },
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.16"
+    },
+    "autoload": {
+        "psr-4": {
+            "Brocooly\\": "core"
+        },
+        "files": [
+            "core/helpers.php"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
