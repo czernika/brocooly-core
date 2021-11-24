@@ -45,5 +45,7 @@
         "files": [
             "core/helpers.php"
         ]
-    }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }
