@@ -127,21 +127,6 @@ if ( ! function_exists( 'config' ) ) {
 	}
 }
 
-if ( ! function_exists( 'dd' ) ) {
-
-	/**
-	 * Dump and die helper
-	 *
-	 * @param mixed $val | value to check.
-	 */
-	function dd( $val ) {
-		echo '<pre>';
-		print_r( $val );
-		echo '</pre>';
-		die();
-	}
-}
-
 if ( ! function_exists( 'dump' ) ) {
 
 	/**
@@ -153,6 +138,19 @@ if ( ! function_exists( 'dump' ) ) {
 		echo '<pre>';
 		print_r( $val );
 		echo '</pre>';
+	}
+}
+
+if ( ! function_exists( 'dd' ) ) {
+
+	/**
+	 * Dump and die helper
+	 *
+	 * @param mixed $val | value to check.
+	 */
+	function dd( $val ) {
+		dump( $val );
+		die();
 	}
 }
 

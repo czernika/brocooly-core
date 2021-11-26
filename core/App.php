@@ -22,6 +22,7 @@ use Brocooly\Loaders\DebuggerLoader;
 use Brocooly\Loaders\DefinitionLoader;
 use Brocooly\Loaders\RegisterProvider;
 use Brocooly\Contracts\AppContainerInterface;
+use Brocooly\Router\Router;
 use Brocooly\Support\Traits\AppContainer;
 use Brocooly\Support\Traits\HasContainer;
 use Psr\Container\ContainerInterface;
@@ -84,14 +85,14 @@ class App implements AppContainerInterface
 	 */
 	private bool $webRoutesWasLoaded = false;
 
-	public function __construct( ContainerInterface $container )
+	public function __construct( ContainerInterface $container, Timber $timber, Router $router )
 	{
 		$this->setContainer( $container );
 
 		$this->container = $this->container();
 		self::$app       = $this;
-		$this->timber    = $this->container->get('timber');
-		$this->router    = $this->container->get('routing');
+		$this->timber    = $timber;
+		$this->router    = $router;
 	}
 
 	public static function instance()
