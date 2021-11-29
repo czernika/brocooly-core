@@ -20,9 +20,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MakeSeeder extends CreateClassCommand
 {
 
-	protected $root = '/';
+	protected $root = APP_PATH;
 
-	protected $themeRootFolder = '';
+	protected $themeRootFolder = '/';
 
 	/**
 	 * The name of the command
@@ -96,18 +96,19 @@ class MakeSeeder extends CreateClassCommand
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( Seeder::class );
 
-		if ( $postType ) {
-			$postTypeSlug = Str::of( $postType )->after( '/' ) . '::class';
-			$postType = [ new Literal( $postTypeSlug ) ];
-			$namespace->addUse( Post::class );
+		$postTypeSlug = Str::of( $postType )->after( '/' ) . '::class';
+		$postTypeLiteral = new Literal( $postTypeSlug );
 
-			$postTypesProperty = $class->addProperty( 'seeder', $postType )
-						->addComment( "Seeder post type\n" );
-		}
+		$className = 'Theme\\Models\\' . Str::replace( '/', '\\', $postType );
+
+		$namespace->addUse( $className );
+
+		$postTypesProperty = $class->addProperty( 'seeder', $postTypeLiteral )
+					->addComment( "Seeder post type\n" )
+					->addComment( '@var object' );
 
 		$timesProperty = $class->addProperty( 'times', $postType )
 						->addComment( "How many times run seeder\n" )
-						->setType( 'integer' )
 						->setValue( 1 )
 						->addComment( '@var int' );
 
@@ -115,8 +116,9 @@ class MakeSeeder extends CreateClassCommand
 			$class,
 			'params',
 "return [
-	'post_title'  => \$this->faker->name,
-	'post_author' => 1,
+	'post_title'   => \$this->faker->name,
+	'post_author'  => 1,
+	'post_content' => \$this->faker->paragraph,,
 ];"
 		);
 
