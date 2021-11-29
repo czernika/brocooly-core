@@ -27,11 +27,13 @@ use Brocooly\Console\MakeModelTaxonomy;
 use Brocooly\Console\MakeModelUser;
 use Brocooly\Console\MakeProvider;
 use Brocooly\Console\MakeRequest;
+use Brocooly\Console\MakeSeeder;
 use Brocooly\Console\MakeShortcode;
 use Brocooly\Console\MakeSidebar;
 use Brocooly\Console\MakeTask;
 use Brocooly\Console\MakeTemplate;
 use Brocooly\Console\MakeWidget;
+use Brocooly\Console\Seed;
 
 class Commands
 {
@@ -62,7 +64,9 @@ class Commands
 		MakeModelUser::class,
 		MakeModelRole::class,
 		MakeModelComment::class,
+		MakeSeeder::class,
 		ClearCache::class,
+		Seed::class,
 	];
 
 	/**

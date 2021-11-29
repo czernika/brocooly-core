@@ -33,7 +33,8 @@
         "symfony/console": "^5.3",
         "timber/timber": "^1.18",
         "vlucas/phpdotenv": "^5.3",
-        "webmozart/assert": "^1.10"
+        "webmozart/assert": "^1.10",
+        "fakerphp/faker": "^1.16"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.16"

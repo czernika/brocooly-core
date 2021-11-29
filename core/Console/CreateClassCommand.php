@@ -10,6 +10,8 @@ use Symfony\Component\Console\Command\Command;
 class CreateClassCommand extends Command
 {
 
+	protected $root = BROCOOLY_THEME_PATH;
+
 	protected $themeRootFolder = '/src/';
 
 	protected $fileNamespace = 'Theme';
@@ -57,7 +59,7 @@ class CreateClassCommand extends Command
 	}
 
 	protected function createFile( $file ) {
-		$folder = BROCOOLY_THEME_PATH . $this->themeRootFolder . $this->themeFileFolder . $this->folderPath;
+		$folder = $this->root . $this->themeRootFolder . $this->themeFileFolder . $this->folderPath;
 		File::ensureDirectoryExists( $folder );
 
 		$filename = $folder . '/' .  $this->className . '.php';
