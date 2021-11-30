@@ -129,6 +129,22 @@ class QueryBuilder
 	}
 
 	/**
+	 * Pass extra params to a query if condition is true
+	 *
+	 * @param $condition
+	 * @param $callback
+	 * @return $this
+	 */
+	public function when( $condition, $callback ) {
+		if ( $condition ) {
+			$query = call_user_func_array( $callback, [ $this ] );
+			$this->queryParams = array_merge( $this->queryParams, $query->queryParams );
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Author query
 	 *
 	 * @param integer|string|array $authorId | array of authors id.

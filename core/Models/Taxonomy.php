@@ -24,6 +24,7 @@ use Brocooly\Support\Builders\TaxonomyQueryBuilder;
  * @method static $this whereTermName( int $name )
  * @method static $this whereTermSlug( int $slug )
  * @method static $this currentTerm()
+ * @method static $this when( $condition, $callback )
  * @method static $this andWhereTerm( string $key, $value, string $operator = 'IN' )
  * @method static $this orWhereTerm( string $key, $value, string $operator = 'IN' )
  * @method static $this paginate( $postsPerPage = null )
