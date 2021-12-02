@@ -46,6 +46,27 @@ class QueryBuilder
 	}
 
 	/**
+	 * Merge current post types with any
+	 * FIXME: post types added to main will inherit primary model
+	 * Here Post::with( Page::POST_TYPE )->get() Page model will actually inherit Post model
+	 * Which is fine, as this type of query requires both equal properties to have but at the same time it is not OK
+	 *
+	 * @param string|array $postTypes | additional post types
+	 * @return $this
+	 */
+	public function with( $postTypes ) {
+		$currentPostType = (array) $this->queryParams['post_type'];
+		$queryPostTypes = array_merge( $currentPostType, (array) $postTypes );
+
+		$postTypesQuery = [
+			'post_type' => $queryPostTypes,
+		];
+		$this->queryParams = array_merge( $this->queryParams, $postTypesQuery );
+
+		return $this;
+	}
+
+	/**
 	 * Set query parameter
 	 *
 	 * @param string $key | query key.

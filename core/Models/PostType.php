@@ -21,6 +21,7 @@ use Brocooly\Support\Builders\PostTypeQueryBuilder;
  * @method static Post find( int $id )
  * @method static Post current()
  * @method static $this paginate( $postsPerPage = null )
+ * @method static $this with( $postTypes )
  * @method static $this where( string $key, $value )
  * @method static $this whereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' )
  * @method static $this orWhereMeta( string $key, $value, string $compare_key = '=', string $compare = '=', string $type = 'CHAR' )

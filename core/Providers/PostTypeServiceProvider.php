@@ -99,6 +99,9 @@ class PostTypeServiceProvider extends AbstractService
 						register_extended_post_type(
 							$cpt->getName(),
 							$cpt->getOptions(),
+							[
+								'slug' => $cpt->webUrl,
+							],
 						);
 					}
 				);
@@ -150,6 +153,9 @@ class PostTypeServiceProvider extends AbstractService
 							$tax->getName(),
 							$tax->getPostTypes(),
 							$tax->getOptions(),
+							[
+								'slug' => $tax->webUrl,
+							],
 						);
 					}
 				);

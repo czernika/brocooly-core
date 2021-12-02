@@ -105,7 +105,7 @@ class MakeModelTaxonomy extends CreateClassCommand
 
 		$webUrlProperty = $class->addProperty( 'webUrl', Str::snake( $this->className ) )
 							->setType( 'string' )
-							->setPrivate()
+							->setPublic()
 							->addComment( 'Web URL' )
 							->addComment( "Publicly accessible name\n" )
 							->addComment( '@var string' );
@@ -133,23 +133,29 @@ class MakeModelTaxonomy extends CreateClassCommand
 		$taxonomyLabel       = Str::headline( $this->className );
 		$pluralTaxonomyLabel = Str::plural( $taxonomyLabel );
 
-		// protected options()
 $optionsContent = "return [
 	'labels'            => [
-		'name'          => esc_html__( '{$pluralTaxonomyLabel}', 'brocooly' ),
-		'singular_name' => esc_html__( '{$taxonomyLabel}', 'brocooly' ),
-		'menu_name'     => esc_html__( '{$pluralTaxonomyLabel}', 'brocooly' ),
-		'add_new'       => esc_html__( 'Add New {$taxonomyLabel}', 'brocooly' ),
+		'name'              => esc_html__( '{$pluralTaxonomyLabel}', 'brocooly' ),
+		'all_items'         => esc_html__( 'All {$pluralTaxonomyLabel}', 'brocooly' ),
+		'singular_name'     => esc_html__( '{$taxonomyLabel}', 'brocooly' ),
+		'menu_name'         => esc_html__( '{$taxonomyLabel}', 'brocooly' ),
+		'parent_item'       => esc_html__( 'Parent {$taxonomyLabel}', 'brocooly' ),
+		'parent_item_colon' => esc_html__( 'Parent {$taxonomyLabel}', 'brocooly' ),
+		'search_items'      => esc_html__( 'Find {$taxonomyLabel}', 'brocooly' ),
+		'add_new_item'      => esc_html__( 'Add {$taxonomyLabel}', 'brocooly' ),
+		'add_new'           => esc_html__( 'Add new {$taxonomyLabel}', 'brocooly' ),
 	],
 	'public'            => true,
 	'show_in_menu'      => true,
 	'show_ui'           => true,
 	'hierarchical'      => true, // false for tags.
-	'show_in_rest'      => true,
+	'show_in_rest'      => false,
 	'show_admin_column' => true,
 	'rewrite'           => [
 		'slug' => \$this->webUrl,
 	],
+	// 'meta_box'       => 'radio', // Use radio buttons in the meta box for this taxonomy on the post editing screen.
+	// 'admin_cols'     => [],
 ];";
 
 		$optionsMethod = $this->createMethod( $class, 'options', $optionsContent );

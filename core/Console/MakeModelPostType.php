@@ -95,21 +95,37 @@ class MakeModelPostType extends CreateClassCommand
 		$postTypeLabel       = Str::headline( $this->className );
 		$pluralPostTypeLabel = Str::plural( $postTypeLabel );
 
-		// protected options()
 $optionsContent = "return [
 	'labels'              => [
-		'name'          => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
-		'singular_name' => esc_html__( '{$postTypeLabel}', 'brocooly' ),
-		'menu_name'     => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
-		'add_new'       => esc_html__( 'Add New {$postTypeLabel}', 'brocooly' ),
+		'name'           => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
+		'all_items'      => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
+		'singular_name'  => esc_html__( '{$postTypeLabel}', 'brocooly' ),
+		'name_admin_bar' => esc_html__( '{$postTypeLabel}', 'brocooly' ),
+		'menu_name'      => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
+		'add_new'        => esc_html__( 'Add {$postTypeLabel}', 'brocooly' ),
+		'new_item'       => esc_html__( 'New {$postTypeLabel}', 'brocooly' ),
+		'add_new_item'   => esc_html__( 'Add new {$postTypeLabel}', 'brocooly' ),
+		'search_items'   => esc_html__( 'Find {$postTypeLabel}', 'brocooly' ),
+		'edit_item'      => esc_html__( 'Edit {$postTypeLabel}', 'brocooly' ),
+		'view_item'      => esc_html__( 'View {$postTypeLabel}', 'brocooly' ),
 	],
 	'public'              => true,
 	'exclude_from_search' => false,
-	'show_in_rest'        => true,
+	'show_in_rest'        => false,
 	'menu_icon'           => null,
 	'menu_position'       => 10,
 	'supports'            => [ 'title', 'editor' ],
+	'enter_title_here'    => esc_html__( 'New {$postTypeLabel} title', 'brocooly' ),
+	// 'admin_cols'       => [],
+	// 'admin_filters'    => [],
 ];";
+
+		$webUrlProperty = $class->addProperty( 'webUrl', Str::snake( $this->className ) )
+							->setType( 'string' )
+							->setPublic()
+							->addComment( 'Web URL' )
+							->addComment( "Publicly accessible name\n" )
+							->addComment( '@var string' );
 
 		$optionsMethod = $this->createMethod( $class, 'options', $optionsContent );
 
