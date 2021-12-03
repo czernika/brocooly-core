@@ -182,7 +182,6 @@ abstract class PostType extends Post implements ModelContract
 	 */
 	public static function createDraft( array $data, bool $wp_error = false ) {
 		$data['post_type']   = static::POST_TYPE;
-		$data['post_author'] = get_current_user_id() ?? 1;
 		return wp_insert_post( wp_slash( $data ), $wp_error );
 	}
 
@@ -196,7 +195,6 @@ abstract class PostType extends Post implements ModelContract
 	public static function create( array $data, bool $wp_error = false ) {
 		$data['post_status'] = 'publish';
 		$data['post_type']   = static::POST_TYPE;
-		$data['post_author'] = get_current_user_id() ?? 1;
 		return wp_insert_post( wp_slash( $data ), $wp_error );
 	}
 
