@@ -76,4 +76,16 @@ class PostTypeQueryBuilder extends QueryBuilder
 
 		return app( $this->postType );
 	}
+
+	/**
+	 * Custom scopes
+	 *
+	 * @param string $method | model method name
+	 * @param array  $args | model method args
+	 */
+	public function callable( string $method, array $args ) {
+		$postType = app( $this->postType );
+		$query = call_user_func_array( [ $postType, $method ], [ $this, ...$args ] );
+		return $query;
+	}
 }

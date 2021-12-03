@@ -160,19 +160,17 @@ abstract class PostType extends Post implements ModelContract
 	 */
 	public static function __callStatic( string $name, array $arguments ) {
 
-		if ( ! method_exists( PostTypeQueryBuilder::class, $name ) ) {
-			$method = 'scope' . Str::ucfirst( $name );
-
-			return app()->make(
-				PostTypeQueryBuilder::class,
-				[ 'postType' => static::POST_TYPE ],
-			)->callable( $method, $arguments );
-		}
-
-		return app()->make(
+		$builder = app()->make(
 			PostTypeQueryBuilder::class,
 			[ 'postType' => static::POST_TYPE ],
-		)->$name( ...$arguments );
+		);
+
+		if ( ! method_exists( PostTypeQueryBuilder::class, $name ) ) {
+			$method = 'scope' . Str::ucfirst( $name );
+			return $builder->callable( $method, $arguments );
+		}
+
+		return $builder->$name( ...$arguments );
 	}
 
 	/**
