@@ -464,4 +464,15 @@ class QueryBuilder
 		$post = $this->collect()->random();
 		return $post;
 	}
+
+	/**
+	 * Custom scopes
+	 *
+	 * @param string $method | model method name
+	 */
+	public function callable( string $method ) {
+		$postType = app( $this->queryParams['post_type'] );
+		$query = call_user_func_array( [ $postType, $method ], [ $this ] );
+		return $query;
+	}
 }

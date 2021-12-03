@@ -12,6 +12,7 @@ namespace Brocooly\Models;
 
 use Timber\Post;
 use Timber\PostQuery;
+use Illuminate\Support\Str;
 use Carbon_Fields\Container;
 use Brocooly\Contracts\ModelContract;
 use Brocooly\Support\Builders\PostTypeQueryBuilder;
@@ -158,6 +159,16 @@ abstract class PostType extends Post implements ModelContract
 	 * @return void
 	 */
 	public static function __callStatic( string $name, array $arguments ) {
+
+		if ( ! method_exists( PostTypeQueryBuilder::class, $name ) ) {
+			$method = 'scope' . Str::ucfirst( $name );
+
+			return app()->make(
+				PostTypeQueryBuilder::class,
+				[ 'postType' => static::POST_TYPE ],
+			)->callable( $method );
+		}
+
 		return app()->make(
 			PostTypeQueryBuilder::class,
 			[ 'postType' => static::POST_TYPE ],
