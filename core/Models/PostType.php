@@ -166,7 +166,7 @@ abstract class PostType extends Post implements ModelContract
 			return app()->make(
 				PostTypeQueryBuilder::class,
 				[ 'postType' => static::POST_TYPE ],
-			)->callable( $method );
+			)->callable( $method, $arguments );
 		}
 
 		return app()->make(

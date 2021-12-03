@@ -469,10 +469,11 @@ class QueryBuilder
 	 * Custom scopes
 	 *
 	 * @param string $method | model method name
+	 * @param array  $args | model method args
 	 */
-	public function callable( string $method ) {
+	public function callable( string $method, array $args ) {
 		$postType = app( $this->queryParams['post_type'] );
-		$query = call_user_func_array( [ $postType, $method ], [ $this ] );
+		$query = call_user_func_array( [ $postType, $method ], [ $this, ...$args ] );
 		return $query;
 	}
 }
