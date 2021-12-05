@@ -42,6 +42,10 @@ abstract class BaseController
 	}
 
 	public function getMiddleware() {
-		return $this->middleware->getMiddleware();
+		if ( $this->middleware ) {
+			return $this->middleware->getMiddleware();
+		}
+
+		return [];
 	}
 }
