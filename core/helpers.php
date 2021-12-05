@@ -232,7 +232,7 @@ if ( ! function_exists( 'action' ) ) {
 	 * @return callable
 	 */
 	function action( string $name ) {
-		Router::action( $name );
+		echo site_url() . '/wp-admin/admin-post.php?action=' . $name;
 	}
 }
 
