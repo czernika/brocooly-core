@@ -131,9 +131,6 @@ class Router
 	}
 
 	public function resolve() {
-
-		// dd( $this->routeCollection );
-
 		if ( ! $this->route_was_hit ) {
 			$this->route_was_hit = RequestHandler::defineRoute( $this->routeCollection );
 		}
