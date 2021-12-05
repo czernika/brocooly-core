@@ -44,7 +44,7 @@ class RequestHandler
 		if ( Arr::exists( $routes, 'ajax' ) ) {
 			$ajaxRoutes = $routes['ajax'];
 			foreach ( $ajaxRoutes as $route ) {
-				[ $action, $callable ] = $this->dispatchCallback( $route );
+				[ $action, $callable ] = self::dispatchCallback( $route );
 
 				add_action( "wp_ajax_$action", $callable );
 				add_action( "wp_ajax_nopriv_$action", $callable );
@@ -58,7 +58,7 @@ class RequestHandler
 			$postRoutes = $routes['post'];
 
 			foreach ( $postRoutes as $route ) {
-				[ $action, $callable ] = $this->dispatchCallback( $route );
+				[ $action, $callable ] = self::dispatchCallback( $route );
 
 				add_action( "admin_post_$action", $callable );
 				add_action( "admin_post_nopriv_$action", $callable );
@@ -66,7 +66,7 @@ class RequestHandler
 		}
 	}
 
-	private function dispatchCallback( $route ) {
+	private static function dispatchCallback( $route ) {
 		$action   = $route['name'][0];
 		$callback = $route['callback'];
 
