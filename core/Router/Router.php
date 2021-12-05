@@ -81,10 +81,11 @@ class Router
 		$id = count( $this->routeCollection[ $method ] );
 
 		$this->routeCollection[ $method ][ $id ] = [
-			'name'      => $id,
-			'condition' => (array) $condition,
-			'callback'  => $callback,
-			'nopriv'    => false,
+			'name'       => $id,
+			'condition'  => (array) $condition,
+			'callback'   => $callback,
+			'nopriv'     => false,
+			'middleware' => [],
 		];
 
 		$this->currentRoute  = $id;
@@ -108,6 +109,7 @@ class Router
 				return view( $template );
 			},
 		);
+		return $this;
 	}
 
 	public function post( $action, $callback ) {
@@ -122,6 +124,11 @@ class Router
 
 	public function name( string $named ) {
 		$this->routeCollection[ $this->currentMethod ][ $this->currentRoute ]['name'] = $named;
+		return $this;
+	}
+
+	public function middleware( $middleware ) {
+		$this->routeCollection[ $this->currentMethod ][ $this->currentRoute ]['middleware'] = $middleware;
 		return $this;
 	}
 

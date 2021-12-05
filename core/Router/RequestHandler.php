@@ -31,7 +31,7 @@ class RequestHandler
 
 		foreach ( $routes['get'] as $route ) {
 			if ( call_user_func( ...$route['condition'] ) ) {
-				DispatchCallable::dispatch( $route['callback'] );
+				DispatchCallable::dispatch( $route['callback'], $route['middleware'] );
 				return true;
 			}
 		}

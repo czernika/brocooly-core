@@ -15,7 +15,12 @@ use Brocooly\Http\Controllers\BaseController;
 
 class DispatchCallable
 {
-	public static function dispatch( $callable ) {
+	public static function dispatch( $callable, $middleware ) {
+
+		foreach ( (array) $middleware as $m ) {
+			app( $m )->handle();
+		}
+
 		if ( is_array( $callable ) ) {
 			// This is controller method.
 			return static::dispatchControllerMethod( $callable );
