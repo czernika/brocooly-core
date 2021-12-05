@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace Brocooly\Router;
 
 use Illuminate\Support\Arr;
-use Webmozart\Assert\Assert;
 
 class RequestHandler
 {
@@ -31,7 +30,7 @@ class RequestHandler
 					->all();
 
 		foreach ( $routes['get'] as $route ) {
-			if ( call_user_func( ...$route['name'] ) ) {
+			if ( call_user_func( ...$route['condition'] ) ) {
 				DispatchCallable::dispatch( $route['callback'] );
 				return true;
 			}
@@ -40,7 +39,8 @@ class RequestHandler
 	}
 
 	public static function handleAjaxRequest() {
-		$routes = Routes::getRoutes();
+		$routes = app( Router::class )->getRoutes();
+
 		if ( Arr::exists( $routes, 'ajax' ) ) {
 			$ajaxRoutes = $routes['ajax'];
 			foreach ( $ajaxRoutes as $route ) {
@@ -49,15 +49,19 @@ class RequestHandler
 				add_action( "wp_ajax_$action", function() use ( $callable, $params ) {
 					return call_user_func_array( $callable, $params );
 				} );
-				add_action( "wp_ajax_nopriv_$action", function() use ( $callable, $params ) {
-					return call_user_func_array( $callable, $params );
-				} );
+
+				if ( $route['nopriv'] ) {
+					add_action( "wp_ajax_nopriv_$action", function() use ( $callable, $params ) {
+						return call_user_func_array( $callable, $params );
+					} );
+				}
 			}
 		}
 	}
 
 	public static function handlePostRequest() {
-		$routes = Routes::getRoutes();
+		$routes = app( Router::class )->getRoutes();
+
 		if ( Arr::exists( $routes, 'post' ) ) {
 			$postRoutes = $routes['post'];
 
@@ -67,15 +71,18 @@ class RequestHandler
 				add_action( "admin_post_$action", function() use ( $callable, $params ) {
 					return call_user_func_array( $callable, $params );
 				} );
-				add_action( "admin_post_nopriv_$action", function() use ( $callable, $params ) {
-					return call_user_func_array( $callable, $params );
-				} );
+
+				if ( $route['nopriv'] ) {
+					add_action( "admin_post_nopriv_$action", function() use ( $callable, $params ) {
+						return call_user_func_array( $callable, $params );
+					} );
+				}
 			}
 		}
 	}
 
 	private static function dispatchCallback( $route ) {
-		$action   = $route['name'][0];
+		$action   = $route['condition'][0];
 		$callback = $route['callback'];
 		$params   = [];
 

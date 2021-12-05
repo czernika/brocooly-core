@@ -15,7 +15,16 @@ use Theme\Containers\Products\Web\Controllers\AjaxSearchController;
 
 class Router
 {
-	private Routes $routes;
+
+	private $routeCollection = [
+		'get' => [],
+		'post' => [],
+		'ajax' => [],
+	];
+
+	private $currentRoute = 0;
+
+	private $currentMethod = 'get';
 
 	private bool $route_was_hit = false;
 
@@ -59,48 +68,74 @@ class Router
 		'is_year'
 	];
 
-	public function __construct( Routes $routes ) {
-		$this->routes = $routes;
-	}
-
 	public function __call( $condition, $args ) {
 		if ( ! in_array( Str::snake( $condition ), $this->allowedConditionals, true ) ) {
 			return;
 		}
 
 		[ $callback ] = $args;
-		$this->routes->addRoute( 'get', Str::snake( $condition ), $callback );
+		$this->addRoute( 'get', Str::snake( $condition ), $callback );
+	}
+
+	private function addRoute( $method, $condition, $callback ) {
+		$id = count( $this->routeCollection[ $method ] );
+
+		$this->routeCollection[ $method ][ $id ] = [
+			'name'      => $id,
+			'condition' => (array) $condition,
+			'callback'  => $callback,
+			'nopriv'    => false,
+		];
+
+		$this->currentRoute  = $id;
+		$this->currentMethod = $method;
+	}
+
+	public function getRoutes() {
+		return $this->routeCollection;
 	}
 
 	public function get( $condition, $callback ) {
-		$this->routes->addRoute( 'get', $condition, $callback );
+		$this->addRoute( 'get', $condition, $callback );
+		return $this;
 	}
 
 	public function view( $condition, $template ) {
-		$this->routes->addRoute(
+		$this->addRoute(
 			'get',
 			$condition,
 			function() use ( $template ) {
-				view( $template );
+				return view( $template );
 			},
 		);
 	}
 
-	public function post( $condition, $callback ) {
-		$this->routes->addRoute( 'post', $condition, $callback );
+	public function post( $action, $callback ) {
+		$this->addRoute( 'post', $action, $callback );
+		return $this;
 	}
 
 	public function ajax( $action, $callback ) {
-		$this->routes->addRoute( 'ajax', $action, $callback );
+		$this->addRoute( 'ajax', $action, $callback );
+		return $this;
 	}
 
-	public static function action( $key ) {
-		return RequestHandler::handlePostRequest( $key );
+	public function name( string $named ) {
+		$this->routeCollection[ $this->currentMethod ][ $this->currentRoute ]['name'] = $named;
+		return $this;
+	}
+
+	public function noPriv() {
+		$this->routeCollection[ $this->currentMethod ][ $this->currentRoute ]['nopriv'] = true;
+		return $this;
 	}
 
 	public function resolve() {
+
+		// dd( $this->routeCollection );
+
 		if ( ! $this->route_was_hit ) {
-			$this->route_was_hit = RequestHandler::defineRoute( $this->routes->getRoutes() );
+			$this->route_was_hit = RequestHandler::defineRoute( $this->routeCollection );
 		}
 
 		// Default error handler.
