@@ -109,13 +109,13 @@ class App implements AppContainerInterface
 	 */
 	public function web()
 	{
-		if (!$this->webRoutesWasLoaded) {
+		if ( ! $this->webRoutesWasLoaded ) {
 			$this->webRoutesWasLoaded = true;
 
 			/**
 			 * Include routes files
 			 */
-			File::requireOnce(BROCOOLY_THEME_PATH . '/routes/web.php');
+			File::requireOnce( BROCOOLY_THEME_PATH . '/routes/web.php' );
 
 			/**
 			 * Resolve routes
