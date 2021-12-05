@@ -54,21 +54,19 @@ class RequestHandler
 		}
 	}
 
-	public static function handlePostRequest( $key ) {
-		$routes = collect( self::$routes['post'] );
+	public static function handlePostRequest() {
+		$routes = Routes::getRoutes();
+		if ( Arr::exists( $routes, 'post' ) ) {
+			$postRoutes = $routes['post'];
 
-		$routesCollection = $routes->filter(
-			function( $r ) use ( $key ) {
-				return $r['name'] === $key;
+			foreach ( $postRoutes as $route ) {
+				$action                   = $route['name'][0];
+				[ $callerClass, $method ] = $route['callback'];
+				$classObject = app( $callerClass );
+
+				add_action( "admin_post_$action", [ $classObject, $method ] );
+				add_action( "admin_post_nopriv_$action", [ $classObject, $method ] );
 			}
-		);
-
-		Assert::notEmpty( $routesCollection->toArray(), sprintf( 'Route %s was not found', $key ) );
-
-		if ( $_POST && ! empty( $_POST ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			DispatchCallable::dispatch( $routesCollection->first()['callback'] );
-			return true;
 		}
-		return false;
 	}
 }
