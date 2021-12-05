@@ -44,12 +44,10 @@ class RequestHandler
 		if ( Arr::exists( $routes, 'ajax' ) ) {
 			$ajaxRoutes = $routes['ajax'];
 			foreach ( $ajaxRoutes as $route ) {
-				$action                   = $route['name'][0];
-				[ $callerClass, $method ] = $route['callback'];
-				$classObject = app( $callerClass );
+				[ $action, $callable ] = $this->dispatchCallback( $route );
 
-				add_action( "wp_ajax_$action", [ $classObject, $method ] );
-				add_action( "wp_ajax_nopriv_$action", [ $classObject, $method ] );
+				add_action( "wp_ajax_$action", $callable );
+				add_action( "wp_ajax_nopriv_$action", $callable );
 			}
 		}
 	}
@@ -60,13 +58,26 @@ class RequestHandler
 			$postRoutes = $routes['post'];
 
 			foreach ( $postRoutes as $route ) {
-				$action                   = $route['name'][0];
-				[ $callerClass, $method ] = $route['callback'];
-				$classObject = app( $callerClass );
+				[ $action, $callable ] = $this->dispatchCallback( $route );
 
-				add_action( "admin_post_$action", [ $classObject, $method ] );
-				add_action( "admin_post_nopriv_$action", [ $classObject, $method ] );
+				add_action( "admin_post_$action", $callable );
+				add_action( "admin_post_nopriv_$action", $callable );
 			}
 		}
+	}
+
+	private function dispatchCallback( $route ) {
+		$action   = $route['name'][0];
+		$callback = $route['callback'];
+
+		if ( is_array( $callback ) ) {
+			[ $callerClass, $method ] = $callback;
+			$classObject = app( $callerClass );
+			$callable = [ $classObject, $method ];
+		} else {
+			$callable = $callback ;
+		}
+
+		return [ $action, $callable ];
 	}
 }
