@@ -22,45 +22,26 @@ abstract class BaseController
 	 */
 	protected $app;
 
-	protected array $middleware = [];
-
-	protected array $only = [];
+	private $middleware;
 
 	public function __construct( App $app ) {
 		$this->app = $app;
 	}
 
-	public function getOnlyMethods() {
-		return $this->only;
+	protected function only( $methods ) {
+		$this->middleware->setMiddleware( 'only', (array) $methods );
 	}
 
-	public function getMiddleware() {
-		return $this->middleware;
-	}
-
-	public function middlewareOnly( $methods, $middleware ) {
-		$this->only = (array) $methods;
-		$this->addMiddleware( $middleware );
+	protected function except( $methods ) {
+		$this->middleware->setMiddleware( 'except', (array) $methods );
 	}
 
 	public function middleware( $middleware ) {
-		$this->addMiddleware( $middleware );
+		$this->middleware = new MiddlewareController( $middleware );
+		return $this;
 	}
 
-	public function loadMiddleware() {
-		foreach ( $this->middleware as $middleware ) {
-			app()->call( [ $middleware, 'handle' ] );
-		}
+	public function getMiddleware() {
+		return $this->middleware->getMiddleware();
 	}
-
-	private function addMiddleware( $middleware ) {
-		if ( is_string( $middleware ) ) {
-			$this->middleware[] = $middleware;
-		}
-
-		if ( is_array( $middleware ) ) {
-			$this->middleware = array_merge( $this->middleware, $middleware );
-		}
-	}
-
 }

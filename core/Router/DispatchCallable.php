@@ -60,15 +60,20 @@ class DispatchCallable
 
 		$class = static::callController( $object );
 
-		$onlyMethods = $class->getOnlyMethods();
-		if ( method_exists( $class, 'middlewareOnly' ) && ! empty( $onlyMethods ) ) {
-			if ( in_array( $method, $onlyMethods, true ) ) {
-				$class->loadMiddleware();
-			}
-		}
+		if ( method_exists( $class, 'middleware' ) ) {
+			$middleware = $class->getMiddleware();
 
-		if ( method_exists( $class, 'middleware' ) && empty( $onlyMethods ) ) {
-			$class->loadMiddleware();
+			foreach ( $middleware as $name => $m ) {
+
+				if ( empty( $m['only'] ) ) {
+					app()->make( $name )->handle();
+				} else {
+					if ( in_array( $method, $m['only'], true ) && ! in_array( $method, $m['except'], true ) ) {
+						app()->make( $name )->handle();
+					}
+				}
+
+			}
 		}
 
 		return call_user_func_array( [ $class, $method ], $params );
