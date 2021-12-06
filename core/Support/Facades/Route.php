@@ -13,12 +13,11 @@ namespace Brocooly\Support\Facades;
 /**
  * @method static $this get( $condition, $callback )
  * @method static $this view( $condition, $template )
- * @method static $this post( $action, $callback )
- * @method static $this ajax( $action, $callback )
+ * @method static $this post( string $action, $callback )
+ * @method static $this ajax( string $action, $callback )
  * @method static $this name( string $named )
  * @method static $this noPriv()
- * @method static void mailable( $mailer )
- * @method static void send()
+ * @method static $this middleware( $middleware )
  */
 class Route extends AbstractFacade
 {

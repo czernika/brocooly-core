@@ -65,12 +65,18 @@ class DispatchCallable
 
 			foreach ( $middleware as $name => $m ) {
 
-				if ( empty( $m['only'] ) ) {
+				if ( empty( $m['only'] ) && empty( $m['except'] ) ) {
 					app()->make( $name )->handle();
 				} else {
-					if ( in_array( $method, $m['only'], true ) && ! in_array( $method, $m['except'], true ) ) {
+
+					if ( in_array( $method, $m['only'], true ) ) {
 						app()->make( $name )->handle();
+					} else {
+						if ( empty( $m['only'] ) && ! in_array( $method, $m['except'], true ) ) {
+							app()->make( $name )->handle();
+						}
 					}
+
 				}
 
 			}

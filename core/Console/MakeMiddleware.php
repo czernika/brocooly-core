@@ -88,10 +88,6 @@ class MakeMiddleware extends CreateClassCommand
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( AbstractMiddleware::class );
 
-		if ( $base ) {
-			$class->setAbstract();
-		}
-
 		$this->createMethod( $class, 'handle' );
 
 		// Create file
