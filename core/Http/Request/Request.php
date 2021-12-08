@@ -33,6 +33,10 @@ class Request
 		$this->$key = $value;
 	}
 
+	public function __call( $name, $args ) {
+		return $this->validate( ...$args )->$name();
+	}
+
 	public function handleUploads( $data, $test = false ) {
 		if ( $data ) {
 			foreach ( $data as $name => $file ) {
@@ -96,17 +100,6 @@ class Request
 			$rules = $this->rules();
 		}
 		return Validator::make( $data, $rules );
-	}
-	
-	public function __call( $name, $args ) {
-		return $this->validate( ...$args )->$name();
-	}
-	
-	public function validated( array $data, $rules = null ) {
-		if ( ! isset( $rules ) ) {
-			$rules = $this->rules();
-		}
-		return $this->validate()->validated();
 	}
 
 	/**
