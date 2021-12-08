@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Brocooly\Http\Request;
 
 use Brocooly\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Request
 {
