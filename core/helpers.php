@@ -194,13 +194,18 @@ if ( ! function_exists( 'mod' ) ) {
 	/**
 	 * Theme mod wrapper
 	 *
-	 * @param string $key | theme mod helper.
-	 * @param mixed  $default | default value.
+	 * @param string  $key | theme mod helper.
+	 * @param mixed   $default | default value.
+	 * @param boolean $prefixed | prefix value or not.
 	 * @return mixed
 	 */
-	function mod( string $key, $default = null ) {
-		$prefix   = app( 'customizer.prefix' );
-		$themeMod = $prefix . $key;
+	function mod( string $key, $default = null, bool $prefixed = true ) {
+		$themeMod = $key;
+
+		if ( $prefixed ) {
+			$prefix   = app( 'customizer.prefix' );
+			$themeMod = $prefix . $key;
+		}
 		return get_theme_mod( $themeMod, $default );
 	}
 }
