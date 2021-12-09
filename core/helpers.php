@@ -272,3 +272,29 @@ if ( ! function_exists( 'sprite' ) ) {
 		return $spriteFileUri . '#' . $svgId;
 	}
 }
+
+if ( ! function_exists( 'session' ) ) {
+
+	/**
+	 * Retrieve Session object
+	 */
+	function session() {
+		return app( 'session' );
+	}
+}
+
+if ( ! function_exists( 'flash' ) ) {
+
+	/**
+	 * Retrieve Session flash object
+	 */
+	function flash( $key = null ) {
+		$flashBag = session()->getFlashBag();
+
+		if ( $key ) {
+			return $flashBag->get( $key );
+		}
+ 
+		return $flashBag;
+	}
+}

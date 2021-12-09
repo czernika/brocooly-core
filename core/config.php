@@ -18,6 +18,8 @@ use Brocooly\Support\Factories\FacadeFactory;
 use Brocooly\Support\Factories\PostTypeFactory;
 use Brocooly\Support\Factories\ValidatorFactory;
 use Brocooly\Support\Factories\CustomizerFactory;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 use function DI\get;
 use function DI\create;
@@ -53,6 +55,9 @@ $appDefintions = [
 	 */
 	AppContainerInterface::class => get( App::class ),
 	ModelContract::class         => factory( [ PostTypeFactory::class, 'model' ] ),
+	'session'                    => function( $c ) {
+		return new Session();
+	},
 
 ];
 
