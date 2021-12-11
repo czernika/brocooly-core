@@ -16,7 +16,7 @@ use Carbon_Fields\Container;
 use Brocooly\Support\Builders\TaxonomyQueryBuilder;
 
 /**
- * @method static array all( array $args = [] )
+ * @method static $this all()
  * @method static $this paginateArchive( int $postsPerPage = 10 )
  * @method static $this wherePostType( $postTypes = 'post' )
  * @method static $this whereTerm( string $key, $value, $operator = 'IN' )

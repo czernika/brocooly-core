@@ -43,15 +43,18 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	/**
 	 * Get all posts of current taxonomy
 	 *
-	 * @param string $name | post type name.
-	 * @param array  $args | additional arguments.
-	 * @return array
+	 * @return void
 	 */
-	public function all( array $args = [] ) {
-		$terms = get_terms( $this->taxonomy, $args );
-		return $terms;
+	public function all() {
+		return $this->whereTermId(
+			get_terms(
+				[
+					'taxonomy' => $this->taxonomy,
+					'fields'   => 'ids',
+				]
+			)
+		);
 	}
-
 	/**
 	 * Set posts per page for query.
 	 * ! This function should NOT be called first
@@ -139,10 +142,10 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	/**
 	 * Shortcut for whereTerm method
 	 *
-	 * @param integer $id | term id
+	 * @param integer|array $id | term id
 	 * @return void
 	 */
-	public function whereTermId( int $id ) {
+	public function whereTermId( $id ) {
 		return $this->whereTerm( 'id', $id );
 	}
 

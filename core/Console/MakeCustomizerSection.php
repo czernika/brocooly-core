@@ -38,7 +38,7 @@ class MakeCustomizerSection extends CreateClassCommand
 				'panel',
 				null,
 				InputOption::VALUE_REQUIRED,
-				'Set panel class as section\'s parent. Pass relative class name to Theme\\Customizer\\Panels	',
+				'Set panel class as section\'s parent. Pass relative class name to Theme\\Customizer\\Panels',
 			);
     }
 
