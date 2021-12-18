@@ -59,7 +59,7 @@ class DebuggerLoader
 			/**
 			 * Timber commented output
 			 */
-			if ( function_exists( '\Djboris88\Timber\initialize_filters' ) ) {
+			if ( function_exists( '\Djboris88\Timber\initialize_filters' ) && $this->app->get( 'comment_output' ) ) {
 				\Djboris88\Timber\initialize_filters();
 			}
 
