@@ -59,22 +59,21 @@ class DebuggerLoader
 			/**
 			 * Timber commented output
 			 */
-			if ( function_exists( '\Djboris88\Timber\initialize_filters' ) && $this->app->get( 'comment_output' ) ) {
+			if ( function_exists( '\Djboris88\Timber\initialize_filters' ) && config( 'debug.comment_output' ) ) {
 				\Djboris88\Timber\initialize_filters();
 			}
 
 			/**
 			 * Application debugger
-			 *
-			 * This line causing issue (problem out of the Brocooly theme)
-			 * TODO: provide an option to disable cool errors completely
 			 */
-			if ( $this->app->get( 'handler' ) ) {
+			$handler = config( 'debug.handler' );
+			if ( $handler ) {
 				$whoops = $this->app->make( Run::class );
-				$whoops->pushHandler( $this->app->make( 'handler' ) );
+				$whoops->pushHandler( $this->app->get( $handler ) );
 				$whoops->register();
 			}
 		}
 	}
 
 }
+
