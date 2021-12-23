@@ -21,6 +21,10 @@ class MakeRule extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:rule';
 
+	protected $fileNamespace = 'Theme\Rules';
+
+	protected $themeFileFolder = 'Rules';
+
 	protected function configure(): void
     {
         $this
@@ -76,8 +80,8 @@ class MakeRule extends CreateClassCommand
 
 		$constructMethod = $this->createMethod( $class, '__construct' );
 		$passesMethod    = $this->createMethod( $class, 'passes' );
-        $passesMethod->addParameter( 'attribute')
-                        ->addParameter( 'value' );
+        $passesMethod->addParameter( 'attribute');
+        $passesMethod->addParameter( 'value' );
 		$messagesMethod  = $this->createMethod( $class, 'message' );
 
 		// Create file

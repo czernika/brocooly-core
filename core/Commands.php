@@ -27,6 +27,7 @@ use Brocooly\Console\MakeModelTaxonomy;
 use Brocooly\Console\MakeModelUser;
 use Brocooly\Console\MakeProvider;
 use Brocooly\Console\MakeRequest;
+use Brocooly\Console\MakeRule;
 use Brocooly\Console\MakeSeeder;
 use Brocooly\Console\MakeShortcode;
 use Brocooly\Console\MakeSidebar;
@@ -65,6 +66,7 @@ class Commands
 		MakeModelRole::class,
 		MakeModelComment::class,
 		MakeSeeder::class,
+		MakeRule::class,
 		ClearCache::class,
 		Seed::class,
 	];
