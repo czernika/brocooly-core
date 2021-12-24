@@ -66,14 +66,14 @@ class DispatchCallable
 			foreach ( $middleware as $name => $m ) {
 
 				if ( empty( $m['only'] ) && empty( $m['except'] ) ) {
-					app()->make( $name )->handle();
+					self::callMiddleware( $name );
 				} else {
 
 					if ( in_array( $method, $m['only'], true ) ) {
-						app()->make( $name )->handle();
+						self::callMiddleware( $name );
 					} else {
 						if ( empty( $m['only'] ) && ! in_array( $method, $m['except'], true ) ) {
-							app()->make( $name )->handle();
+							self::callMiddleware( $name );
 						}
 					}
 
@@ -83,6 +83,10 @@ class DispatchCallable
 		}
 
 		return call_user_func_array( [ $class, $method ], $params );
+	}
+
+	private static function callMiddleware( $name ) {
+		app()->make( $name )->handle();
 	}
 
 	/**

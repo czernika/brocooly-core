@@ -39,41 +39,27 @@ class RequestHandler
 	}
 
 	public static function handleAjaxRequest() {
-		$routes = app( Router::class )->getRoutes();
-
-		if ( Arr::exists( $routes, 'ajax' ) ) {
-			$ajaxRoutes = $routes['ajax'];
-			foreach ( $ajaxRoutes as $route ) {
-				[ $action, $callable, $params ] = self::dispatchCallback( $route );
-
-				add_action( "wp_ajax_$action", function() use ( $callable, $params ) {
-					return call_user_func_array( $callable, $params );
-				} );
-
-				if ( $route['nopriv'] ) {
-					add_action( "wp_ajax_nopriv_$action", function() use ( $callable, $params ) {
-						return call_user_func_array( $callable, $params );
-					} );
-				}
-			}
-		}
+		self::handleRequest( 'ajax', 'wp_ajax' );
 	}
 
 	public static function handlePostRequest() {
+		self::handleRequest( 'post', 'admin_post' );
+	}
+
+	private static function handleRequest( $type, $actionName ) {
 		$routes = app( Router::class )->getRoutes();
 
-		if ( Arr::exists( $routes, 'post' ) ) {
-			$postRoutes = $routes['post'];
-
-			foreach ( $postRoutes as $route ) {
+		if ( Arr::exists( $routes, $type ) ) {
+			$ajaxRoutes = $routes[ $type ];
+			foreach ( $ajaxRoutes as $route ) {
 				[ $action, $callable, $params ] = self::dispatchCallback( $route );
 
-				add_action( "admin_post_$action", function() use ( $callable, $params ) {
+				add_action( "${actionName}_${action}", function() use ( $callable, $params ) {
 					return call_user_func_array( $callable, $params );
 				} );
 
 				if ( $route['nopriv'] ) {
-					add_action( "admin_post_nopriv_$action", function() use ( $callable, $params ) {
+					add_action( "${actionName}_nopriv_${action}", function() use ( $callable, $params ) {
 						return call_user_func_array( $callable, $params );
 					} );
 				}
