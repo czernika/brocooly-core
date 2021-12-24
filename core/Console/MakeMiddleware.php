@@ -21,6 +21,9 @@ class MakeMiddleware extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:middleware';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -38,65 +41,46 @@ class MakeMiddleware extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'middleware' );
-
-		// Options
-		$base      = $input->getOption( 'base' );
-
-		$file = new \Nette\PhpGenerator\PhpFile();
-
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
-
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
-
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
-
-		// Create file content
-		$file->addComment( $this->className . " - custom theme middleware\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$base = $input->getOption( 'base' );
 
 		if ( $base ) {
-			$this->fileNamespace = 'Theme\Http\Middleware';
+			$this->rootNamespace   = 'Theme\Http\Middleware';
 			$this->themeFileFolder = 'Http/Middleware';
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractMiddleware::class );
+		$this->defineDataByArgument( $name );
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractMiddleware::class );
+		$this->generateClassComments([
+			$this->className . " - custom theme middleware\n",
+		]);
+
+		$class = $this->generateClassCap();
 
 		$this->createMethod( $class, 'handle' );
 
-		// Create file
-		$this->createFile( $file );
+		$this->createFile( $this->file );
 
-		// Output
 		$io->success( 'Middleware ' . $name . ' was successfully created' );
-
 		return CreateClassCommand::SUCCESS;
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractMiddleware::class );
+
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractMiddleware::class );
+
+		return $class;
 	}
 
 }

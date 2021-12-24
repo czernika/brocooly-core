@@ -7,11 +7,11 @@ namespace Brocooly\Console;
 use Illuminate\Support\Str;
 use Brocooly\Models\PostType;
 use Brocooly\Support\Facades\Meta;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeModelPostType extends CreateClassCommand
 {
@@ -22,10 +22,19 @@ class MakeModelPostType extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:model:post_type';
 
-	protected $fileNamespace = 'Theme\Models';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Models';
 
-	protected $themeFileFolder = 'Models';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Models';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -43,59 +52,72 @@ class MakeModelPostType extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
-		$name  = $input->getArgument( 'post_type' );
-		$meta  = $input->getOption( 'meta' );
+		$name = $input->getArgument( 'post_type' );
+		$meta = $input->getOption( 'meta' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . ' - custom post type',
+			"! Register this class inside `config/app.php` file to have effect\n",
+			"! It is recommended to flush permalinks\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
+		$class = $this->generateClassCap();
+
+		$this->createPostTypeConstant( $class );
+		$this->createOptionsMethod( $class );
+		$this->createWebUrlProperty( $class );
+
+		if ( $meta ) {
+			$this->createFieldsMethod( $class );
 		}
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createFile( $this->file );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$io->success( 'Custom post type ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		// Create file content
-		$file->addComment( $this->className . ' - custom post type' )
-			->addComment( "! Register this class inside `app.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+	private function createWebUrlProperty( $class ) {
+		$class->addProperty( 'webUrl', $this->snakeCaseClassName )
+				->setType( 'string' )
+				->setPublic()
+				->addComment( 'Web URL' )
+				->addComment( "Publicly accessible name\n" )
+				->addComment( '@var string' );
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Meta::class )
-					->addUse( PostType::class );
+	private function createFieldsMethodContent() {
+		return "\$this->createFields(
+	'container_id',
+	esc_html__( 'Container label', 'brocooly' ),
+	[
+		Meta::text( 'example_meta', esc_html__( 'Example meta', 'brocooly' ) ),
+	],
+);";
+	}
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( PostType::class );
+	private function createFieldsMethod( $class ) {
+		$fieldsMethod = $this->createMethod( $class, 'fields', $this->createFieldsMethodContent() );
+		$fieldsMethod
+			->setProtected()
+			->addComment( "Post type metaboxes\n" )
+			->addComment( '@return void' )
+			->setReturnType( 'void' );
+	}
 
-		$postTypeConstant = $class->addConstant( 'POST_TYPE', Str::snake( $this->className ) );
-		$postTypeConstant->addComment( "Post type slug\n" )
-						->addComment( '@var string' );
-
+	private function createOptionsMethodContent() {
 		$postTypeLabel       = Str::headline( $this->className );
 		$pluralPostTypeLabel = Str::plural( $postTypeLabel );
 
-$optionsContent = "return [
+		return "return [
 	'labels'              => [
 		'name'           => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
 		'all_items'      => esc_html__( '{$pluralPostTypeLabel}', 'brocooly' ),
@@ -119,49 +141,36 @@ $optionsContent = "return [
 	// 'admin_cols'       => [],
 	// 'admin_filters'    => [],
 ];";
+	}
 
-		$webUrlProperty = $class->addProperty( 'webUrl', Str::snake( $this->className ) )
-							->setType( 'string' )
-							->setPublic()
-							->addComment( 'Web URL' )
-							->addComment( "Publicly accessible name\n" )
-							->addComment( '@var string' );
-
-		$optionsMethod = $this->createMethod( $class, 'options', $optionsContent );
+	private function createOptionsMethod( $class ) {
+		$optionsMethod = $this->createMethod( $class, 'options', $this->createOptionsMethodContent() );
 
 		$optionsMethod
 			->setProtected()
 			->addComment( 'Post type register options' )
-			->addComment( "Same as for `register_post_type()`\n" )
+			->addComment( "Same as for `register_extended_post_type()`\n" )
 			->addComment( '@return array' )
 			->setReturnType( 'array' );
-
-	if ( $meta ) {
- 	// protected fields()
-$fieldsContent = "\$this->createFields(
-	'container_id',
-	esc_html__( 'Container label', 'brocooly' ),
-	[
-		Meta::text( 'example_meta', esc_html__( 'Example meta', 'brocooly' ) ),
-	],
-);";
-
-		$fieldsMethod = $this->createMethod( $class, 'fields', $fieldsContent );
-		$fieldsMethod
-			->setProtected()
-			->addComment( "Post type metaboxes\n" )
-			->addComment( '@return void' )
-			->setReturnType( 'void' );
-
 	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createPostTypeConstant( $class ) {
+		$postTypeConstant = $class->addConstant( 'POST_TYPE', $this->snakeCaseClassName );
+		$postTypeConstant->addComment( "Post type slug\n" )
+						->addComment( '@var string' );
+	}
 
-		// Output
-		$io->success( 'Custom post type ' . $name . ' was successfully created' );
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( PostType::class )
+				->addUse( Meta::class );
 
-		return CreateClassCommand::SUCCESS;
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( PostType::class );
+
+		return $class;
 	}
 
 }

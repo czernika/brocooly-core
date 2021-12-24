@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Http\Request\Request;
 use Illuminate\Contracts\Validation\Rule;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeRule extends CreateClassCommand
 {
@@ -21,10 +19,19 @@ class MakeRule extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:rule';
 
-	protected $fileNamespace = 'Theme\Rules';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Rules';
 
-	protected $themeFileFolder = 'Rules';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Rules';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -36,61 +43,51 @@ class MakeRule extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'rule' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . " - custom theme validation rule\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createMethod( $class );
+		$this->createPassesMethod( $class );
+		$this->createMethod( $class, 'message' );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme validation rule\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Rule ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Rule::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addImplement( Rule::class );
-
-		$constructMethod = $this->createMethod( $class, '__construct' );
-		$passesMethod    = $this->createMethod( $class, 'passes' );
+	private function createPassesMethod( $class ) {
+		$passesMethod = $this->createMethod( $class, 'passes' );
         $passesMethod->addParameter( 'attribute');
         $passesMethod->addParameter( 'value' );
-		$messagesMethod  = $this->createMethod( $class, 'message' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( Rule::class );
 
-		// Output
-		$io->success( 'Rule ' . $name . ' was successfully created' );
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( Rule::class );
 
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

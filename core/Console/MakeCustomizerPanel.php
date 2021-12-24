@@ -20,14 +20,22 @@ class MakeCustomizerPanel extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:customizer:panel';
 
-	protected $fileNamespace = 'Theme\Customizer\Panels';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Customizer\Panels';
 
-	protected $themeFileFolder = 'Customizer/Panels';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Customizer/Panels';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'panel',
 				InputArgument::REQUIRED,
 				'Customizer panel name',
@@ -35,55 +43,34 @@ class MakeCustomizerPanel extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'panel' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . ' - custom customizer panel',
+			"! Register this class inside `config/customizer.php` file to have effect\n",
+			'@see https://kirki.org/docs/setup/panels-sections/',
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createPanelIdConstant( $class );
+		$this->createOptionsMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . ' - custom customizer panel' )
-			->addComment( "! Register this class inside `customizer.php` file\n" )
-			->addComment( '@see https://kirki.org/docs/setup/panels-sections/' )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Customizer panel ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractPanel::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractPanel::class );
-
-		$panelConstant = $class->addConstant( 'PANEL_ID', Str::snake( $this->className ) );
-		$panelConstant->addComment( 'Panel id' )
-						->addComment( "Same as `id` setting for `Kirki::add_panel()\n" )
-						->addComment( "@var string" );
-
+	private function createOptionsMethod( $class ) {
 		$panelName = Str::headline( $this->className );
 		$method = $this->createMethod(
 			$class,
@@ -97,14 +84,28 @@ class MakeCustomizerPanel extends CreateClassCommand
 			->addComment( "Same array as arguments for `Kirki::add_panel()` or string if only title required\n" )
 			->addComment( '@return array|string' )
 			->setReturnType( 'array|string' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createPanelIdConstant( $class ) {
+		$constant = $class->addConstant( 'PANEL_ID', $this->snakeCaseClassName );
+		$constant->addComment( 'Panel id' )
+						->addComment( "Same as `id` setting for `Kirki::add_panel()\n" )
+						->addComment( "@var string" );
+	}
 
-		// Output
-		$io->success( 'Customizer panel ' . $name . ' was successfully created' );
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractPanel::class );
 
-		return CreateClassCommand::SUCCESS;
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractPanel::class );
+
+		return $class;
 	}
 
 }

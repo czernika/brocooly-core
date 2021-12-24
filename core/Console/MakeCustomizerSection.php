@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Brocooly\Console;
 
 use Illuminate\Support\Str;
-use Brocooly\Customizer\AbstractSection;
 use Brocooly\Support\Facades\Mod;
+use Brocooly\Customizer\AbstractSection;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeCustomizerSection extends CreateClassCommand
 {
@@ -22,10 +22,47 @@ class MakeCustomizerSection extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:customizer:section';
 
-	protected $fileNamespace = 'Theme\Customizer\Sections';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Customizer\Sections';
 
-	protected $themeFileFolder = 'Customizer/Sections';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Customizer/Sections';
 
+	/**
+	 * Section name
+	 *
+	 * @var string
+	 */
+	private string $sectionName = '';
+
+	/**
+	 * Panel name
+	 *
+	 * @var string|null
+	 */
+	private ?string $panel = null;
+
+	/**
+	 * Panel name in human-readable format
+	 *
+	 * @var string|null
+	 */
+	private ?string $panelName = null;
+
+	/**
+	 * Panel namespace
+	 *
+	 * @var string|null
+	 */
+	private ?string $panelNamespace = null;
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -43,103 +80,108 @@ class MakeCustomizerSection extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
-		$name  = $input->getArgument( 'section' );
-		$panel = $input->getOption( 'panel' );
+		$name        = $input->getArgument( 'section' );
+		$this->panel = $input->getOption( 'panel' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
+		$this->sectionName = Str::headline( $this->className );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
+		if ( $this->panel ) {
+			$this->panelName      = Str::afterLast( $this->panel, '/' );
+			$this->panelNamespace = 'Theme\\Customizer\\Panels\\' . Str::replace( '/', '\\', $this->panel );
 		}
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->generateClassComments([
+			$this->className . ' - custom customizer section',
+			"! Register this class inside `config/customizer.php` file to have effect\n",
+			'@see https://kirki.org/docs/setup/panels-sections/',
+		]);
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$class = $this->generateClassCap();
 
-		// Create file content
-		$file->addComment( $this->className . ' - custom customizer section' )
-			->addComment( "! Register this class inside `customizer.php` file\n" )
-			->addComment( '@see https://kirki.org/docs/setup/panels-sections/' )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$this->createSectionIdConstant( $class );
+		$this->createOptionsMethod( $class );
+		$this->createControlsMethod( $class );
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Mod::class )
-					->addUse( AbstractSection::class );
+		if ( $this->panel && ! class_exists( $this->panelNamespace ) ) {
+			$io->warning( 'Model class ' . $this->panelNamespace . ' doesn\'t exists' );
+		}
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractSection::class );
+		$this->createFile( $this->file );
 
-		$sectionConstant = $class->addConstant( 'SECTION_ID', Str::snake( $this->className ) );
-		$sectionConstant->addComment( 'Section id' )
-						->addComment( "Same as `id` setting for `Kirki::add_section()\n" )
-						->addComment( "@var string" );
+		$io->success( 'Customizer section ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$sectionName = Str::headline( $this->className );
-		if ( $panel ) {
-			$panelNamespaces = explode( '/', $panel );
-			$panelClassName = end( $panelNamespaces );
+	private function createOptionsMethodContent() {
+		if ( ! $this->panel ) {
+			return "return esc_html__( '{$this->sectionName}', 'brocooly' );";
+		}
 
-$optionsContent = "return [
-	'title' => esc_html__( '{$sectionName}', 'brocooly' ),
-	'panel' => {$panelClassName}::PANEL_ID,
+
+		return "return [
+	'title' => esc_html__( '{$this->sectionName}', 'brocooly' ),
+	'panel' => {$this->panelName}::PANEL_ID,
 ];";
+	}
 
-			$namespace->addUse( 'Theme\Customizer\Panels\\' . Str::replace( '/', '\\', $panel ) );
-
-		} else {
-			$optionsContent = "return esc_html__( '{$sectionName}', 'brocooly' );";
-		}
-
-		// Options()
-		$optionsMethod = $this->createMethod( $class, 'options', $optionsContent );
+	private function createOptionsMethod( $class ) {
+		$optionsMethod = $this->createMethod( $class, 'options', $this->createOptionsMethodContent() );
 
 		$optionsMethod
-			->addComment( "Panel settings\n" )
-			->addComment( 'Create panel for customizer sections' )
+			->addComment( "Section settings\n" )
 			->addComment( "Same array as arguments for `Kirki::add_panel()` or string if only title required\n" )
 			->addComment( '@return array|string' )
 			->setReturnType( 'array|string' );
+	}
 
-$controlsContent = "return [
+	private function createControlsMethodContent() {
+		return "return [
 	// Mod::text( 'example_setting', ['label' => esc_html__( 'Example setting', 'brocooly' ) ]),
 ];";
+	}
 
-		// Controls()
-		$controlsMethod = $this->createMethod( $class, 'controls', $controlsContent );
+	private function createControlsMethod( $class ) {
+		$controlsMethod = $this->createMethod( $class, 'controls', $this->createControlsMethodContent() );
 
 		$controlsMethod
 			->addComment( "Section controls\n" )
 			->addComment( '@see https://kirki.org/docs/controls/' )
 			->addComment( '@return array' )
 			->setReturnType( 'array' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createSectionIdConstant( $class ) {
+		$sectionConstant = $class->addConstant( 'SECTION_ID', $this->snakeCaseClassName );
+		$sectionConstant->addComment( 'Section id' )
+						->addComment( "Same as `id` setting for `Kirki::add_section()\n" )
+						->addComment( "@var string" );
+	}
 
-		// Output
-		$io->success( 'Customizer panel ' . $name . ' was successfully created' );
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractSection::class )
+					->addUse( Mod::class );
 
-		return CreateClassCommand::SUCCESS;
+		if ( $this->panel ) {
+			$namespace->addUse( 'Theme\\Customizer\\Panels\\' . Str::replace( '/', '\\', $this->panel ) );
+		}
+
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractSection::class );
+
+		return $class;
 	}
 
 }

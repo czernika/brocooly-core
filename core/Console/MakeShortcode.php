@@ -1,20 +1,21 @@
 <?php
+/**
+ * Create custom theme shortcode class
+ *
+ * @package brocooly-core
+ */
 
 declare(strict_types=1);
 
 namespace Brocooly\Console;
 
 use Brocooly\Router\View;
-use Brocooly\Support\Facades\File;
-use Brocooly\UI\Menus\AbstractMenu;
 use Brocooly\UI\Shortcodes\AbstractShortcode;
-use Illuminate\Support\Str;
-
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeShortcode extends CreateClassCommand
 {
@@ -25,98 +26,80 @@ class MakeShortcode extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:ui:shortcode';
 
-	protected $fileNamespace = 'Theme\UI\Shortcodes';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\UI\Shortcodes';
 
-	protected $themeFileFolder = 'UI/Shortcodes';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'UI/Shortcodes';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'shortcode',
 				InputArgument::REQUIRED,
 				'Shortcode name',
-			)
-			->addOption(
-				'view',
-				null,
-				InputOption::VALUE_REQUIRED,
-				'Create view file for shortcode',
 			);
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'shortcode' );
 
-		$view = $input->getOption( 'view' );
+		$this->defineDataByArgument( $name );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->generateClassComments([
+			$this->className . " - custom theme shortcode\n",
+			"! Register this class inside `config/views.php` file to have effect\n",
+		]);
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$class = $this->generateClassCap();
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$this->createShortcodeIdConstant( $class );
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createRenderMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme shortcode\n" )
-			->addComment( "! Register this class inside `views.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Shortcode ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
 		$namespace->addUse( AbstractShortcode::class );
 		$namespace->addUse( View::class );
 
+		// Generate extend class
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( AbstractShortcode::class );
 
-		$snakeName = Str::snake( $this->className );
-		$panelConstant = $class->addConstant( 'SHORTCODE_ID', $snakeName );
-		$panelConstant->addComment( "Shortcode tag to be searched in post content\n" )
+		return $class;
+	}
+
+	private function createShortcodeIdConstant( $class ) {
+		$constant = $class->addConstant( 'SHORTCODE_ID', $this->snakeCaseClassName );
+		$constant->addComment( "Shortcode tag to be searched in post content\n" )
 						->addComment( "@var string" );
+	}
 
-		$viewFile = 'path/to/shortcode.twig';
-		if ( $view ) {
-			$viewFile = $view;
-
-			$path = BROCOOLY_THEME_PATH . '/resources/views/' . $view;
-			$dir = Str::of( $path )->beforeLast( '/' );
-			File::ensureDirectoryExists( $dir );
-			File::put( $path, '{# Shortcode file #}' );
-		}
-
+	private function createRenderMethod( $class ) {
 		$method = $this->createMethod(
 			$class,
 			'render',
-"\$example = false;
-if ( isset( \$atts['example'] ) ) {
-	\$example = sanitize_text_field( \$atts['example'] );
-}
-
-// ! shortcodes HAVE TO return something
-return View::compile( {$viewFile}, compact( 'example' ) );"
+			$this->createRenderMethodContent(),
 		);
 
 		$method
@@ -127,20 +110,23 @@ return View::compile( {$viewFile}, compact( 'example' ) );"
 			->addComment( '@example available on front as:' )
 			->addComment( '```' )
 			->addComment( '{% apply shortcodes %}' )
-			->addComment( "[{$snakeName} example=\"value\"]" )
+			->addComment( "[{$this->snakeCaseClassName} example=\"value\"]" )
 			->addComment( '{% endapply %}' )
 			->addComment( '```' );
 
 		$method->addParameter( 'atts', [] )
 				->setType( 'array' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createRenderMethodContent() {
+		$viewFile = 'path/to/view.twig';
+		return "\$example = false;
+if ( isset( \$atts['example'] ) ) {
+	\$example = sanitize_text_field( \$atts['example'] );
+}
 
-		// Output
-		$io->success( 'Shortcode ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
+// ! shortcode HAVE TO return something
+return View::compile( '{$viewFile}', compact( 'example' ) );";
 	}
 
 }

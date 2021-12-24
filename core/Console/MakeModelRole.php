@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Mail\Mailable;
-use Brocooly\Models\Users\User;
 use Illuminate\Support\Str;
-
+use Brocooly\Models\Users\User;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeModelRole extends CreateClassCommand
 {
@@ -23,10 +21,19 @@ class MakeModelRole extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:model:role';
 
-	protected $fileNamespace = 'Theme\Models\Users';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Models\Users';
 
-	protected $themeFileFolder = 'Models/Users';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Models/Users';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -44,58 +51,45 @@ class MakeModelRole extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'role' );
-
-		// Options
 		$base = $input->getOption( 'base' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . " - custom theme role\n",
+			"! Register this class inside `config/users.php` file to have effect\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
-
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
-
-		// Create file content
-		$file->addComment( $this->className . " - custom theme role\n" )
-			->addComment( "! Register this class inside `users.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
-
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( User::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( User::class );
-
-		$roleConstant = $class->addConstant( 'ROLE', Str::snake( $this->className ) );
-		$roleConstant->addComment( "Role name\n" )
-						->addComment( '@var string' );
+		$this->createRoleConstant( $class );
 
 		if ( ! $base ) {
-			$label = Str::headline( $this->className );
+			$this->createLabelMethod( $class );
+			$this->createBuildMethod( $class );
+		}
+
+		$this->createFile( $this->file );
+
+		$io->success( 'Custom role ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
+
+	private function createRoleConstant( $class ) {
+		$roleConstant = $class->addConstant( 'ROLE', $this->snakeCaseClassName );
+		$roleConstant->addComment( "Role name\n" )
+						->addComment( '@var string' );
+	}
+
+	private function createLabelMethod( $class ) {
+		$label = Str::headline( $this->className );
 			$labelMethod = $this->createMethod(
 				$class,
 				'label',
@@ -105,27 +99,32 @@ class MakeModelRole extends CreateClassCommand
 			$labelMethod->addComment( "Return role name in human readable format\n" )
 							->addComment( '@return string' )
 							->setReturnType( 'string' );
+	}
 
-			$buildMethod = $this->createMethod(
-				$class,
-				'capabilities',
+	private function createBuildMethod( $class ) {
+		$buildMethod = $this->createMethod(
+			$class,
+			'capabilities',
 'return $this->as( \'administrator\' );'
-			);
+		);
 
-			$buildMethod
-				->addComment( 'Get user capabilities' )
-				->addComment( "We will set same level of caps as admin has\n" )
-				->addComment( '@return array' )
-				->setReturnType( 'array' );
-		}
+		$buildMethod
+			->addComment( 'Get user capabilities' )
+			->addComment( "We will set same level of caps as admin has\n" )
+			->addComment( '@return array' )
+			->setReturnType( 'array' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( User::class );
 
-		// Output
-		$io->success( 'Custom role ' . $name . ' was successfully created' );
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( User::class );
 
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

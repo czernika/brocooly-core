@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Support\Facades\File;
+use Illuminate\Support\Str;
 use Brocooly\Support\Facades\Meta;
 use Brocooly\UI\Blocks\AbstractBlock;
-use Brocooly\UI\Menus\AbstractMenu;
-use Brocooly\UI\Widgets\AbstractSidebar;
-use Brocooly\UI\Widgets\AbstractWidget;
-use Illuminate\Support\Str;
-
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeGutenberg extends CreateClassCommand
 {
@@ -27,75 +22,88 @@ class MakeGutenberg extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:ui:block';
 
-	protected $fileNamespace = 'Theme\UI\Blocks';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\UI\Blocks';
 
-	protected $themeFileFolder = 'UI/Blocks';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'UI/Blocks';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'block',
 				InputArgument::REQUIRED,
 				'Gutenberg block name',
-			)
-			->addOption(
-				'view',
-				null,
-				InputOption::VALUE_REQUIRED,
-				'Create view file for block',
 			);
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'block' );
-		$view = $input->getOption( 'view' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . " - custom theme block\n",
+			"! Register this class inside `config/blocks.php` file to have effect\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createTitleMethod( $class );
+		$this->createFieldsMethod( $class );
+		$this->createViewMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme block\n" )
-			->addComment( "! Register this class inside `blocks.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Gutenberg block ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractBlock::class );
+	private function createFieldsMethod( $class ) {
+		$filedsMethod = $this->createMethod(
+			$class,
+			'fields',
+"return [
+	Meta::text( 'example_text', esc_html__( 'Example text', 'brocooly' ) ),
+];"
+		);
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractBlock::class );
+		$filedsMethod
+			->addComment( "Block fields\n" )
+			->addComment( '@return array' )
+			->setProtected()
+			->setReturnType( 'array' );
+	}
 
-		$snakeName = Str::snake( $this->className );
+	private function createViewMethod( $class ) {
+		$viewMethod = $this->createMethod(
+			$class,
+			'view',
+"return 'path/to/view.twig';"
+		);
 
+		$viewMethod
+			->addComment( "Block view file\n" )
+			->addComment( '@return string' )
+			->setProtected()
+			->setReturnType( 'string' );
+	}
+
+	private function createTitleMethod( $class ) {
 		$blockName = Str::headline( $this->className );
-
 		$titleMethod = $this->createMethod(
 			$class,
 			'title',
@@ -107,52 +115,19 @@ class MakeGutenberg extends CreateClassCommand
 			->addComment( '@return string' )
 			->setProtected()
 			->setReturnType( 'string' );
+	}
 
-		$optionsMethod = $this->createMethod(
-			$class,
-			'fields',
-"return [
-	Meta::text( 'example_text', esc_html__( 'Example text', 'brocooly' ) ),
-];"
-		);
-
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractBlock::class );
 		$namespace->addUse( Meta::class );
 
-		$viewFile = 'path/to/block.twig';
-		if ( $view ) {
-			$viewFile = $view;
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractBlock::class );
 
-			$path = BROCOOLY_THEME_PATH . '/resources/views/' . $view;
-			$dir = Str::of( $path )->beforeLast( '/' );
-			File::ensureDirectoryExists( $dir );
-			File::put( $path, '{# Gutenberg block file #}' );
-		}
-
-		$optionsMethod
-			->addComment( "Block fields\n" )
-			->addComment( '@return array' )
-			->setProtected()
-			->setReturnType( 'array' );
-
-		$viewMethod = $this->createMethod(
-			$class,
-			'view',
-"return {$viewFile};"
-		);
-
-		$viewMethod
-			->addComment( "Block view file\n" )
-			->addComment( '@return string' )
-			->setProtected()
-			->setReturnType( 'string' );
-
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Gutenberg block ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

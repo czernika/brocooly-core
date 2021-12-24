@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
+use Theme\Models\WP\Post;
 use Illuminate\Support\Str;
 use Brocooly\Models\Taxonomy;
-use Brocooly\Support\Facades\Meta;
 use Nette\PhpGenerator\Literal;
+use Brocooly\Support\Facades\Meta;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Theme\Models\WP\Post;
 
 class MakeModelTaxonomy extends CreateClassCommand
 {
@@ -24,14 +24,43 @@ class MakeModelTaxonomy extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:model:taxonomy';
 
-	protected $fileNamespace = 'Theme\Models';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Models';
 
-	protected $themeFileFolder = 'Models';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Models';
 
+	/**
+	 * Post types attached to taxonomy
+	 *
+	 * @var array
+	 */
+	private array $postTypes = [];
+
+	/**
+	 * Post type name defined by user
+	 *
+	 * @var string|null
+	 */
+	private ?string $postType = null;
+
+	/**
+	 * Post type class name defined by user
+	 *
+	 * @var string|null
+	 */
+	private ?string $postTypeClassName = null;
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'taxonomy',
 				InputArgument::REQUIRED,
 				'Create custom taxonomy',
@@ -51,89 +80,102 @@ class MakeModelTaxonomy extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name  = $input->getArgument( 'taxonomy' );
 
-		// Options
-		$meta     = $input->getOption( 'meta' );
-		$postType = $input->getOption( 'post_type' );
+		$meta           = $input->getOption( 'meta' );
+		$this->postType = $input->getOption( 'post_type' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . ' - custom taxonomy',
+			"! Register this class inside `config/app.php` file to have effect\n",
+			"! It is recommended to flush permalinks\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
+		$class = $this->generateClassCap();
+
+		if ( $this->postTypeClassName && ! class_exists( $this->postTypeClassName ) ) {
+			$io->warning( 'Model class ' . $this->postTypeClassName . ' doesn\'t exists' );
 		}
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createTaxonomyConstant( $class );
+		$this->createWebUrlProperty( $class );
+		$this->createOptionsMethod( $class );
+		$this->createPostTypesProperty( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		if ( $meta ) {
+			$this->createFieldsMethod( $class );
+		}
 
-		// Create file content
-		$file->addComment( $this->className . ' - custom taxonomy' )
-			->addComment( "! Register this class inside `app.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$this->createFile( $this->file );
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Meta::class )
-					->addUse( Taxonomy::class );
+		$io->success( 'Custom taxonomy ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( Taxonomy::class )
+				->addUse( Meta::class );
+
+		// Generate extend class
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( Taxonomy::class );
 
-		$taxonomyConstant = $class->addConstant( 'TAXONOMY', Str::snake( $this->className ) );
-		$taxonomyConstant->addComment( "Taxonomy slug\n" )
-						->addComment( '@var string' );
-
-		$webUrlProperty = $class->addProperty( 'webUrl', Str::snake( $this->className ) )
-							->setType( 'string' )
-							->setPublic()
-							->addComment( 'Web URL' )
-							->addComment( "Publicly accessible name\n" )
-							->addComment( '@var string' );
-
-		if ( null === $postType ) {
-			$postTypeSlug = new Literal( 'Post::POST_TYPE' );
-
+		if ( null === $this->postType ) {
+			$this->postTypes = [ new Literal( 'Post::POST_TYPE' ) ];
 			$namespace->addUse( Post::class );
 		} else {
-			$postTypeSlug = Str::of( $postType )->after( '/' ) . '::POST_TYPE';
-			$postTypeSlug = new Literal( $postTypeSlug );
-
-			$postTypeClassName = 'Theme\Models\\' . Str::replace( '/', '\\', $postType );
-
-			$namespace->addUse( $postTypeClassName );
+			$postTypeSlug = Str::of( $this->postType )->after( '/' ) . '::POST_TYPE';
+			$this->postTypes = [ new Literal( $postTypeSlug ) ];
+			$this->postTypeClassName = 'Theme\Models\\' . Str::replace( '/', '\\', $this->postType );
+			$namespace->addUse( $this->postTypeClassName );
 		}
 
-		$postTypeProperty = $class->addProperty( 'postTypes', $postTypeSlug )
+		return $class;
+	}
+
+	private function createPostTypesProperty( $class ) {
+		$class->addProperty( 'postTypes', $this->postTypes )
 			->setProtected()
 			->setStatic()
 			->addComment( 'Post type related to this taxonomy' )
 			->addComment( "Same as for `register_taxonomy()`\n" )
 			->addComment( '@var array|string' );
+	}
 
+	private function createFieldsMethodContent() {
+		return "\$this->createFields(
+	'container_id',
+	esc_html__( 'Container label', 'brocooly' ),
+	[
+		Meta::text( 'example_meta', esc_html__( 'Example meta', 'brocooly' ) ),
+	],
+);";
+	}
+
+	private function createFieldsMethod( $class ) {
+		$fieldsMethod = $this->createMethod( $class, 'fields', $this->createFieldsMethodContent() );
+		$fieldsMethod
+			->setProtected()
+			->addComment( "Taxonomy metaboxes\n" )
+			->addComment( '@return void' )
+			->setReturnType( 'void' );
+	}
+
+	private function createOptionsMethodContent() {
 		$taxonomyLabel       = Str::headline( $this->className );
 		$pluralTaxonomyLabel = Str::plural( $taxonomyLabel );
 
-$optionsContent = "return [
+		return "return [
 	'labels'            => [
 		'name'              => esc_html__( '{$pluralTaxonomyLabel}', 'brocooly' ),
 		'all_items'         => esc_html__( 'All {$pluralTaxonomyLabel}', 'brocooly' ),
@@ -157,42 +199,33 @@ $optionsContent = "return [
 	// 'meta_box'       => 'radio', // Use radio buttons in the meta box for this taxonomy on the post editing screen.
 	// 'admin_cols'     => [],
 ];";
+	}
 
-		$optionsMethod = $this->createMethod( $class, 'options', $optionsContent );
+	private function createOptionsMethod( $class ) {
+		$optionsMethod = $this->createMethod( $class, 'options', $this->createOptionsMethodContent() );
 
 		$optionsMethod
 			->setProtected()
 			->addComment( 'Taxonomy register options' )
-			->addComment( "Same as for `register_taxonomy()`\n" )
+			->addComment( "Same as for `register_extended_taxonomy()`\n" )
 			->addComment( '@return array' )
 			->setReturnType( 'array' );
-
-	if ( $meta ) {
- 	// protected fields()
-$fieldsContent = "\$this->createFields(
-	'container_id',
-	esc_html__( 'Container label', 'brocooly' ),
-	[
-		Meta::text( 'example_meta', esc_html__( 'Example meta', 'brocooly' ) ),
-	],
-);";
-
-		$fieldsMethod = $this->createMethod( $class, 'fields', $fieldsContent );
-		$fieldsMethod
-			->setProtected()
-			->addComment( "Taxonomy metaboxes\n" )
-			->addComment( '@return void' )
-			->setReturnType( 'void' );
-
 	}
 
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Custom taxonomy ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
+	private function createTaxonomyConstant( $class ) {
+		$taxonomyConstant = $class->addConstant( 'TAXONOMY', $this->snakeCaseClassName );
+		$taxonomyConstant->addComment( "Taxonomy slug\n" )
+						->addComment( '@var string' );
 	}
+
+	private function createWebUrlProperty( $class ) {
+		$class->addProperty( 'webUrl', $this->snakeCaseClassName )
+				->setType( 'string' )
+				->setPublic()
+				->addComment( 'Web URL' )
+				->addComment( "Publicly accessible name\n" )
+				->addComment( '@var string' );
+	}
+
 
 }

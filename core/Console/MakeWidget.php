@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Support\Facades\File;
-use Brocooly\Support\Facades\Meta;
-use Brocooly\UI\Menus\AbstractMenu;
-use Brocooly\UI\Widgets\AbstractSidebar;
-use Brocooly\UI\Widgets\AbstractWidget;
 use Illuminate\Support\Str;
+use Brocooly\Support\Facades\Meta;
+use Brocooly\UI\Widgets\AbstractWidget;
 
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeWidget extends CreateClassCommand
 {
@@ -26,10 +23,26 @@ class MakeWidget extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:ui:widget';
 
-	protected $fileNamespace = 'Theme\UI\Widgets';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\UI\Widgets';
 
-	protected $themeFileFolder = 'UI/Widgets';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'UI/Widgets';
 
+	/**
+	 * Human-readable Widget name
+	 *
+	 * @var string
+	 */
+	private string $widgetName = 'Custom Widget';
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -37,92 +50,55 @@ class MakeWidget extends CreateClassCommand
 				'widget',
 				InputArgument::REQUIRED,
 				'Widget name',
-			)
-			->addOption(
-				'view',
-				null,
-				InputOption::VALUE_REQUIRED,
-				'Create view file for widget',
 			);
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'widget' );
 
-		$view = $input->getOption( 'view' );
+		$this->defineDataByArgument( $name );
+		$this->widgetName = Str::headline( $this->className );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->generateClassComments([
+			$this->className . " - custom theme widget\n",
+			"! Register this class inside `config/widgets.php` file to have effect\n",
+		]);
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$class = $this->generateClassCap();
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$this->createWidgetIdConstant( $class );
+		$this->createTitleMethod( $class );
+		$this->createDescriptionMethod( $class );
+		$this->createOptionsMethod( $class );
+		$this->createViewMethod( $class );
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createFile( $this->file );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$io->success( 'Widget ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme widget\n" )
-			->addComment( "! Register this class inside `widgets.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
-
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractWidget::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractWidget::class );
-
-		$snakeName = Str::snake( $this->className );
-		$panelConstant = $class->addConstant( 'WIDGET_ID', $snakeName );
-		$panelConstant->addComment( "Widget id\n" )
-						->addComment( "@var string" );
-
-		$widgetName = Str::headline( $this->className );
-
-		$titleMethod = $this->createMethod(
+	private function createViewMethod( $class ) {
+		$viewMethod = $this->createMethod(
 			$class,
-			'title',
-"return esc_html__( 'Brocooly | {$widgetName}', 'brocooly' );"
+			'view',
+"return 'path/to/view.twig';"
 		);
 
-		$titleMethod
-			->addComment( "Widget title\n" )
+		$viewMethod
+			->addComment( "Widget view instance\n" )
 			->addComment( '@return string' )
 			->setProtected()
 			->setReturnType( 'string' );
+	}
 
-		$descriptionMethod = $this->createMethod(
-			$class,
-			'description',
-"return esc_html__( '{$widgetName} description', 'brocooly' );"
-		);
-
-		$descriptionMethod
-			->addComment( "Widget description\n" )
-			->addComment( '@return string' )
-			->setProtected()
-			->setReturnType( 'string' );
-
+	private function createOptionsMethod( $class ) {
 		$optionsMethod = $this->createMethod(
 			$class,
 			'options',
@@ -131,43 +107,58 @@ class MakeWidget extends CreateClassCommand
 ];"
 		);
 
-		$namespace->addUse( Meta::class );
-
-		$viewFile = 'path/to/widget.twig';
-		if ( $view ) {
-			$viewFile = $view;
-
-			$path = BROCOOLY_THEME_PATH . '/resources/views/' . $view;
-			$dir = Str::of( $path )->beforeLast( '/' );
-			File::ensureDirectoryExists( $dir );
-			File::put( $path, '{# Widget file #}' );
-		}
-
 		$optionsMethod
 			->addComment( "Widget options\n" )
 			->addComment( '@return array' )
 			->setProtected()
 			->setReturnType( 'array' );
+	}
 
-		$viewMethod = $this->createMethod(
+	private function createDescriptionMethod( $class ) {
+		$descriptionMethod = $this->createMethod(
 			$class,
-			'view',
-"return {$viewFile};"
+			'description',
+"return esc_html__( '{$this->widgetName} description', 'brocooly' );"
 		);
 
-		$viewMethod
-			->addComment( "Widget view instance\n" )
+		$descriptionMethod
+			->addComment( "Widget description\n" )
 			->addComment( '@return string' )
 			->setProtected()
 			->setReturnType( 'string' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createTitleMethod( $class ) {
+		$titleMethod = $this->createMethod(
+			$class,
+			'title',
+"return esc_html__( 'Brocooly | {$this->widgetName}', 'brocooly' );"
+		);
 
-		// Output
-		$io->success( 'Widget ' . $name . ' was successfully created' );
+		$titleMethod
+			->addComment( "Widget title\n" )
+			->addComment( '@return string' )
+			->setProtected()
+			->setReturnType( 'string' );
+	}
 
-		return CreateClassCommand::SUCCESS;
+	private function createWidgetIdConstant( $class ) {
+		$panelConstant = $class->addConstant( 'WIDGET_ID', $this->snakeCaseClassName );
+		$panelConstant->addComment( "Widget id\n" )
+						->addComment( "@var string" );
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractWidget::class );
+		$namespace->addUse( Meta::class );
+
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractWidget::class );
+
+		return $class;
 	}
 
 }

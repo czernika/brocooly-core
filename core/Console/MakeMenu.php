@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\UI\Menus\AbstractMenu;
 use Illuminate\Support\Str;
+use Brocooly\UI\Menus\AbstractMenu;
 
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeMenu extends CreateClassCommand
 {
@@ -22,14 +22,22 @@ class MakeMenu extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:ui:menu';
 
-	protected $fileNamespace = 'Theme\UI\Menus';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $fileNamespace = 'Theme\UI\Menus';
 
-	protected $themeFileFolder = 'UI/Menus';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'UI/Menus';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'menu',
 				InputArgument::REQUIRED,
 				'Menu location name',
@@ -37,53 +45,33 @@ class MakeMenu extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'menu' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . " - custom theme menu location\n",
+			"! Register this class inside `config/menus.php` file to have effect\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createLocationConstant( $class );
+		$this->createLabelMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme menu\n" )
-			->addComment( "! Register this class inside `menus.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Menu ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractMenu::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractMenu::class );
-
-		$panelConstant = $class->addConstant( 'LOCATION', Str::snake( $this->className ) );
-		$panelConstant->addComment( "Menu location\n" )
-						->addComment( "@var string" );
-
+	private function createLabelMethod( $class ) {
 		$menuName = Str::headline( $this->className );
 		$method = $this->createMethod(
 			$class,
@@ -95,14 +83,24 @@ class MakeMenu extends CreateClassCommand
 			->addComment( "Get menu label in admin area\n" )
 			->addComment( '@return string' )
 			->setReturnType( 'string' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	private function createLocationConstant( $class ) {
+		$constant = $class->addConstant( 'LOCATION', $this->snakeCaseClassName );
+		$constant->addComment( "Menu location\n" )
+						->addComment( "@var string" );
+	}
 
-		// Output
-		$io->success( 'Menu ' . $name . ' was successfully created' );
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractMenu::class );
 
-		return CreateClassCommand::SUCCESS;
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractMenu::class );
+
+		return $class;
 	}
 
 }

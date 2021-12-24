@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
+use Theme\Http\Controllers\AjaxController;
 use Brocooly\Http\Controllers\BaseController;
-
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Theme\Http\Controllers\AjaxController;
 
 class MakeController extends CreateClassCommand
 {
@@ -22,6 +21,9 @@ class MakeController extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:controller';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -63,60 +65,65 @@ class MakeController extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'controller' );
 
-		// Options
-		$invokable = $input->getOption( 'invokable' );
-		$resource  = $input->getOption( 'resource' );
-		$construct = $input->getOption( 'construct' );
-		$base      = $input->getOption( 'base' );
-		$ajax      = $input->getOption( 'ajax' );
-
-		$file = new \Nette\PhpGenerator\PhpFile();
-
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
+		$options = [ 'invokable', 'resource', 'construct', 'base', 'ajax' ];
+		foreach ( $options as $option ) {
+			$this->$option = $input->getOption( $option );
 		}
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->defineDataByArgument( $name );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->generateClassComments([
+			$this->className . " - custom theme controller\n",
+		]);
 
-		// Create file content
-		$file->addComment( $this->className . " - custom theme controller\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
-
-		if ( $base ) {
-			$this->fileNamespace = 'Theme\Http\Controllers';
+		if ( $this->base ) {
+			$this->rootNamespace   = 'Theme\Http\Controllers';
 			$this->themeFileFolder = 'Http/Controllers';
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$class = $namespace->addClass( $this->className );
+		$class = $this->generateClassCap();
 
-		if ( $ajax ) {
+		if ( $this->base ) {
+			$class->setAbstract();
+		}
+
+		if ( $this->ajax ) {
 			$this->createMethod( $class, 'handle' );
+		}
 
+		if ( $this->construct ) {
+			$this->createMethod( $class );
+		}
+
+		if ( $this->invokable ) {
+			$this->createMethod( $class, '__invoke' );
+		}
+
+		if ( $this->resource ) {
+			$this->createMethod( $class, 'index' );
+			$this->createMethod( $class, 'single' );
+		}
+
+		$this->createFile( $this->file );
+
+		$io->success( 'Controller ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file?->addNamespace( $this->rootNamespace );
+		$class     = $namespace->addClass( $this->className );
+
+		if ( $this->ajax ) {
 			$namespace->addUse( AjaxController::class );
 			$class->addExtend( AjaxController::class );
 		} else {
@@ -124,31 +131,7 @@ class MakeController extends CreateClassCommand
 			$class->addExtend( BaseController::class );
 		}
 
-
-		if ( $base ) {
-			$class->setAbstract();
-		}
-
-		if ( $construct ) {
-			$this->createMethod( $class, '__construct' );
-		}
-
-		if ( $invokable ) {
-			$this->createMethod( $class, '__invoke' );
-		}
-
-		if ( $resource ) {
-			$this->createMethod( $class, 'index' );
-			$this->createMethod( $class, 'single' );
-		}
-
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Controller ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

@@ -4,25 +4,17 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Router\View;
-use Brocooly\Support\DB\Seeder;
-use Brocooly\Support\Facades\File;
-use Brocooly\UI\Menus\AbstractMenu;
-use Brocooly\UI\Shortcodes\AbstractShortcode;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\Literal;
+use Brocooly\Support\DB\Seeder;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeSeeder extends CreateClassCommand
 {
-
-	protected $root = APP_PATH;
-
-	protected $themeRootFolder = '/';
 
 	/**
 	 * The name of the command
@@ -31,10 +23,43 @@ class MakeSeeder extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:seeder';
 
-	protected $fileNamespace = 'Databases\Seeders';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $root = APP_PATH;
 
-	protected $themeFileFolder = 'databases/Seeders';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeRootFolder = '/';
 
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Databases\Seeders';
+
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = '/databases/Seeders';
+
+	/**
+	 * Post type name defined by user
+	 *
+	 * @var string|null
+	 */
+	private ?string $postType = null;
+
+	/**
+	 * Post type class name defined by user
+	 *
+	 * @var string|null
+	 */
+	private ?string $postTypeClassName = null;
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -52,87 +77,85 @@ class MakeSeeder extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
-		$name = $input->getArgument( 'seeder' );
+		$name           = $input->getArgument( 'seeder' );
+		$this->postType = $input->getOption( 'post_type' );
 
-		$postType = $input->getOption( 'post_type' );
+		$this->defineDataByArgument( $name );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->generateClassComments([
+			$this->className . " - database seeder\n",
+		]);
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->postTypeClassName = 'Theme\\Models\\' . Str::replace( '/', '\\', $this->postType );
+		$class = $this->generateClassCap();
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
+
+		if ( ! class_exists( $this->postTypeClassName ) ) {
+			$io->warning( 'Model class ' . $this->postTypeClassName . ' doesn\'t exists' );
 		}
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createSeederProperty( $class );
+		$this->createTimesProperty( $class );
+		$this->createParamsMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . " - database seeder\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Seeder ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Seeder::class );
-
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( Seeder::class );
-
-		$postTypeSlug = Str::of( $postType )->after( '/' ) . '::class';
+	private function createSeederProperty( $class ) {
+		$postTypeSlug    = Str::of( $this->postType )->after( '/' ) . '::class';
 		$postTypeLiteral = new Literal( $postTypeSlug );
 
-		$className = 'Theme\\Models\\' . Str::replace( '/', '\\', $postType );
-
-		$namespace->addUse( $className );
-
-		$postTypesProperty = $class->addProperty( 'seeder', $postTypeLiteral )
+		$class->addProperty( 'seeder', $postTypeLiteral )
 					->addComment( "Seeder post type\n" )
 					->addComment( '@var object' );
+	}
 
-		$timesProperty = $class->addProperty( 'times', $postType )
-						->addComment( "How many times run seeder\n" )
-						->setValue( 1 )
-						->addComment( '@var int' );
+	private function createTimesProperty( $class ) {
+		$class->addProperty( 'times', $this->postType )
+					->addComment( "How many times run seeder\n" )
+					->setValue( 1 )
+					->addComment( '@var int' );
+	}
 
+	private function createParamsMethod( $class ) {
 		$method = $this->createMethod(
 			$class,
 			'params',
 "return [
 	'post_title'   => \$this->faker->name,
 	'post_author'  => 1,
-	'post_content' => \$this->faker->paragraph,,
+	'post_content' => \$this->faker->paragraph,
 ];"
 		);
 
 		$method->addComment( "Return params as for `wp_insert_post`\n" )
 						->addComment( '@return array' )
 						->setReturnType( 'array' );
+	}
 
-		// Create file
-		$this->createFile( $file );
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( Seeder::class );
+		$namespace->addUse( $this->postTypeClassName );
 
-		// Output
-		$io->success( 'Seeder ' . $name . ' was successfully created' );
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( Seeder::class );
 
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

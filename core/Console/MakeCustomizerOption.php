@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Brocooly\Console;
 
 use Illuminate\Support\Str;
-use Brocooly\Customizer\AbstractOption;
-use Brocooly\Customizer\WPSection;
 use Brocooly\Support\Facades\Mod;
+use Brocooly\Customizer\WPSection;
+use Brocooly\Customizer\AbstractOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeCustomizerOption extends CreateClassCommand
 {
@@ -22,14 +22,22 @@ class MakeCustomizerOption extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:customizer:option';
 
-	protected $fileNamespace = 'Theme\Customizer\Options';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Customizer\Options';
 
-	protected $themeFileFolder = 'Customizer/Options';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Customizer/Options';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
-        $this
-			->addArgument(
+        $this->addArgument(
 				'option',
 				InputArgument::REQUIRED,
 				'Customizer option name',
@@ -37,61 +45,58 @@ class MakeCustomizerOption extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'option' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
+		$this->generateClassComments([
+			$this->className . ' - custom customizer option',
+			"! Register this class inside `config/customizer.php` file to have effect\n",
+		]);
 
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
+		$class = $this->generateClassCap();
 
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
+		$this->createSettingsMethod( $class );
 
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
+		$this->createFile( $this->file );
 
-		// Create file content
-		$file->addComment( $this->className . ' - custom customizer option' )
-			->addComment( "! Register this class inside `customizer.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$io->success( 'Customizer option ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
 		$namespace->addUse( AbstractOption::class )
 					->addUse( Mod::class )
 					->addUse( WPSection::class );
 
+		// Generate extend class
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( AbstractOption::class );
 
-		$optionName  = Str::snake( $this->className );
+		return $class;
+	}
+
+	private function createSettingsMethod( $class ) {
 		$optionLabel = Str::headline( $this->className );
 		$method = $this->createMethod(
 			$class,
 			'settings',
 "return Mod::text(
-	'{$optionName}',
+	'{$this->snakeCaseClassName}',
 	[
-		// 'section'  => WPSection::TITLE_TAGLINE,
-		'label'    => esc_html__( '{$optionLabel}', 'brocooly' ),
+		// 'section' => WPSection::TITLE_TAGLINE,
+		'label'   => esc_html__( '{$optionLabel}', 'brocooly' ),
 	],
 );"
 		);
@@ -105,14 +110,6 @@ class MakeCustomizerOption extends CreateClassCommand
 			->addComment( '@link https://developer.wordpress.org/themes/customize-api/customizer-objects/#sections' )
 			->addComment( '@return array' )
 			->setReturnType( 'array' );
-
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Customizer option ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
 	}
 
 }

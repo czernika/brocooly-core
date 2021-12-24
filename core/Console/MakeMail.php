@@ -6,12 +6,11 @@ namespace Brocooly\Console;
 
 use Brocooly\Mail\Mailable;
 use Illuminate\Support\Str;
-
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeMail extends CreateClassCommand
 {
@@ -22,6 +21,9 @@ class MakeMail extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:ui:mail';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -39,59 +41,51 @@ class MakeMail extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'mail' );
-
-		// Options
 		$base = $input->getOption( 'base' );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
+		$this->defineDataByArgument( $name );
 
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
-
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
-
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
-
-		// Create file content
-		$file->addComment( $this->className . " - mailable class\n" )
-			->addComment( "Used to send emails\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$this->generateClassComments([
+			$this->className . " - mailable class\n",
+			"Used to send emails\n",
+		]);
 
 		if ( $base ) {
-			$this->fileNamespace = 'Theme\UI\Mails';
+			$this->rootNamespace   = 'Theme\UI\Mails';
 			$this->themeFileFolder = 'UI/Mails';
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
+		$class = $this->generateClassCap();
+
+		$this->createMethod( $class );
+		$this->createBuildMethod( $class );
+
+		$this->createFile( $this->file );
+
+		$io->success( 'Mailable model ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
 		$namespace->addUse( Mailable::class );
 
+		// Generate extend class
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( Mailable::class );
 
-		$this->createMethod( $class, '__construct' );
+		return $class;
+	}
 
+	private function createBuildMethod( $class ) {
 		$buildMethod = $this->createMethod(
 			$class,
 			'build',
@@ -102,14 +96,6 @@ $this->message = \'Message or template\';'
 		$buildMethod
 			->addComment( "Define email constants\n" )
 			->addComment( 'You may set `$this->message` as simple string or template content with use of `$this->template()`' );
-
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Mailable ' . $name . ' was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
 	}
 
 }

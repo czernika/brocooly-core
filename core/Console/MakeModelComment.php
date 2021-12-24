@@ -5,16 +5,9 @@ declare(strict_types=1);
 namespace Brocooly\Console;
 
 use Brocooly\Models\Comment;
-use Brocooly\Models\Users\User;
-use Brocooly\Support\Facades\Meta;
-use Brocooly\Support\Traits\HasAvatar;
-use Illuminate\Support\Str;
-
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeModelComment extends CreateClassCommand
 {
@@ -25,45 +18,49 @@ class MakeModelComment extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:model:comment';
 
-	protected $fileNamespace = 'Theme\Models\WP';
-
-	protected $themeFileFolder = 'Models/WP';
+	/**
+	 * @inheritDoc
+	 */
+	protected string $rootNamespace = 'Theme\Models\WP';
 
 	/**
-	 * Execute method
-	 *
+	 * @inheritDoc
+	 */
+	protected string $themeFileFolder = 'Models/WP';
+
+	/**
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		$file = new \Nette\PhpGenerator\PhpFile();
-
-		// Collect data
 		$this->className  = 'Comment';
 		$this->folderPath = '';
 
-		// Create file content
-		$file->addComment( "Base comment model for all roles\n" )
-			->addComment( "! Register this class inside `Brocooly.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$class = $this->generateClassCap();
 
-		$namespace = $file->addNamespace( $this->fileNamespace );
+		$this->generateClassComments([
+			"Base comment model\n",
+			"! Set this class as `comments.parent` inside `Http/Brocooly.php` file\n"
+		]);
+
+		$this->createFile( $this->file );
+
+		$io->success( 'Comment base model was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
 		$namespace->addUse( Comment::class, 'BaseComment' );
 
+		// Generate extend class
 		$class = $namespace->addClass( $this->className );
 		$class->addExtend( Comment::class );
 
-		// Create file
-		$this->createFile( $file );
-
-		// Output
-		$io->success( 'Comment base model was successfully created' );
-
-		return CreateClassCommand::SUCCESS;
+		return $class;
 	}
 
 }

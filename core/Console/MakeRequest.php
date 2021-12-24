@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Http\Controllers\BaseController;
-use Brocooly\Http\Middleware\AbstractMiddleware;
 use Brocooly\Http\Request\Request;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeRequest extends CreateClassCommand
 {
@@ -22,6 +20,9 @@ class MakeRequest extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:request';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -39,71 +40,55 @@ class MakeRequest extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'request' );
+		$base = $input->getOption( 'base' );
 
-		// Options
-		$base      = $input->getOption( 'base' );
-
-		$file = new \Nette\PhpGenerator\PhpFile();
-
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
-
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
-
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
-
-		// Create file content
-		$file->addComment( $this->className . " - custom theme request\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
 
 		if ( $base ) {
-			$this->fileNamespace = 'Theme\Http\Request';
+			$this->rootNamespace   = 'Theme\Http\Request';
 			$this->themeFileFolder = 'Http/Request';
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( Request::class );
+		$this->defineDataByArgument( $name );
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( Request::class );
+		$this->generateClassComments([
+			$this->className . " - custom theme request\n",
+		]);
+
+		$class = $this->generateClassCap();
 
 		if ( $base ) {
 			$class->setAbstract();
 		}
 
-		$method = $this->createMethod( $class, 'rules' );
+		$rulesMethod = $this->createMethod( $class, 'rules' );
+		$rulesMethod->setReturnType( 'array' );
 
-		$method->setReturnType( 'array' );
+		$this->createFile( $this->file );
 
-		// Create file
-		$this->createFile( $file );
-
-		// Output
 		$io->success( 'Request ' . $name . ' was successfully created' );
-
 		return CreateClassCommand::SUCCESS;
+	}
+
+	/**
+	 * @return object
+	 */
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( Request::class );
+
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( Request::class );
+
+		return $class;
 	}
 
 }

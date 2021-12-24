@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Brocooly\Console;
 
-use Brocooly\Http\Controllers\BaseController;
-use Brocooly\Http\Middleware\AbstractMiddleware;
 use Brocooly\Providers\AbstractService;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MakeProvider extends CreateClassCommand
 {
@@ -22,6 +20,9 @@ class MakeProvider extends CreateClassCommand
 	 */
 	protected static $defaultName = 'new:provider';
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function configure(): void
     {
         $this
@@ -39,67 +40,49 @@ class MakeProvider extends CreateClassCommand
     }
 
 	/**
-	 * Execute method
-	 *
 	 * @inheritDoc
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
-
 		$io = new SymfonyStyle( $input, $output );
 
-		// Argument
 		$name = $input->getArgument( 'provider' );
-
-		// Options
-		$base      = $input->getOption( 'base' );
-
-		$file = new \Nette\PhpGenerator\PhpFile();
-
-		// Collect data
-		$namespaces = explode( '/', $name );
-		$origin     = count( $namespaces );
-		$this->className  = end( $namespaces );
-
-		if ( $origin > 1 ) {
-			unset( $namespaces[ $origin - 1 ]);
-		}
-
-		$classNamespace = $origin > 1 ?
-							'\\' . implode( '\\', $namespaces ) :
-							'';
-
-		$this->folderPath = $origin > 1 ?
-			'/' . implode( '/', $namespaces ) :
-			'';
-
-		// Create file content
-		$file->addComment( $this->className . " - custom theme service provider\n" )
-			->addComment( "! Register this class inside `app.php` file\n" )
-			->addComment( '@package Brocooly' )
-			->setStrictTypes();
+		$base = $input->getOption( 'base' );
 
 		if ( $base ) {
-			$this->fileNamespace = 'Theme\Http\Providers';
-			$this->themeFileFolder = 'Http/Providers';
+			$this->rootNamespace = 'Theme\Providers';
+			$this->themeFileFolder = 'Providers';
 		}
 
-		$namespace = $file->addNamespace( $this->fileNamespace . $classNamespace );
-		$namespace->addUse( AbstractService::class );
+		$this->defineDataByArgument( $name );
 
-		$class = $namespace->addClass( $this->className );
-		$class->addExtend( AbstractService::class );
+		$this->generateClassComments([
+			$this->className . " - custom theme service provider\n",
+			"! Register this class inside `config/app.php` file to have effect\n",
+		]);
+
+		$class = $this->generateClassCap();
 
 		$this->createMethod( $class, 'register' );
 		$this->createMethod( $class, 'boot' );
 
 		// Create file
-		$this->createFile( $file );
+		$this->createFile( $this->file );
 
-		// Output
 		$io->success( 'Provider ' . $name . ' was successfully created' );
-
 		return CreateClassCommand::SUCCESS;
+	}
+
+	protected function generateClassCap() {
+		// Generate class namespace
+		$namespace = $this->file->addNamespace( $this->rootNamespace );
+		$namespace->addUse( AbstractService::class );
+
+		// Generate extend class
+		$class = $namespace->addClass( $this->className );
+		$class->addExtend( AbstractService::class );
+
+		return $class;
 	}
 
 }
