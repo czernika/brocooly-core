@@ -19,10 +19,12 @@ abstract class AbstractBlock extends Block
 	/**
 	 * Get block title
 	 *
+	 * @throws \Exception
 	 * @return string
 	 */
-	protected function title() {
-		return __( 'My Shiny Gutenberg Block', 'brocooly' );
+	protected function title()
+	{
+		throw new \Exception( 'Class has not title' );
 	}
 
 	/**
@@ -30,22 +32,20 @@ abstract class AbstractBlock extends Block
 	 *
 	 * @return string
 	 */
-	protected function description() {
+	protected function description()
+	{
 		return '';
 	}
 
 	/**
 	 * Get render file
 	 *
-	 * @throws Exception
+	 * @throws \Exception
+	 * @return string|array
 	 */
-	protected function view() {
-		throw new \Exception(
-			sprintf(
-				'No render callback was set for block!',
-			),
-			true,
-		);
+	protected function view()
+	{
+		throw new \Exception( 'No render callback was set for block!' );
 	}
 
 	/**
@@ -53,16 +53,18 @@ abstract class AbstractBlock extends Block
 	 *
 	 * @return array
 	 */
-	protected function fields() {
+	protected function fields()
+	{
 		return [];
 	}
 
 	/**
-	 * Get block category
+	 * Get block category(-ies)
 	 *
-	 * @return string
+	 * @return string|array
 	 */
-	protected function category() {
+	protected function category()
+	{
 		return 'common';
 	}
 
@@ -71,7 +73,8 @@ abstract class AbstractBlock extends Block
 	 *
 	 * @return string
 	 */
-	protected function icon() {
+	protected function icon()
+	{
 		return 'heart';
 	}
 
@@ -80,29 +83,23 @@ abstract class AbstractBlock extends Block
 	 *
 	 * @return array
 	 */
-	protected function blocks() {
+	protected function blocks()
+	{
 		return [];
 	}
 
-	public function render() {
+	public function render()
+	{
 		$this->make( $this->title() )
-
 			->add_fields( $this->fields() )
-
 			->set_description( $this->description() )
-
 			->set_category( ...$this->setCategory() )
-
 			->set_icon( $this->icon() )
-
 			->set_inner_blocks( ! empty( $this->blocks() ) )
-
 			->set_inner_blocks_template( $this->blocks() )
-
 			->set_render_callback( function ( $fields, $attributes, $inner_blocks ) {
 				View::make( $this->view(), compact( 'fields', 'attributes', 'inner_blocks' ) );
 			} );
-
 	}
 
 	/**
@@ -111,10 +108,6 @@ abstract class AbstractBlock extends Block
 	 * @return array
 	 */
 	private function setCategory() {
-		if ( is_array( $this->category() ) ) {
-			return $this->category();
-		}
-
-		return [ $this->category() ];
+		return (array) $this->category();
 	}
 }

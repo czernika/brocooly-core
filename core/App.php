@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main application instance class
  * All theme logic starts here
@@ -13,19 +12,19 @@ declare(strict_types=1);
 namespace Brocooly;
 
 use Timber\Timber;
-use Brocooly\Support\Facades\File;
+use Brocooly\Router\Router;
 use Brocooly\Loaders\HookLoader;
 use Brocooly\Loaders\AssetsLoader;
+use Brocooly\Support\Facades\File;
 use Brocooly\Loaders\BootProvider;
 use Brocooly\Loaders\ConfigLoader;
 use Brocooly\Loaders\DebuggerLoader;
+use Psr\Container\ContainerInterface;
 use Brocooly\Loaders\DefinitionLoader;
 use Brocooly\Loaders\RegisterProvider;
-use Brocooly\Contracts\AppContainerInterface;
-use Brocooly\Router\Router;
 use Brocooly\Support\Traits\AppContainer;
 use Brocooly\Support\Traits\HasContainer;
-use Psr\Container\ContainerInterface;
+use Brocooly\Contracts\AppContainerInterface;
 
 class App implements AppContainerInterface
 {
@@ -35,7 +34,7 @@ class App implements AppContainerInterface
 	/**
 	 * Timber instance
 	 *
-	 * @var instanceof Timber\Timber
+	 * @var object
 	 */
 	public Timber $timber;
 
@@ -49,7 +48,7 @@ class App implements AppContainerInterface
 	/**
 	 * Router
 	 *
-	 * @var instanceof \Brocooly\Router\Router
+	 * @var object
 	 */
 	private $router;
 
@@ -60,11 +59,16 @@ class App implements AppContainerInterface
 	 */
 	private bool $booted = false;
 
+	/**
+	 * App itself
+	 *
+	 * @var object
+	 */
 	private static $app;
 
 	/**
 	 * Array of Application loaders
-	 * ! Order matter - consider to load in a first place important loaders
+	 * ! Order matter - consider to load in a first place "important" loaders
 	 *
 	 * @var array
 	 */
@@ -85,7 +89,11 @@ class App implements AppContainerInterface
 	 */
 	private bool $webRoutesWasLoaded = false;
 
-	public function __construct( ContainerInterface $container, Timber $timber, Router $router )
+	public function __construct(
+		ContainerInterface $container,
+		Timber $timber,
+		Router $router,
+	)
 	{
 		$this->setContainer( $container );
 
@@ -132,10 +140,10 @@ class App implements AppContainerInterface
 	 */
 	public function run()
 	{
-		if (!$this->booted) {
-			foreach ($this->loaders as $loader) {
-				if (method_exists($loader, 'call')) {
-					$this->call([$loader, 'call']);
+		if ( ! $this->booted ) {
+			foreach ( $this->loaders as $loader ) {
+				if ( method_exists( $loader, 'call' ) ) {
+					$this->call( [ $loader, 'call' ] );
 				}
 			}
 			$this->booted = true;

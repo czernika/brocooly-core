@@ -19,7 +19,6 @@ use Brocooly\Support\Factories\PostTypeFactory;
 use Brocooly\Support\Factories\ValidatorFactory;
 use Brocooly\Support\Factories\CustomizerFactory;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 use function DI\get;
 use function DI\create;
@@ -35,18 +34,18 @@ $appDefintions = [
 	 * Application itself and Timber class. As Brocooly depends on Timber
 	 * this is a core of application.
 	 */
-	'timber'             => get( Timber::class ),
-	'routing'            => get( Router::class ),
+	'timber'                     => get( Timber::class ),
+	'routing'                    => get( Router::class ),
 
 	/**
 	 *--------------------------------------------------------------------------
 	 * App Facades
 	 *--------------------------------------------------------------------------
 	 */
-	'mod'                => create( CustomizerFactory::class ),
-	'meta'               => create( MetaFactory::class ),
-	'facade'             => create( FacadeFactory::class ),
-	'validator'          => create( ValidatorFactory::class ),
+	'mod'                        => create( CustomizerFactory::class ),
+	'meta'                       => create( MetaFactory::class ),
+	'facade'                     => create( FacadeFactory::class ),
+	'validator'                  => create( ValidatorFactory::class ),
 
 	/**
 	 * --------------------------------------------------------------------------

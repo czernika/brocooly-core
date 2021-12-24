@@ -13,6 +13,7 @@
 
 use Theme\Http\Brocooly;
 use DI\ContainerBuilder;
+use Webmozart\Assert\Assert;
 
 /**
  * --------------------------------------------------------------------------
@@ -37,8 +38,13 @@ $containerBuilder = new ContainerBuilder();
  */
 $appDefinitions = require_once BROCOOLY_CORE_PATH . '/config.php';
 
+Assert::classExists(
+    Brocooly::class,
+    'Brocooly Framework require to have Brocooly class inside `Theme\\Http` directory',
+);
+
 $brocooly         = new Brocooly();
-$themeDefinitions = $brocooly->definitions();
+$themeDefinitions = method_exists( Brocooly::class, 'definitions' ) ? $brocooly->definitions() : [];
 $containerBuilder->addDefinitions( $appDefinitions, $themeDefinitions );
 
 /**

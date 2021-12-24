@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper functions
+ * Framework core helper functions and definitions
  *
  * @package Brocooly-core
  * @since 1.0.0
@@ -9,11 +9,10 @@
 use Brocooly\App;
 use Timber\Timber;
 use Brocooly\Router\View;
-use Brocooly\Router\Router;
 use Brocooly\Storage\Config;
+use Webmozart\Assert\Assert;
 use Brocooly\Loaders\AssetsLoader;
 use Brocooly\Http\Request\Request;
-use Webmozart\Assert\Assert;
 
 use function Env\env;
 
@@ -31,6 +30,13 @@ if ( ! defined( 'BROCOOLY_CORE_PATH' ) ) {
  */
 if ( ! defined( 'CORE_PATH' ) ) {
 	define( 'CORE_PATH', __DIR__ );
+}
+
+/**
+ * Version of core framework itself
+ */
+if ( ! defined( 'BROCOOLY_CORE_VERSION' ) ) {
+	define( 'BROCOOLY_CORE_VERSION', '1.0.0' );
 }
 
 /**
@@ -237,7 +243,7 @@ if ( ! function_exists( 'action' ) ) {
 	 * @return callable
 	 */
 	function action( string $name ) {
-		echo site_url() . '/wp-admin/admin-post.php?action=' . $name;
+		echo esc_url( site_url() ) . '/wp-admin/admin-post.php?action=' . $name;
 	}
 }
 
@@ -277,6 +283,8 @@ if ( ! function_exists( 'session' ) ) {
 
 	/**
 	 * Retrieve Session object
+	 *
+	 * @return object
 	 */
 	function session() {
 		return app( 'session' );
@@ -287,6 +295,8 @@ if ( ! function_exists( 'flash' ) ) {
 
 	/**
 	 * Retrieve Session flash object
+	 *
+	 * @return mixed
 	 */
 	function flash( $key = null ) {
 		$flashBag = session()->getFlashBag();
