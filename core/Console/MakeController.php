@@ -91,6 +91,15 @@ class MakeController extends CreateClassCommand
 
 		$class = $this->generateClassCap();
 
+		$this->generateMethods( $class );
+
+		$this->createFile( $this->file );
+
+		$io->success( 'Controller ' . $name . ' was successfully created' );
+		return CreateClassCommand::SUCCESS;
+	}
+
+	private function generateMethods( $class ) {
 		if ( $this->base ) {
 			$class->setAbstract();
 		}
@@ -111,11 +120,6 @@ class MakeController extends CreateClassCommand
 			$this->createMethod( $class, 'index' );
 			$this->createMethod( $class, 'single' );
 		}
-
-		$this->createFile( $this->file );
-
-		$io->success( 'Controller ' . $name . ' was successfully created' );
-		return CreateClassCommand::SUCCESS;
 	}
 
 	protected function generateClassCap() {

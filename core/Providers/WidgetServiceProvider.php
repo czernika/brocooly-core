@@ -59,7 +59,6 @@ class WidgetServiceProvider extends AbstractService
 
 		if ( ! empty( $sidebars ) ) {
 			foreach ( $sidebars as $sidebarClass ) {
-
 				$sidebar = $this->app->make( $sidebarClass );
 
 				add_action(
@@ -76,17 +75,6 @@ class WidgetServiceProvider extends AbstractService
 						register_sidebar( $options );
 					}
 				);
-
-				if ( is_active_sidebar( $sidebar::SIDEBAR_ID ) ) {
-					add_filter(
-						'timber/context',
-						function ( $context ) use ( $sidebar ) {
-							$sidebarCaller             = str_replace( '-', '_', $sidebar::SIDEBAR_ID );
-							$context[ $sidebarCaller ] = Timber::get_widgets( $sidebar::SIDEBAR_ID );
-							return $context;
-						}
-					);
-				}
 			}
 		}
 	}

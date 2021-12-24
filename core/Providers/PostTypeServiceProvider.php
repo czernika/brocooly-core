@@ -68,43 +68,20 @@ class PostTypeServiceProvider extends AbstractService
 
 		if ( ! empty( $postTypes ) ) {
 			foreach ( $postTypes as $postTypeClass ) {
-
 				$cpt = $this->app->get( $postTypeClass );
 
 				$this->callMetaFields( $cpt, 'fields' );
 				$this->callMetaFields( $cpt, 'thumbnail' ); // thumbnail trait.
 
 				if ( in_array( $cpt->getName(), $this->protectedPostTypes, true ) || $cpt->doNotRegister ) {
-
-					/**
-					 * No need to register or check any post type options
-					 * which is already registered (like post, page)
-					 */
 					continue;
 				}
 
-				Assert::methodExists(
-					$cpt,
-					'options',
-					/* translators: 1: post type class. */
-					sprintf(
-						'Method options was not set for %s taxonomy',
-						$postTypeClass,
-					),
-				);
+				$this->checkPostType( $cpt, $postTypeClass );
 
-				add_action(
-					'init',
-					function() use ( $cpt ) {
-						register_extended_post_type(
-							$cpt->getName(),
-							$cpt->getOptions(),
-							[
-								'slug' => $cpt->webUrl,
-							],
-						);
-					}
-				);
+				add_action( 'init', function() use ( $cpt ) {
+					register_extended_post_type( $cpt->getName(), $cpt->getOptions(), [ 'slug' => $cpt->webUrl ] );
+				} );
 			}
 		}
 	}
@@ -118,6 +95,18 @@ class PostTypeServiceProvider extends AbstractService
 		}
 	}
 
+	private function checkPostType( $cpt, $postTypeClass ) {
+		Assert::methodExists(
+			$cpt,
+			'options',
+			/* translators: 1: post type class. */
+			sprintf(
+				'Method options was not set for %s taxonomy',
+				$postTypeClass,
+			),
+		);
+	}
+
 	/**
 	 * Register taxonomies
 	 */
@@ -126,41 +115,33 @@ class PostTypeServiceProvider extends AbstractService
 
 		if ( ! empty( $taxonomies ) ) {
 			foreach ( $taxonomies as $taxonomyClass ) {
-
 				$tax = $this->app->get( $taxonomyClass );
 
 				$this->callMetaFields( $tax, 'fields' );
 
 				if ( in_array( $tax->getName(), $this->protectedTaxonomies, true ) || $tax->doNotRegister ) {
-
 					continue;
 				}
 
-				Assert::methodExists(
-					$tax,
-					'options',
-					/* translators: 1: taxonomy class. */
-					sprintf(
-						'Method options was not set for %s taxonomy',
-						$taxonomyClass,
-					),
-				);
+				$this->checkTax( $tax, $taxonomyClass );
 
-				add_action(
-					'init',
-					function() use ( $tax ) {
-						register_extended_taxonomy(
-							$tax->getName(),
-							$tax->getPostTypes(),
-							$tax->getOptions(),
-							[
-								'slug' => $tax->webUrl,
-							],
-						);
-					}
-				);
+				add_action( 'init', function() use ( $tax ) {
+					register_extended_taxonomy( $tax->getName(), $tax->getPostTypes(), $tax->getOptions(), [ 'slug' => $tax->webUrl ] );
+				} );
 			}
 		}
+	}
+
+	private function checkTax( $tax, $taxonomyClass ) {
+		Assert::methodExists(
+			$tax,
+			'options',
+			/* translators: 1: taxonomy class. */
+			sprintf(
+				'Method options was not set for %s taxonomy',
+				$taxonomyClass,
+			),
+		);
 	}
 
 	/**

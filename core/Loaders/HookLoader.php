@@ -64,24 +64,12 @@ class HookLoader
 
 			if ( method_exists( $hook, 'filter' ) ) {
 				$this->checkFilter( $hook, $hookClass );
-
-				add_filter(
-					$hook->filter(),
-					[ $hook, 'hook' ],
-					$hook->priority ?? 10,
-					$hook->params ?? 1,
-				);
+				add_filter( $hook->filter(), [ $hook, 'hook' ], $hook->priority ?? 10, $hook->params ?? 1 );
 			}
 
 			if ( method_exists( $hook, 'action' ) ) {
 				$this->checkAction( $hook, $hookClass );
-
-				add_action(
-					$hook->action(),
-					[ $hook, 'hook' ],
-					$hook->priority ?? 10,
-					$hook->params ?? 1,
-				);
+				add_action( $hook->action(), [ $hook, 'hook' ], $hook->priority ?? 10, $hook->params ?? 1 );
 			}
 		}
 	}

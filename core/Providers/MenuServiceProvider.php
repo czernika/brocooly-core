@@ -47,24 +47,7 @@ class MenuServiceProvider extends AbstractService
 			foreach ( $menus as $menuClass ) {
 				$menu = $this->app->get( $menuClass );
 
-				Assert::stringNotEmpty(
-					$menu::LOCATION,
-					/* translators: 1 - menu class */
-					sprintf(
-						'Name property was not provided for %s menu',
-						$menuClass
-					)
-				);
-
-				Assert::methodExists(
-					$menu,
-					'label',
-					/* translators: 1 - menu class name */
-					sprintf(
-						'%s menu must have `label()` method which should return string',
-						$menuClass
-					)
-				);
+				$this->checkMenu( $menu, $menuClass );
 
 				/**
 				 * Register menu in WordPress
@@ -77,5 +60,26 @@ class MenuServiceProvider extends AbstractService
 				);
 			}
 		}
+	}
+
+	private function checkMenu( $menu, $menuClass ) {
+		Assert::stringNotEmpty(
+			$menu::LOCATION,
+			/* translators: 1 - menu class */
+			sprintf(
+				'Name property was not provided for %s menu',
+				$menuClass
+			)
+		);
+
+		Assert::methodExists(
+			$menu,
+			'label',
+			/* translators: 1 - menu class name */
+			sprintf(
+				'%s menu must have `label()` method which should return string',
+				$menuClass
+			)
+		);
 	}
 }

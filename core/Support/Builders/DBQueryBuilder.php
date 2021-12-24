@@ -80,12 +80,11 @@ class DBQueryBuilder
 	 * @param boolean $not | NOT clause.
 	 * @return self
 	 */
-	public function where( $key, $value, $sign = '=', $not = false ) {
-		[ $key, $value, $sign, $not ] = $this->sanitizeClause( $key, $value, $sign, $not );
-
+	public function where( $key, $value, $sign = '=', $not = false, $symbol = '' ) {
+		[ $key, $value, $sign, $not, $symbol ] = $this->sanitizeClause( $key, $value, $sign, $not, $symbol );
 		$start = $not ? 'NOT ' : '';
 
-		$this->clauses[] = "$start $key $sign '$value'";
+		$this->clauses[] = "$symbol $start $key $sign '$value'";
 		return $this;
 	}
 
@@ -99,12 +98,7 @@ class DBQueryBuilder
 	 * @return self
 	 */
 	public function andWhere( $key, $value, $sign = '=', $not = false ) {
-		[ $key, $value, $sign, $not ] = $this->sanitizeClause( $key, $value, $sign, $not );
-
-		$start = $not ? 'NOT ' : '';
-
-		$this->clauses[] = "AND $start $key $sign '$value'";
-		return $this;
+		$this->where( $key, $value, $sign, $not, 'AND' );
 	}
 
 	/**
@@ -117,12 +111,7 @@ class DBQueryBuilder
 	 * @return self
 	 */
 	public function orWhere( $key, $value, $sign = '=', $not = false ) {
-		[ $key, $value, $sign, $not ] = $this->sanitizeClause( $key, $value, $sign, $not );
-
-		$start = $not ? 'NOT ' : '';
-
-		$this->clauses[] = "OR $start $key $sign '$value'";
-		return $this;
+		$this->where( $key, $value, $sign, $not, 'OR' );
 	}
 
 	/**

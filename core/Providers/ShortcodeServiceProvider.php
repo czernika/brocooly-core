@@ -48,24 +48,7 @@ class ShortcodeServiceProvider extends AbstractService
 			foreach ( $shortcodes as $shortcodeClass ) {
 				$shortcode = $this->app->get( $shortcodeClass );
 
-				Assert::stringNotEmpty(
-					$shortcode::SHORTCODE_ID,
-					/* translators: 1: shortcode class name */
-					sprintf(
-						'ID property was not provided for %s shortcode',
-						$shortcodeClass
-					)
-				);
-
-				Assert::methodExists(
-					$shortcode,
-					'render',
-					/* translators: 1: shortcode class name */
-					sprintf(
-						'%s shortcode must have `render()` method',
-						$shortcodeClass
-					)
-				);
+				$this->checkShortcode( $shortcode, $shortcodeClass );
 
 				/**
 				 * When adding `add_shortcode()` function in a plugin,
@@ -83,5 +66,26 @@ class ShortcodeServiceProvider extends AbstractService
 				);
 			}
 		}
+	}
+
+	private function checkShortcode( $shortcode, $shortcodeClass ) {
+		Assert::stringNotEmpty(
+			$shortcode::SHORTCODE_ID,
+			/* translators: 1: shortcode class name */
+			sprintf(
+				'ID property was not provided for %s shortcode',
+				$shortcodeClass
+			)
+		);
+
+		Assert::methodExists(
+			$shortcode,
+			'render',
+			/* translators: 1: shortcode class name */
+			sprintf(
+				'%s shortcode must have `render()` method',
+				$shortcodeClass
+			)
+		);
 	}
 }
