@@ -199,4 +199,12 @@ abstract class PostType extends Post implements ModelContract
 		return wp_insert_post( wp_slash( $data ), $wp_error );
 	}
 
+	public function delete( $force = false ) {
+		return wp_delete_post( $this->id, $force );
+	}
+
+	public  function forceDelete() {
+		return $this->delete( true );
+	}
+
 }

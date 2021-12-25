@@ -19,6 +19,10 @@ use Brocooly\Support\Builders\UserQueryBuilder;
  * @method static array get()
  * @method static $this where( $key, $value )
  * @method static $this role( $role )
+ * @method static array getRoles()
+ * @method static bool hasRole( string $role )
+ * @method static bool hasAnyRole( array $roles )
+ * @method static bool can( $capabilities )
  * @method static User|null find( $id )
  * @method static User|null auth()
  * @method static bool exists( $id )
@@ -106,4 +110,10 @@ abstract class User extends TimberUser
 		return wp_insert_user( $userdata );
 	}
 
+	public function delete( $reassign = null ) {
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+		return wp_delete_user( $this->id, $reassign );
+	}
+
 }
+

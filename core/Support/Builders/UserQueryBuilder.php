@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Brocooly\Support\Builders;
 
+use Illuminate\Support\Arr;
+
 class UserQueryBuilder
 {
 
@@ -21,11 +23,18 @@ class UserQueryBuilder
 	private string $role;
 
 	/**
+	 * Authenticated User object
+	 *
+	 * @var object|null
+	 */
+	private ?object $auth = null;
+
+	/**
 	 * User object
 	 *
 	 * @var object|null
 	 */
-	private ?object $auth;
+	private ?object $user = null;
 
 	/**
 	 * Users collection
@@ -52,9 +61,61 @@ class UserQueryBuilder
 		}
 	}
 
-	private function getUser( $id ) {
+	private function getUser( int $id ) {
 		$user = app()->make( 'users.parent', [ 'uid' => $id ] );
 		return $user;
+	}
+
+	public function auth() {
+		return $this->find( $this->auth->ID );
+	}
+
+	public function find( int $id ) {
+		$this->user = $this->getUser( $id );
+		return $this;
+	}
+
+	public function exists() {
+		return (bool) $this->user?->ID;
+	}
+
+	public function hasRole( string $role ) {
+		$userRoles = $this->auth?->roles;
+		if ( $this->user ) {
+			$userRoles = $this->user->roles;
+		}
+		return Arr::exists( (array) $userRoles, $role );
+	}
+
+	public function hasAnyRole( array $roles ) {
+		$userRoles = array_keys( $this->auth?->roles );
+		if ( $this->user ) {
+			$userRoles = array_keys( $this->user->roles );
+		}
+
+		foreach ( $roles as $role ) {
+			if ( in_array( $role, (array) $userRoles, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public function getRoles() {
+		if ( $this->user ) {
+			return $this->user->roles;
+		}
+
+		return $this->auth?->roles;
+	}
+
+	public function can( $cap ) {
+		if ( $this->user ) {
+			return $this->user->can( $cap );
+		}
+
+		return $this->auth?->can( $cap );
 	}
 
 	private function getUsers( array $args = [] ) {
@@ -62,35 +123,25 @@ class UserQueryBuilder
 		return get_users( $this->usersQuery );
 	}
 
-	public function auth() {
-		return $this->auth;
-	}
-
-	public function find( $id ) {
-		$user = $this->getUser( $id );
-		return (bool) $user->ID ? $user : null;
-	}
-
-	public function exists( $id ) {
-		$user = $this->getUser( $id );
-		return (bool) $user->ID;
-	}
-
 	public function all() {
 		return $this->get();
 	}
 
-	public function where( $key, $value ) {
+	public function where( string $key, $value ) {
 		$query            = [ $key => $value ];
 		$this->usersQuery = wp_parse_args( $query, $this->usersQuery );
 		return $this;
 	}
 
-	public function role( $role ) {
+	public function withRoles( $role ) {
 		return $this->where( 'role', $role );
 	}
 
 	public function get() {
+		if ( $this->user ) {
+			return $this->user;
+		}
+
 		foreach ( $this->getUsers() as $userId ) {
 			$this->userCollection[] = $this->getUser( $userId );
 		}
@@ -98,3 +149,4 @@ class UserQueryBuilder
 	}
 
 }
+
