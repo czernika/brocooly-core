@@ -16,15 +16,17 @@ use Brocooly\Support\Builders\UserQueryBuilder;
 
 /**
  * @method static array all()
- * @method static array with( array $args )
- * @method static array getBy( array $args )
- * @method static User current()
- * @method static WP_User where( string $key, $value )
- * @method static WP_User find( int $id )
- * @method static WP_User|false auth()
+ * @method static array get()
+ * @method static $this where( $key, $value )
+ * @method static $this role( $role )
+ * @method static User|null find( $id )
+ * @method static User|null auth()
+ * @method static bool exists( $id )
  */
 abstract class User extends TimberUser
 {
+
+	use HasRole;
 
 	/**
 	 * Role name
@@ -53,64 +55,6 @@ abstract class User extends TimberUser
 		}
 
 		return parent::__call( $field, $args );
-	}
-
-	/**
-	 * Return role name in human readable format
-	 *
-	 * @return string
-	 */
-	public function label() {
-		return esc_html( 'Custom role', 'brocooly' );
-	}
-
-	/**
-	 * Get user capabilities
-	 *
-	 * @return array
-	 */
-	public function capabilities() {
-		return [];
-	}
-
-	/**
-	 * Return user's capabilities same as already registered role.
-	 *
-	 * @param string $role | role name.
-	 * @return array|null
-	 */
-	protected function as( string $role ) {
-		$roleCaps = get_role( $role );
-		if ( $roleCaps ) {
-			$caps = $roleCaps->capabilities;
-			return $caps;
-		}
-
-		return null;
-	}
-
-	private static function getRoleObject() {
-		return get_role( static::ROLE );
-	}
-
-	protected static function getRole() {
-		return static::getRoleObject();
-	}
-
-	protected static function getRoleName() {
-		return static::getRole()->name;
-	}
-
-	protected static function getRoleCapabilities() {
-		return static::getRole()->capabilities;
-	}
-
-	protected static function addRoleCap( $caps ) {
-		static::getRole()->add_cap( $caps );
-	}
-
-	protected static function removeRoleCap( $caps ) {
-		static::getRole()->remove_cap( $caps );
 	}
 
 	/**
@@ -148,30 +92,18 @@ abstract class User extends TimberUser
 	public static function __callStatic( string $name, array $arguments ) {
 		return app()->make(
 			UserQueryBuilder::class,
-			[ 'role' => static::ROLE, 'user' => new static() ],
+			[ 'role' => static::ROLE ],
 		)->$name( ...$arguments );
 	}
 
 	/**
-	 * Create user or update if ID passed.
+	 * Create user
 	 *
-	 * @param array $userdata | additional user data.
+	 * @param array $userdata | user data.
 	 * @return int|\WP_Error
 	 */
-	public static function insert( array $userdata ) {
+	public static function create( array $userdata ) {
 		return wp_insert_user( $userdata );
-	}
-
-	/**
-	 * Create user.
-	 *
-	 * @param string $username | username.
-	 * @param string $password | password.
-	 * @param string $email | email.
-	 * @return int|\WP_Error
-	 */
-	public static function create( string $username, string $password, string $email = '' ) {
-		return wp_create_user( $username, $password, $email );
 	}
 
 }

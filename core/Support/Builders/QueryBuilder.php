@@ -40,7 +40,7 @@ class QueryBuilder
 			'paged'          => max( 1, get_query_var( 'paged' ) ),
 			'no_found_rows'  => false,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $postQuery );
+		$this->queryParams = wp_parse_args( $postQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -56,12 +56,12 @@ class QueryBuilder
 	 */
 	public function with( $postTypes ) {
 		$currentPostType = (array) $this->queryParams['post_type'];
-		$queryPostTypes = array_merge( $currentPostType, (array) $postTypes );
+		$queryPostTypes = wp_parse_args( $currentPostType, (array) $postTypes );
 
 		$postTypesQuery = [
 			'post_type' => $queryPostTypes,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $postTypesQuery );
+		$this->queryParams = wp_parse_args( $postTypesQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -75,7 +75,7 @@ class QueryBuilder
 	 */
 	public function where( string $key, $value ) {
 		$postQuery         = [ $key => $value ];
-		$this->queryParams = array_merge( $this->queryParams, $postQuery );
+		$this->queryParams = wp_parse_args( $postQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -159,7 +159,7 @@ class QueryBuilder
 	public function when( $condition, $callback ) {
 		if ( $condition ) {
 			$query = call_user_func_array( $callback, [ $this ] );
-			$this->queryParams = array_merge( $this->queryParams, $query->queryParams );
+			$this->queryParams = wp_parse_args( $this->queryParams, $query->queryParams );
 		}
 
 		return $this;
@@ -180,7 +180,7 @@ class QueryBuilder
 			$authorQuery = [ 'author' => $authorId ];
 		}
 
-		$this->queryParams = array_merge( $this->queryParams, $authorQuery );
+		$this->queryParams = wp_parse_args( $authorQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -193,7 +193,7 @@ class QueryBuilder
 	 */
 	public function whereStatus( $status ) {
 		$sortQuery           = [ 'post_status' => $status ];
-		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
+		$this->queryParams = wp_parse_args( $sortQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -210,7 +210,7 @@ class QueryBuilder
 			'order'   => $order,
 			'orderby' => $orderby,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
+		$this->queryParams = wp_parse_args( $sortQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -223,7 +223,7 @@ class QueryBuilder
 	 */
 	public function sortByAsc( string $orderby = 'ID' ) {
 		$sortQuery         = [ 'order' => 'ASC', 'orderby' => $orderby ];
-		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
+		$this->queryParams = wp_parse_args( $sortQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -236,7 +236,7 @@ class QueryBuilder
 	 */
 	public function sortByDesc( string $orderby = 'ID' ) {
 		$sortQuery         = [ 'order' => 'ASC', 'orderby' => $orderby ];
-		$this->queryParams = array_merge( $this->queryParams, $sortQuery );
+		$this->queryParams = wp_parse_args( $sortQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -249,7 +249,7 @@ class QueryBuilder
 	 */
 	public function offset( int $offset ) {
 		$offsetQuery         = [ 'offset' => $offset ];
-		$this->queryParams = array_merge( $this->queryParams, $offsetQuery );
+		$this->queryParams = wp_parse_args( $offsetQuery, $this->queryParams);
 
 		return $this;
 	}
@@ -261,7 +261,7 @@ class QueryBuilder
 	 */
 	public function noSticky() {
 		$noStickyQuery       = [ 'ignore_sticky_posts' => true ];
-		$this->queryParams = array_merge( $this->queryParams, $noStickyQuery );
+		$this->queryParams = wp_parse_args( $noStickyQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -273,7 +273,7 @@ class QueryBuilder
 	 */
 	public function suppress() {
 		$suppressQuery       = [ 'suppress_filters' => true ];
-		$this->queryParams = array_merge( $this->queryParams, $suppressQuery );
+		$this->queryParams = wp_parse_args( $suppressQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -290,7 +290,7 @@ class QueryBuilder
 				'after' => $date,
 			],
 		];
-		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
+		$this->queryParams = wp_parse_args( $dateQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -307,7 +307,7 @@ class QueryBuilder
 				'before' => $date,
 			],
 		];
-		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
+		$this->queryParams = wp_parse_args( $dateQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -330,7 +330,7 @@ class QueryBuilder
 				],
 			],
 		];
-		$this->queryParams = array_merge( $this->queryParams, $dateQuery );
+		$this->queryParams = wp_parse_args( $dateQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -350,7 +350,7 @@ class QueryBuilder
 			'exact'    => $exact,
 			'sentence' => $sentence,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $searchQuery );
+		$this->queryParams = wp_parse_args( $searchQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -370,7 +370,7 @@ class QueryBuilder
 			'exact'    => $exact,
 			'sentence' => $sentence,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $searchQuery );
+		$this->queryParams = wp_parse_args( $searchQuery, $this->queryParams );
 
 		return $this;
 	}
@@ -383,7 +383,7 @@ class QueryBuilder
 	 * @return array|null
 	 */
 	public function query( array $query ) {
-		$postQuery = array_merge( $this->queryParams, $query );
+		$postQuery = wp_parse_args( $query, $this->queryParams );
 		$posts     = $this->getQuery( $postQuery );
 
 		return $posts;

@@ -20,6 +20,7 @@ use Brocooly\Support\Builders\PostTypeQueryBuilder;
 /**
  * @method static PostQuery all()
  * @method static Post find( int $id )
+ * @method static $this pluck( $key = 'ids' )
  * @method static Post current()
  * @method static $this paginate( $postsPerPage = null )
  * @method static $this with( $postTypes )

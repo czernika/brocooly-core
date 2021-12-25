@@ -17,6 +17,7 @@ use Brocooly\Support\Builders\TaxonomyQueryBuilder;
 
 /**
  * @method static $this all()
+ * @method static $this pluck( $key = 'ids' )
  * @method static $this paginateArchive( int $postsPerPage = 10 )
  * @method static $this wherePostType( $postTypes = 'post' )
  * @method static $this whereTerm( string $key, $value, $operator = 'IN' )

@@ -69,7 +69,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 			'paged'                  => max( 1, get_query_var( 'paged' ) ),
 			'no_found_rows'          => false,
 		];
-		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		$this->queryParams = wp_parse_args( $taxQuery, $this->queryParams );
 		return $this;
 	}
 
@@ -83,7 +83,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 */
 	public function wherePostType( $postTypes = 'post' ) {
 		$taxQuery            = [ 'post_type' => $postTypes ];
-		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		$this->queryParams = wp_parse_args( $taxQuery, $this->queryParams );
 		return $this;
 	}
 
@@ -107,7 +107,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 			],
 		];
 
-		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		$this->queryParams = wp_parse_args( $taxQuery, $this->queryParams );
 		return $this;
 	}
 
@@ -121,7 +121,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 */
 	public function andWhereTerm( string $key, $value, string $operator = 'IN' ) {
 		$taxQuery          = $this->setQuery( 'AND', $key, $value, $operator );
-		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		$this->queryParams = wp_parse_args( $taxQuery, $this->queryParams );
 		return $this;
 	}
 
@@ -135,7 +135,7 @@ class TaxonomyQueryBuilder extends QueryBuilder
 	 */
 	public function orWhereTerm( string $key, $value, string $operator = 'IN' ) {
 		$taxQuery          = $this->setQuery( 'OR', $key, $value, $operator );
-		$this->queryParams = array_merge( $this->queryParams, $taxQuery );
+		$this->queryParams = wp_parse_args( $taxQuery, $this->queryParams );
 		return $this;
 	}
 

@@ -115,6 +115,7 @@ class MakeSeeder extends CreateClassCommand
 		$postTypeLiteral = new Literal( $postTypeSlug );
 
 		$class->addProperty( 'seeder', $postTypeLiteral )
+					->setType( 'string' )
 					->addComment( "Seeder post type\n" )
 					->addComment( '@var object' );
 	}
@@ -123,6 +124,7 @@ class MakeSeeder extends CreateClassCommand
 		$class->addProperty( 'times', $this->postType )
 					->addComment( "How many times run seeder\n" )
 					->setValue( 1 )
+					->setType( 'int' )
 					->addComment( '@var int' );
 	}
 

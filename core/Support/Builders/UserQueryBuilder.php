@@ -10,98 +10,91 @@ declare(strict_types=1);
 
 namespace Brocooly\Support\Builders;
 
-use Brocooly\Models\Users\User;
-
 class UserQueryBuilder
 {
 
+	/**
+	 * Role name
+	 *
+	 * @var string
+	 */
 	private string $role;
 
-	private User $user;
+	/**
+	 * User object
+	 *
+	 * @var object|null
+	 */
+	private ?object $auth;
 
+	/**
+	 * Users collection
+	 *
+	 * @var array
+	 */
+	private array $userCollection = [];
+
+	/**
+	 * User query
+	 *
+	 * @var array
+	 */
 	private array $usersQuery = [];
 
-	public function __construct( string $role, User $user ) {
+	public function __construct( string $role ) {
 		$this->role = $role;
-		$this->user = $user;
+		$this->auth = get_current_user_id() ?
+						$this->getUser( get_current_user_id() ) :
+						null;
 
-		if ( 'role' !== $this->role ) {
+		if ( 'user' !== $this->role ) {
 			$this->usersQuery['role'] = $this->role;
 		}
 	}
 
-	/**
-	 * Get all users
-	 *
-	 * @return array
-	 */
-	public function all() {
+	private function getUser( $id ) {
+		$user = app()->make( 'users.parent', [ 'uid' => $id ] );
+		return $user;
+	}
+
+	private function getUsers( array $args = [] ) {
+		$this->usersQuery = wp_parse_args( $args, $this->usersQuery );
 		return get_users( $this->usersQuery );
 	}
 
-	/**
-	 * Get user with specific parameters.
-	 *
-	 * @param array $args | arguments for users to find.
-	 * @return array
-	 * @since 1.1.0
-	 */
-	public function with( array $args ) {
-		$queryArgs = array_merge( $this->usersQuery, $args );
-		return get_users( $queryArgs );
-	}
-
-	/**
-	 * Get user by specific parameters.
-	 *
-	 * @param array $args | arguments for users to find.
-	 * @return array
-	 */
-	public function getBy( array $args ) {
-		return get_users( $args );
-	}
-
-	/**
-	 * Get current user object
-	 *
-	 * @return User
-	 */
-	public function current() {
-		return $this->user;
-	}
-
-	/**
-	 * Get user by key.
-	 *
-	 * @param string $key | key to find.
-	 * @param mixed  $value | value to get by.
-	 * @return \WP_User
-	 */
-	public function where( string $key, $value ) {
-		return get_user_by( $key, $value );
-	}
-
-	/**
-	 * Get user by id
-	 *
-	 * @param integer $id | user id.
-	 * @return \WP_User|false
-	 */
-	public function find( int $id ) {
-		return get_userdata( $id );
-	}
-
-	/**
-	 * Get current authenticated user or false.
-	 *
-	 * @return \WP_User|false
-	 */
 	public function auth() {
-		if ( is_user_logged_in() ) {
-			return $this->current();
-		}
+		return $this->auth;
+	}
 
-		return false;
+	public function find( $id ) {
+		$user = $this->getUser( $id );
+		return (bool) $user->ID ? $user : null;
+	}
+
+	public function exists( $id ) {
+		$user = $this->getUser( $id );
+		return (bool) $user->ID;
+	}
+
+	public function all() {
+		return $this->get();
+	}
+
+	public function where( $key, $value ) {
+		$query            = [ $key => $value ];
+		$this->usersQuery = wp_parse_args( $query, $this->usersQuery );
+		return $this;
+	}
+
+	public function role( $role ) {
+		return $this->where( 'role', $role );
+	}
+
+	public function get() {
+		foreach ( $this->getUsers() as $userId ) {
+			$this->userCollection[] = $this->getUser( $userId );
+		}
+		return $this->userCollection;
 	}
 
 }

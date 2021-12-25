@@ -41,10 +41,10 @@ class PostTypeQueryBuilder extends QueryBuilder
 	 */
 	public function all() {
 		$postQuery = [
-			'posts_per_page' => config( 'views.limit', 500 ),
+			'posts_per_page' => config( 'views.limit', 100 ),
 			'no_found_rows'  => true,
 		];
-		$query     = array_merge( $this->queryParams, $postQuery );
+		$query     = wp_parse_args( $this->queryParams, $postQuery );
 		$posts     = $this->getQuery( $query );
 
 		return $posts;
