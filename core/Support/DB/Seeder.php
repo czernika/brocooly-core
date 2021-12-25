@@ -44,7 +44,7 @@ class Seeder
 
 		if ( $params && ! empty( $params ) ) {
 			for ( $i = 0; $i < $this->times; $i++) {
-				$seeder->create( $params );
+				$seeder->create( $this->params() );
 			}
 		}
 
