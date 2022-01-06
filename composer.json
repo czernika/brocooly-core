@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "aristath/kirki": "v4.0-beta.3",
+        "aristath/kirki": "^4.0",
         "composer/installers": "^1.10",
         "djboris88/timber-commented-include": "^1.1",
         "elegantweb/sanitizer": "^1.1",
@@ -49,6 +49,6 @@
             "core/helpers.php"
         ]
     },
-    "minimum-stability": "beta",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
