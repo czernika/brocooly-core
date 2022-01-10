@@ -11,17 +11,19 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
 use Illuminate\Support\Str;
 use Webmozart\Assert\Assert;
 
 class ShortcodeServiceProvider extends AbstractService
 {
 
-	/**
-	 * Register shortcodes
-	 */
-	public function register() {
-		$this->app->set( 'shortcodes', config( 'views.shortcodes', [] ) );
+	private array $shortcodes;
+
+	public function __construct( App $app ) {
+		$this->shortcodes = config( 'views.shortcodes', [] );
+
+		parent::__construct( $app );
 	}
 
 	/**
@@ -33,38 +35,34 @@ class ShortcodeServiceProvider extends AbstractService
 	 * @return void
 	 */
 	public function boot() {
-		$shortcodes = $this->app->get( 'shortcodes' );
-
 		Assert::isArray(
-			$shortcodes,
+			$this->shortcodes,
 			/* translators: 1: type of variable */
 			sprintf(
 				'`views.shortcodes` key must be an array, %s given',
-				gettype( $shortcodes )
+				gettype( $this->shortcodes )
 			)
 		);
 
-		if ( ! empty( $shortcodes ) ) {
-			foreach ( $shortcodes as $shortcodeClass ) {
-				$shortcode = $this->app->get( $shortcodeClass );
+		foreach ( $this->shortcodes as $shortcodeClass ) {
+			$shortcode = $this->app->get( $shortcodeClass );
 
-				$this->checkShortcode( $shortcode, $shortcodeClass );
+			$this->checkShortcode( $shortcode, $shortcodeClass );
 
-				/**
-				 * When adding `add_shortcode()` function in a plugin,
-				 * it’s good to add it in a function that is hooked to `init` hook.
-				 * So that WordPress has time to initialize properly.
-				 */
-				add_action(
-					'init',
-					function() use ( $shortcode ) {
-						add_shortcode(
-							Str::snake( $shortcode::SHORTCODE_ID ),
-							[ $shortcode, 'render' ]
-						);
-					}
-				);
-			}
+			/**
+			 * When adding `add_shortcode()` function in a plugin,
+			 * it’s good to add it in a function that is hooked to `init` hook.
+			 * So that WordPress has time to initialize properly.
+			 */
+			add_action(
+				'init',
+				function() use ( $shortcode ) {
+					add_shortcode(
+						Str::snake( $shortcode::SHORTCODE_ID ),
+						[ $shortcode, 'render' ]
+					);
+				}
+			);
 		}
 	}
 

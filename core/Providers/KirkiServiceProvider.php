@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
 use Kirki;
 use Webmozart\Assert\Assert;
 use Brocooly\Customizer\WPSection;
@@ -29,14 +30,24 @@ class KirkiServiceProvider extends AbstractService
 		WPSection::CUSTOM_CSS,
 	];
 
-	/**
-	 * Register customizer configuration
-	 */
-	public function register() {
-		$customizerSettings = [ 'config', 'prefix', 'panels', 'sections', 'options' ];
-		foreach ( $customizerSettings as $setting ) {
-			$this->app->set( 'customizer.' . $setting, config( 'customizer.' . $setting ) );
-		}
+	private array $config;
+
+	private string $prefix;
+
+	private array $panels;
+
+	private array $options;
+
+	private array $options;
+
+	public function __construct( App $app ) {
+		$this->config   = config( 'customizer.config', [] );
+		$this->prefix   = config( 'customizer.prefix', 'brocooly_' );
+		$this->panels   = config( 'customizer.panels', [] );
+		$this->sections = config( 'customizer.sections', [] );
+		$this->options  = config( 'customizer.options', [] );
+
+		parent::__construct( $app );
 	}
 
 	/**
@@ -57,12 +68,8 @@ class KirkiServiceProvider extends AbstractService
 	 * NOTE: currently there is only one config supported
 	 */
 	private function initConfig() {
-		$configs = $this->app->get( 'customizer.config' );
-
-		if ( ! empty( $configs ) ) {
-			foreach ( $configs as $id => $options ) {
-				Kirki::add_config( $id, $options );
-			}
+		foreach ( $this->config as $id => $options ) {
+			Kirki::add_config( $id, $options );
 		}
 	}
 
@@ -70,22 +77,18 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer panel
 	 */
 	private function initPanels() {
-		$panels = $this->app->get( 'customizer.panels' );
+		foreach ( $this->panels as $panelClass ) {
+			$panel = $this->app->get( $panelClass );
 
-		if ( ! empty( $panels ) ) {
-			foreach ( $panels as $panelClass ) {
-				$panel = $this->app->get( $panelClass );
+			$this->assertPanel( $panel, $panelClass );
 
-				$this->assertPanel( $panel, $panelClass );
+			$options = $panel->options();
+			if ( is_string( $options ) ) {
+				$options = [ 'title' => $options ];
+			}
 
-				$options = $panel->options();
-				if ( is_string( $options ) ) {
-					$options = [ 'title' => $options ];
-				}
-
-				if ( ! in_array( $panel::PANEL_ID, $this->wpSections, true ) ) {
-					Kirki::add_panel( esc_html( $panel::PANEL_ID ), $options );
-				}
+			if ( ! in_array( $panel::PANEL_ID, $this->wpSections, true ) ) {
+				Kirki::add_panel( esc_html( $panel::PANEL_ID ), $options );
 			}
 		}
 	}
@@ -94,30 +97,26 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer sections
 	 */
 	private function initSections() {
-		$sections = $this->app->get( 'customizer.sections' );
-		$prefix   = $this->app->get( 'customizer.prefix' );
-		$config   = $this->getConfig();
+		$config = $this->getConfig();
 
-		if ( ! empty( $sections ) ) {
-			foreach ( $sections as $sectionClass ) {
-				$section = $this->app->get( $sectionClass );
+		foreach ( $this->sections as $sectionClass ) {
+			$section = $this->app->get( $sectionClass );
 
-				$this->assertSection( $section, $sectionClass );
+			$this->assertSection( $section, $sectionClass );
 
-				$options = $section->options();
-				if ( is_string( $options ) ) {
-					$options = [ 'title' => $options ];
-				}
+			$options = $section->options();
+			if ( is_string( $options ) ) {
+				$options = [ 'title' => $options ];
+			}
 
-				if ( ! in_array( $section::SECTION_ID, $this->wpSections, true ) ) {
-					Kirki::add_section( esc_html( $section::SECTION_ID ), $options );
-				}
+			if ( ! in_array( $section::SECTION_ID, $this->wpSections, true ) ) {
+				Kirki::add_section( esc_html( $section::SECTION_ID ), $options );
+			}
 
-				foreach ( $section->controls() as $controls ) {
-					$controls['section']  = esc_html( $section::SECTION_ID );
-					$controls['settings'] = $prefix . $controls['settings'];
-					Kirki::add_field( $config, $controls );
-				}
+			foreach ( $section->controls() as $controls ) {
+				$controls['section']  = esc_html( $section::SECTION_ID );
+				$controls['settings'] = $this->prefix . $controls['settings'];
+				Kirki::add_field( $config, $controls );
 			}
 		}
 	}
@@ -126,20 +125,16 @@ class KirkiServiceProvider extends AbstractService
 	 * Init customizer controls
 	 */
 	private function initOptions() {
-		$options = $this->app->get( 'customizer.options' );
-		$prefix  = $this->app->get( 'customizer.prefix' );
 		$config  = $this->getConfig();
 
-		if ( ! empty( $options ) ) {
-			foreach ( $options as $optionClass ) {
-				$option   = $this->app->make( $optionClass );
-				$settings = $option->settings();
+		foreach ( $this->options as $optionClass ) {
+			$option   = $this->app->make( $optionClass );
+			$settings = $option->settings();
 
-				$this->assertOption( $option, $optionClass );
+			$this->assertOption( $option, $optionClass );
 
-				$settings['settings'] = $prefix . $settings['settings'];
-				Kirki::add_field( esc_html( $config ), $settings );
-			}
+			$settings['settings'] = $this->prefix . $settings['settings'];
+			Kirki::add_field( esc_html( $config ), $settings );
 		}
 	}
 
@@ -225,7 +220,7 @@ class KirkiServiceProvider extends AbstractService
 	 * @return string
 	 */
 	private function getConfig() {
-		$config = array_keys( $this->app->get( 'customizer.config' ) )[0];
+		$config = array_keys( $this->config )[0];
 		return $config;
 	}
 }

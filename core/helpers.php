@@ -209,7 +209,7 @@ if ( ! function_exists( 'mod' ) ) {
 		$themeMod = $key;
 
 		if ( $prefixed ) {
-			$prefix   = app( 'customizer.prefix' );
+			$prefix   = config( 'customizer.prefix' );
 			$themeMod = $prefix . $key;
 		}
 		return get_theme_mod( $themeMod, $default );

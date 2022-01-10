@@ -10,18 +10,28 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
 use Webmozart\Assert\Assert;
 
 class BlockServiceProvider extends AbstractService
 {
 
-	public function register() {
-		$this->app->set( 'custom_blocks', config( 'blocks.blocks', [] ) );
-		$this->app->set( 'use_gutenberg', (bool) config( 'blocks.use_editor' ) );
+	private bool $use_editor;
+
+	private bool $deregister;
+
+	private array $blocks;
+
+	public function __construct( App $app ) {
+		$this->use_editor = config( 'blocks.use_editor', false );
+		$this->blocks     = config( 'blocks.blocks', [] );
+		$this->deregister = config( 'blocks.deregister_block_styles', false );
+
+		parent::__construct( $app );
 	}
 
 	public function boot() {
-		if( ! $this->app->get( 'use_gutenberg' ) ){
+		if( ! $this->use_editor ){
 			$this->disableEditor();
 			return;
 		}
@@ -33,20 +43,16 @@ class BlockServiceProvider extends AbstractService
 	 * Register blocks
 	 */
 	private function registerBlocks() {
-		$blocks = $this->app->get( 'custom_blocks' );
+		Assert::isArray( $this->blocks, 'Blocks should be an array' );
 
-		Assert::isArray( $blocks, 'Blocks should be an array' );
+		foreach ( $this->blocks as $block ) {
+			$blockClass = $this->app->make( $block );
 
-		if ( ! empty( $blocks ) ) {
-			foreach ( $blocks as $block ) {
-				$blockClass = $this->app->make( $block );
-
-				if ( method_exists( $blockClass, 'render' ) ) {
-					add_action(
-						'carbon_fields_register_fields',
-						[ $blockClass, 'render' ],
-					);
-				}
+			if ( method_exists( $blockClass, 'render' ) ) {
+				add_action(
+					'carbon_fields_register_fields',
+					[ $blockClass, 'render' ],
+				);
 			}
 		}
 	}
@@ -62,7 +68,7 @@ class BlockServiceProvider extends AbstractService
 
 		add_filter( 'use_block_editor_for_post_type', '__return_false', 100 );
 
-		if ( (bool) config( 'blocks.deregister_block_styles', false ) ) {
+		if ( $this->deregister ) {
 			remove_action( 'wp_enqueue_scripts', 'wp_common_block_scripts_and_styles' );
 		}
 
@@ -75,3 +81,4 @@ class BlockServiceProvider extends AbstractService
 		);
 	}
 }
+

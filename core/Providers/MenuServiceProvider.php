@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
 use Timber\Menu;
 use Timber\Timber;
 use Webmozart\Assert\Assert;
@@ -20,45 +21,41 @@ use Brocooly\Support\Facades\Ctx;
 class MenuServiceProvider extends AbstractService
 {
 
-	/**
-	 * Register menus
-	 */
-	public function register() {
-		$this->app->set( 'menus', config( 'menus.menus', [] ) );
-		$this->app->set( 'menus_postfix', config( 'menus.postfix', '_menu' ) );
+	private array $menus;
+
+	public function __construct( App $app ) {
+		$this->menus = config( 'menus.menus', [] );
+
+		parent::__construct( $app );
 	}
 
 	/**
 	 * Create menu instances
 	 */
 	public function boot() {
-		$menus = $this->app->get( 'menus' );
-
 		Assert::isArray(
-			$menus,
+			$this->menus,
 			/* translators: 1 - type of variable */
 			sprintf(
 				'`app.menus` key must be an array, %s given',
-				gettype( $menus )
+				gettype( $this->menus )
 			)
 		);
 
-		if ( ! empty( $menus ) ) {
-			foreach ( $menus as $menuClass ) {
-				$menu = $this->app->get( $menuClass );
+		foreach ( $this->menus as $menuClass ) {
+			$menu = $this->app->get( $menuClass );
 
-				$this->checkMenu( $menu, $menuClass );
+			$this->checkMenu( $menu, $menuClass );
 
-				/**
-				 * Register menu in WordPress
-				 */
-				add_action(
-					'after_setup_theme',
-					function() use ( $menu ) {
-						register_nav_menu( $menu::LOCATION, $menu->label() );
-					}
-				);
-			}
+			/**
+			 * Register menu in WordPress
+			 */
+			add_action(
+				'after_setup_theme',
+				function() use ( $menu ) {
+					register_nav_menu( $menu::LOCATION, $menu->label() );
+				}
+			);
 		}
 	}
 

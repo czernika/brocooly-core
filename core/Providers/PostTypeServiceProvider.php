@@ -38,6 +38,13 @@ class PostTypeServiceProvider extends AbstractService
 	 */
 	private array $protectedTaxonomies = [ 'category', 'post_tag' ];
 
+	/**
+	 * This lines cause issue with dynamic DI Container
+	 *
+	 * FIXME
+	 *
+	 * @return void
+	 */
 	public function register() {
 		foreach ( config( 'app.post_types', [] ) as $postTypeClass ) {
 			$postType = $this->app->get( $postTypeClass );
@@ -66,23 +73,21 @@ class PostTypeServiceProvider extends AbstractService
 	private function registerPostTypes() {
 		$postTypes = config( 'app.post_types', [] );
 
-		if ( ! empty( $postTypes ) ) {
-			foreach ( $postTypes as $postTypeClass ) {
-				$cpt = $this->app->get( $postTypeClass );
+		foreach ( $postTypes as $postTypeClass ) {
+			$cpt = $this->app->get( $postTypeClass );
 
-				$this->callMetaFields( $cpt, 'fields' );
-				$this->callMetaFields( $cpt, 'thumbnail' ); // thumbnail trait.
+			$this->callMetaFields( $cpt, 'fields' );
+			$this->callMetaFields( $cpt, 'thumbnail' ); // thumbnail trait.
 
-				if ( in_array( $cpt->getName(), $this->protectedPostTypes, true ) || $cpt->doNotRegister ) {
-					continue;
-				}
-
-				$this->checkPostType( $cpt, $postTypeClass );
-
-				add_action( 'init', function() use ( $cpt ) {
-					register_extended_post_type( $cpt->getName(), $cpt->getOptions(), [ 'slug' => $cpt->webUrl ] );
-				} );
+			if ( in_array( $cpt->getName(), $this->protectedPostTypes, true ) || $cpt->doNotRegister ) {
+				continue;
 			}
+
+			$this->checkPostType( $cpt, $postTypeClass );
+
+			add_action( 'init', function() use ( $cpt ) {
+				register_extended_post_type( $cpt->getName(), $cpt->getOptions(), [ 'slug' => $cpt->webUrl ] );
+			} );
 		}
 	}
 
@@ -113,22 +118,20 @@ class PostTypeServiceProvider extends AbstractService
 	private function registerTaxonomies() {
 		$taxonomies = config( 'app.taxonomies' );
 
-		if ( ! empty( $taxonomies ) ) {
-			foreach ( $taxonomies as $taxonomyClass ) {
-				$tax = $this->app->get( $taxonomyClass );
+		foreach ( $taxonomies as $taxonomyClass ) {
+			$tax = $this->app->get( $taxonomyClass );
 
-				$this->callMetaFields( $tax, 'fields' );
+			$this->callMetaFields( $tax, 'fields' );
 
-				if ( in_array( $tax->getName(), $this->protectedTaxonomies, true ) || $tax->doNotRegister ) {
-					continue;
-				}
-
-				$this->checkTax( $tax, $taxonomyClass );
-
-				add_action( 'init', function() use ( $tax ) {
-					register_extended_taxonomy( $tax->getName(), $tax->getPostTypes(), $tax->getOptions(), [ 'slug' => $tax->webUrl ] );
-				} );
+			if ( in_array( $tax->getName(), $this->protectedTaxonomies, true ) || $tax->doNotRegister ) {
+				continue;
 			}
+
+			$this->checkTax( $tax, $taxonomyClass );
+
+			add_action( 'init', function() use ( $tax ) {
+				register_extended_taxonomy( $tax->getName(), $tax->getPostTypes(), $tax->getOptions(), [ 'slug' => $tax->webUrl ] );
+			} );
 		}
 	}
 

@@ -4,39 +4,58 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class MailServiceProvider extends AbstractService
 {
 
+	private array $mailFrom;
+
+	private string $mailFromName;
+
+	private string $mailFromAddress;
+
+	private $mailer;
+
+	private string $defaultMailer;
+
+	private string $transport;
+
+	private string $mailType;
+
+	public function __construct( App $app ) {
+		$this->mailFrom        = config( 'mail.from', [] );
+		$this->mailFromName    = $this->mailFrom['name'];
+		$this->mailFromAddress = $this->mailFrom['address'];
+
+		$this->defaultMailer = config( 'mail.default' );
+		$this->mailer        = config( 'mail.mailers' )[ $this->defaultMailer ];
+		$this->transport     = $this->mailer['transport'];
+
+		$this->mailType = config( 'mail.type' );
+
+		parent::__construct( $app );
+	}
+
 	public function register() {
 
-		$mailFrom = config( 'mail.from' );
-
-		$this->app->set( 'mail.from_name', $mailFrom['name'] );
-		$this->app->set( 'mail.from_address', $mailFrom['address'] );
-
-		$mailer    = config( 'mail.default' );
-		$mail      = config( 'mail.mailers' )[ $mailer ];
-		$transport = $mail['transport'];
-
-		$this->app->set( 'mail.transport', $transport );
-
-		if ( 'smtp' === $transport ) {
-			$this->setSMTP( $mail );
+		if ( 'smtp' === $this->transport ) {
+			$this->setSMTP( $this->mailer );
 		}
 
-		if ( 'mailhog' === $transport ) {
-			$this->setMailHog( $mail );
+		if ( 'mailhog' === $this->transport ) {
+			$this->setMailHog( $this->mailer );
 		}
 	}
 
 	public function boot() {
-		if ( 'smtp' === $this->app->get( 'mail.transport' ) ) {
+
+		if ( 'smtp' === $this->transport ) {
 			add_action( 'phpmailer_init', [ $this, 'setSMTPCredentials' ] );
 		}
 
-		if ( 'mailhog' === $this->app->get( 'mail.transport' ) ) {
+		if ( 'mailhog' === $this->transport ) {
 			add_action( 'phpmailer_init', [ $this, 'setMailHogCredentials' ] );
 		}
 
@@ -45,30 +64,17 @@ class MailServiceProvider extends AbstractService
 		add_filter( 'wp_mail_from_name', [ $this, 'setMailFromName' ] );
 	}
 
-	private function setSMTP( array $mail ) {
-		$this->app->set( 'mail.encryption', $mail['encryption'] );
-		$this->app->set( 'mail.host', $mail['host'] );
-		$this->app->set( 'mail.port', $mail['port'] );
-		$this->app->set( 'mail.username', $mail['username'] );
-		$this->app->set( 'mail.password', $mail['password'] );
-	}
-
-	private function setMailHog( array $mail ) {
-		$this->app->set( 'mail.host', $mail['host'] );
-		$this->app->set( 'mail.port', $mail['port'] );
-	}
-
 	public function setSMTPCredentials( PHPMailer $mailer ) {
 		$mailer->IsSMTP();
 		$mailer->SMTPAutoTLS = false;
 
 		$mailer->SMTPAuth   = true;
-		$mailer->SMTPSecure = $this->app->get( 'mail.encryption' );
+		$mailer->SMTPSecure = $this->mailer['encryption'];
 
-		$mailer->Host     = $this->app->get( 'mail.host' );
-		$mailer->Port     = $this->app->get( 'mail.port' );
-		$mailer->Username = $this->app->get( 'mail.username' );
-		$mailer->Password = $this->app->get( 'mail.password' );
+		$mailer->Host     = $this->mailer['host'];
+		$mailer->Port     = $this->mailer['port'];
+		$mailer->Username = $this->mailer['username'];
+		$mailer->Password = $this->mailer['password'];
 
 		return $mailer;
 	}
@@ -77,18 +83,18 @@ class MailServiceProvider extends AbstractService
 		$mailer->IsSMTP();
 		$mailer->SMTPAuth = false;
 
-		$mailer->Host     = $this->app->get( 'mail.host' );
-		$mailer->Port     = $this->app->get( 'mail.port' );
+		$mailer->Host = $this->mailer['host'];
+		$mailer->Port = $this->mailer['port'];
 
 		return $mailer;
 	}
 
 	public function setContentType( string $contentType ) {
-		return config( 'mail.type' ) ?? "text/html";
+		return $this->mailType ?? 'text/html';
 	}
 
 	public function setMailFromAddress( string $from ) {
-		$appFrom = $this->app->get( 'mail.from_address' );
+		$appFrom = $this->mailFromAddress;
 		if ( $appFrom ) {
 			return $appFrom;
 		}
@@ -97,7 +103,7 @@ class MailServiceProvider extends AbstractService
 	}
 
 	public function setMailFromName( string $from ) {
-		$appFrom = $this->app->get( 'mail.from_name' );
+		$appFrom = $this->mailFromName;
 		if ( $appFrom ) {
 			return $appFrom;
 		}

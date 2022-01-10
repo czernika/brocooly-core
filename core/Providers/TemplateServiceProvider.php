@@ -10,17 +10,21 @@ declare(strict_types=1);
 
 namespace Brocooly\Providers;
 
+use Brocooly\App;
+
 class TemplateServiceProvider extends AbstractService
 {
 
-	public function register() {
-		$this->app->set( 'templates', config( 'views.templates', [] ) );
+	private array $templates;
+
+	public function __construct( App $app ) {
+		$this->templates = config( 'views.templates', [] );
+
+		parent::__construct( $app );
 	}
 
 	public function boot() {
-		$templates = $this->app->get( 'templates' );
-
-		foreach ( $templates as $template ) {
+		foreach ( $this->templates as $template ) {
 			$tpl = $this->app->make( $template );
 
 			foreach ( $tpl->postTypes as $postType ) {
