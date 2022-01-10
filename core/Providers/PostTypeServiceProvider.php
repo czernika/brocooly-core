@@ -46,6 +46,7 @@ class PostTypeServiceProvider extends AbstractService
 	 * @return void
 	 */
 	public function register() {
+	    if ( config( 'app.autowire_post_types', true ) ) {
 		foreach ( config( 'app.post_types', [] ) as $postTypeClass ) {
 			$postType = $this->app->get( $postTypeClass );
 			if ( ! $this->app->has( $postType->getName() ) ) {
@@ -59,6 +60,7 @@ class PostTypeServiceProvider extends AbstractService
 				$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
 			}
 		}
+	    }
 	}
 
 	public function boot() {
