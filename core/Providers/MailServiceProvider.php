@@ -38,17 +38,6 @@ class MailServiceProvider extends AbstractService
 		parent::__construct( $app );
 	}
 
-	public function register() {
-
-		if ( 'smtp' === $this->transport ) {
-			$this->setSMTP( $this->mailer );
-		}
-
-		if ( 'mailhog' === $this->transport ) {
-			$this->setMailHog( $this->mailer );
-		}
-	}
-
 	public function boot() {
 
 		if ( 'smtp' === $this->transport ) {

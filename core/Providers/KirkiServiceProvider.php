@@ -36,7 +36,7 @@ class KirkiServiceProvider extends AbstractService
 
 	private array $panels;
 
-	private array $options;
+	private array $sections;
 
 	private array $options;
 
