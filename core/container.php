@@ -45,6 +45,12 @@ Assert::classExists(
 
 $brocooly         = new Brocooly();
 $themeDefinitions = method_exists( Brocooly::class, 'definitions' ) ? $brocooly->definitions() : [];
+
+/**
+ * Rewrite default container configuration
+ */
+$containerBuilder = apply_filters( 'brocooly_container_builder', $containerBuilder );
+
 $containerBuilder->addDefinitions( $appDefinitions, $themeDefinitions );
 
 /**
