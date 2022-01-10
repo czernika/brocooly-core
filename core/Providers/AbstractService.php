@@ -17,7 +17,7 @@ abstract class AbstractService
 	/**
 	 * Application instance
 	 *
-	 * @var instanceof Brocooly\App
+	 * @var object
 	 */
 	protected App $app;
 

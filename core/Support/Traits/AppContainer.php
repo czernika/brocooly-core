@@ -89,16 +89,16 @@ trait AppContainer
 	 * @param array  $parameters | additional data to pass.
 	 * @return object
 	 */
-	public function make($name, $parameters = [])
+	public function make( $name, $parameters = [] )
 	{
-		return $this->container->make($name, $parameters);
+		return $this->container->make( $name, $parameters );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function call($callable, $parameters = [])
+	public function call( $callable, $parameters = [] )
 	{
-		return $this->container->call($callable, $parameters);
+		return $this->container->call( $callable, $parameters );
 	}
 }

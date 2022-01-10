@@ -16,7 +16,7 @@ class RegisterProvider extends ProviderLoader
 	/**
 	 * Call register method
 	 */
-    public function call() {
+	public function call() {
 		$this->run( 'register' );
 	}
 }

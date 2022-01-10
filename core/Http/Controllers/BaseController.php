@@ -24,8 +24,26 @@ abstract class BaseController
 
 	private $middleware;
 
+	/**
+	 * Templates
+	 *
+	 * @var array
+	 */
+	protected array $templates = [];
+
 	public function __construct( App $app ) {
 		$this->app = $app;
+	}
+
+	/**
+	 * Render appropriate template
+	 *
+	 * @param string $template | template path.
+	 * @return string|array
+	 */
+	protected function render( string $template ) : string|array
+	{
+		return data_get( $this->templates, $template );
 	}
 
 	protected function only( $methods ) {

@@ -39,8 +39,8 @@ $containerBuilder = new ContainerBuilder();
 $appDefinitions = require_once BROCOOLY_CORE_PATH . '/config.php';
 
 Assert::classExists(
-    Brocooly::class,
-    'Brocooly Framework require to have Brocooly class inside `Theme\\Http` directory',
+	Brocooly::class,
+	'Brocooly Framework require to have Brocooly class inside `Theme\\Http` directory',
 );
 
 $brocooly         = new Brocooly();

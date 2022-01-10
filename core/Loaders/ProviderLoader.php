@@ -72,12 +72,9 @@ class ProviderLoader
 	 * @param string $method | method to run.
 	 */
 	public function run( string $method ) {
-		if ( ! empty( $this->providers ) ) {
-			foreach ( $this->providers as $provider ) {
-				if ( method_exists( $provider, $method ) ) {
-					$provider = $this->app->make( $provider );
-					$provider->$method();
-				}
+		foreach ( $this->providers as $provider ) {
+			if ( method_exists( $provider, $method ) ) {
+				$provider = $this->app->call( [ $provider, $method ] );
 			}
 		}
 	}

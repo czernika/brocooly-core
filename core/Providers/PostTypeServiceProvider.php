@@ -38,29 +38,22 @@ class PostTypeServiceProvider extends AbstractService
 	 */
 	private array $protectedTaxonomies = [ 'category', 'post_tag' ];
 
-	/**
-	 * This lines cause issue with dynamic DI Container
-	 *
-	 * FIXME
-	 *
-	 * @return void
-	 */
 	public function register() {
-	    if ( config( 'app.autowire_post_types', true ) ) {
-		foreach ( config( 'app.post_types', [] ) as $postTypeClass ) {
-			$postType = $this->app->get( $postTypeClass );
-			if ( ! $this->app->has( $postType->getName() ) ) {
-				$this->app->set( $postType->getName(), create( $postTypeClass ) );
+		if ( config( 'app.autowire_post_types', true ) ) {
+			foreach ( config( 'app.post_types', [] ) as $postTypeClass ) {
+				$postType = $this->app->get( $postTypeClass );
+				if ( ! $this->app->has( $postType->getName() ) ) {
+					$this->app->set( $postType->getName(), create( $postTypeClass ) );
+				}
 			}
-		}
 
-		foreach ( config( 'app.taxonomies', [] ) as $taxonomyClass ) {
-			$taxonomy = $this->app->get( $taxonomyClass );
-			if ( ! $this->app->has( $taxonomy->getName() ) ) {
-				$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
+			foreach ( config( 'app.taxonomies', [] ) as $taxonomyClass ) {
+				$taxonomy = $this->app->get( $taxonomyClass );
+				if ( ! $this->app->has( $taxonomy->getName() ) ) {
+					$this->app->set( $taxonomy->getName(), create( $taxonomyClass ) );
+				}
 			}
 		}
-	    }
 	}
 
 	public function boot() {
@@ -118,7 +111,7 @@ class PostTypeServiceProvider extends AbstractService
 	 * Register taxonomies
 	 */
 	private function registerTaxonomies() {
-		$taxonomies = config( 'app.taxonomies' );
+		$taxonomies = config( 'app.taxonomies', [] );
 
 		foreach ( $taxonomies as $taxonomyClass ) {
 			$tax = $this->app->get( $taxonomyClass );

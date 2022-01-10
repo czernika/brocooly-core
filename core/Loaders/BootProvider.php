@@ -16,7 +16,7 @@ class BootProvider extends ProviderLoader
 	/**
 	 * Call boot method
 	 */
-    public function call() {
+	public function call() {
 		$this->run( 'boot' );
 	}
 }

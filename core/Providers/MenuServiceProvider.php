@@ -13,10 +13,7 @@ declare(strict_types=1);
 namespace Brocooly\Providers;
 
 use Brocooly\App;
-use Timber\Menu;
-use Timber\Timber;
 use Webmozart\Assert\Assert;
-use Brocooly\Support\Facades\Ctx;
 
 class MenuServiceProvider extends AbstractService
 {
