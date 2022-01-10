@@ -18,6 +18,7 @@ use Brocooly\Loaders\AssetsLoader;
 use Brocooly\Support\Facades\File;
 use Brocooly\Loaders\BootProvider;
 use Brocooly\Loaders\ConfigLoader;
+use Brocooly\Router\RequestHandler;
 use Brocooly\Loaders\DebuggerLoader;
 use Psr\Container\ContainerInterface;
 use Brocooly\Loaders\DefinitionLoader;
@@ -130,6 +131,21 @@ class App implements AppContainerInterface
 			 */
 			$this->router->resolve();
 		}
+	}
+
+	/**
+	 * Handle AJAX and POST requests
+	 *
+	 * @return void
+	 */
+	public function ajax() {
+		File::requireOnce( BROCOOLY_THEME_PATH . 'routes/ajax.php' );
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			RequestHandler::handleAjaxRequest();
+		}
+
+		RequestHandler::handlePostRequest();
 	}
 
 	/**

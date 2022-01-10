@@ -17,5 +17,7 @@ interface AppContainerInterface extends ContainerInterface
 {
 	public function web();
 
+	public function ajax();
+
 	public function run();
 }
