@@ -55,16 +55,30 @@ class RequestHandler
 				[ $action, $callable, $params ] = self::dispatchCallback( $route );
 
 				add_action( "${actionName}_${action}", function() use ( $callable, $params ) {
+					if ( ! $params || empty( $params ) ) {
+						$params = static::getReflectedParams( $callable );
+					}
 					return call_user_func_array( $callable, $params );
 				} );
 
 				if ( $route['nopriv'] ) {
 					add_action( "${actionName}_nopriv_${action}", function() use ( $callable, $params ) {
+						if ( ! $params || empty( $params ) ) {
+							$params = static::getReflectedParams( $callable );
+						}
 						return call_user_func_array( $callable, $params );
 					} );
 				}
 			}
 		}
+	}
+
+	private static function getReflectedParams( $callable ) {
+		[ $object, $method ] = $callable;
+		$reflectedCallback   = new \ReflectionMethod( $object, $method );
+		$params              = DispatchCallable::getReflectedArgs( $reflectedCallback, $callable );
+
+		return $params;
 	}
 
 	private static function dispatchCallback( $route ) {
@@ -90,3 +104,4 @@ class RequestHandler
 		return [ $action, $callable, $params ];
 	}
 }
+

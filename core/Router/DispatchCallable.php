@@ -63,7 +63,7 @@ class DispatchCallable
 		return $args;
 	}
 
-	private static function getReflectedArgs( $reflectedCallback, $callable ) {
+	public static function getReflectedArgs( $reflectedCallback, $callable ) {
 		$args = [];
 		if ( $reflectedCallback->getNumberOfParameters() ) {
 			$param = new \ReflectionParameter( $callable, 0 );
