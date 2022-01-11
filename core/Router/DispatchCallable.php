@@ -40,7 +40,38 @@ class DispatchCallable
 			return static::dispatchControllerMethod( $callable );
 		}
 
-		return call_user_func_array( $callable, func_get_args() );
+		$funcArgs = static::getReflectedParams( $callable );
+		return call_user_func_array( $callable, $funcArgs );
+	}
+
+	/**
+	 * Bind objects directly into callbacks
+	 *
+	 * @param $callable
+	 * @return array
+	 */
+	private static function getReflectedParams( $callable ) {
+		if ( is_callable( $callable ) && ! is_array( $callable ) ) {
+			$reflectedCallback = new \ReflectionFunction( $callable );
+
+		} elseif ( is_array( $callable ) ) {
+			[ $object, $method ] = $callable;
+			$reflectedCallback = new \ReflectionMethod( $object, $method );
+		}
+
+		$args = static::getReflectedArgs( $reflectedCallback, $callable );
+		return $args;
+	}
+
+	private static function getReflectedArgs( $reflectedCallback, $callable ) {
+		$args = [];
+		if ( $reflectedCallback->getNumberOfParameters() ) {
+			$param = new \ReflectionParameter( $callable, 0 );
+			$reflectedParamObject = $param->getType()->getName();
+			$args = [ new $reflectedParamObject() ];
+		}
+
+		return $args;
 	}
 
 	/**
@@ -82,6 +113,7 @@ class DispatchCallable
 			}
 		}
 
+		$params = static::getReflectedParams( [ $class, $method ] );
 		return call_user_func_array( [ $class, $method ], $params );
 	}
 
@@ -100,3 +132,4 @@ class DispatchCallable
 		return $class;
 	}
 }
+
