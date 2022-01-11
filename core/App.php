@@ -75,8 +75,8 @@ class App implements AppContainerInterface
 	 */
 	private array $loaders = [
 		DefinitionLoader::class,
-		DebuggerLoader::class,
 		ConfigLoader::class,
+		DebuggerLoader::class,
 		RegisterProvider::class,
 		HookLoader::class,
 		AssetsLoader::class,
